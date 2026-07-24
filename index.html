@@ -103,6 +103,7 @@
 <header>
   <h1>Dashboard de Manutenção — PCM</h1>
   <p>Fábrica Produtos Viçosa</p>
+  <p style="margin-top:8px;"><a href="mtbf.html" style="color:#fff;font-size:13px;">→ Indicadores de MTBF por Setor</a></p>
 </header>
 
 <div class="filtros">
@@ -133,43 +134,6 @@
 </div>
 
 <div id="vazio">Nenhum registro encontrado para os filtros selecionados.</div>
-
-<div class="card" style="margin:0 32px 20px;">
-  <h3>Indicadores por Setor — MTBF</h3>
-  <p style="font-size:12px;color:var(--cinza);margin-top:-6px;">
-    Informe as horas trabalhadas (H.T) de cada setor no período filtrado. O MTBF é calculado como H.T ÷ Nº de OS do setor.
-    Os valores ficam salvos neste navegador.
-  </p>
-  <table id="tabelaMTBF" style="width:100%;border-collapse:collapse;font-size:14px;">
-    <thead>
-      <tr style="text-align:left;border-bottom:2px solid #E2E6EA;">
-        <th style="padding:8px 6px;">Setor</th>
-        <th style="padding:8px 6px;">O.S</th>
-        <th style="padding:8px 6px;">H.T (horas) — informe aqui</th>
-        <th style="padding:8px 6px;">MTBF (h)</th>
-      </tr>
-    </thead>
-    <tbody id="corpoTabelaMTBF"></tbody>
-  </table>
-</div>
-
-<div class="card" style="margin:0 32px 20px;">
-  <h3>MTTR por Colaborador</h3>
-  <p style="font-size:12px;color:var(--cinza);margin-top:-6px;">
-    MTTR = Soma das horas de manutenção ÷ Nº de OS realizadas pelo colaborador, no período filtrado.
-  </p>
-  <table style="width:100%;border-collapse:collapse;font-size:14px;">
-    <thead>
-      <tr style="text-align:left;border-bottom:2px solid #E2E6EA;">
-        <th style="padding:8px 6px;">Colaborador</th>
-        <th style="padding:8px 6px;">O.S</th>
-        <th style="padding:8px 6px;">Horas totais</th>
-        <th style="padding:8px 6px;">MTTR (h)</th>
-      </tr>
-    </thead>
-    <tbody id="corpoTabelaMTTR"></tbody>
-  </table>
-</div>
 
 <div class="grid" id="areaGraficos">
   <div class="card"><h3>OS por Setor</h3><canvas id="chartSetor"></canvas></div>
@@ -239,8 +203,6 @@ function aplicarFiltros() {
 
   atualizarKPIs(dados);
   atualizarGraficos(dados);
-  atualizarTabelaMTBF(dados);
-  atualizarTabelaMTTR(dados);
 }
 
 function atualizarKPIs(dados) {
@@ -276,84 +238,9 @@ function semanaISO(dataStr) {
   return `${d.getFullYear()}-S${String(semana).padStart(2, "0")}`;
 }
 
+
+
 function destruir(id) { if (charts[id]) charts[id].destroy(); }
-
-// ---------- MTBF por setor (com H.T informado manualmente) ----------
-function carregarHT() {
-  try { return JSON.parse(localStorage.getItem("ht_por_setor") || "{}"); }
-  catch (e) { return {}; }
-}
-function salvarHT(mapa) {
-  localStorage.setItem("ht_por_setor", JSON.stringify(mapa));
-}
-
-function atualizarTabelaMTBF(dados) {
-  const contagem = contarPor(dados, "setor");
-  const setoresOrdenados = Object.entries(contagem).sort((a, b) => b[1] - a[1]);
-  const htSalvo = carregarHT();
-
-  const corpo = document.getElementById("corpoTabelaMTBF");
-  corpo.innerHTML = "";
-
-  setoresOrdenados.forEach(([setor, qtdOS]) => {
-    const htAtual = htSalvo[setor] ?? "";
-    const mtbf = (htAtual !== "" && qtdOS > 0) ? (parseFloat(htAtual) / qtdOS).toFixed(1) : "—";
-
-    const tr = document.createElement("tr");
-    tr.style.borderBottom = "1px solid #EEF1F4";
-    tr.innerHTML = `
-      <td style="padding:7px 6px;">${setor}</td>
-      <td style="padding:7px 6px;">${qtdOS}</td>
-      <td style="padding:7px 6px;">
-        <input type="number" min="0" step="0.5" value="${htAtual}"
-          data-setor="${setor}" class="input-ht"
-          style="width:110px;padding:5px 8px;border:1px solid #D3D9DF;border-radius:5px;">
-      </td>
-      <td style="padding:7px 6px;font-weight:600;color:var(--azul);" class="mtbf-valor" data-setor="${setor}">${mtbf}</td>
-    `;
-    corpo.appendChild(tr);
-  });
-
-  document.querySelectorAll(".input-ht").forEach(input => {
-    input.addEventListener("input", (e) => {
-      const setor = e.target.dataset.setor;
-      const valor = e.target.value;
-      const mapa = carregarHT();
-      mapa[setor] = valor;
-      salvarHT(mapa);
-
-      const qtd = contagem[setor];
-      const mtbf = (valor !== "" && qtd > 0) ? (parseFloat(valor) / qtd).toFixed(1) : "—";
-      document.querySelector(`.mtbf-valor[data-setor="${CSS.escape(setor)}"]`).textContent = mtbf;
-    });
-  });
-}
-
-// ---------- MTTR por colaborador ----------
-function atualizarTabelaMTTR(dados) {
-  const osPorResp = contarPor(dados, "responsavel");
-  const horasPorResp = {};
-  dados.forEach(d => horasPorResp[d.responsavel] = (horasPorResp[d.responsavel] || 0) + d.horas);
-
-  const corpo = document.getElementById("corpoTabelaMTTR");
-  corpo.innerHTML = "";
-
-  Object.keys(osPorResp).sort((a, b) => osPorResp[b] - osPorResp[a]).forEach(resp => {
-    const qtd = osPorResp[resp];
-    const horas = horasPorResp[resp] || 0;
-    const mttr = qtd > 0 ? (horas / qtd).toFixed(1) : "—";
-
-    const tr = document.createElement("tr");
-    tr.style.borderBottom = "1px solid #EEF1F4";
-    tr.innerHTML = `
-      <td style="padding:7px 6px;">${resp}</td>
-      <td style="padding:7px 6px;">${qtd}</td>
-      <td style="padding:7px 6px;">${horas.toFixed(1)}h</td>
-      <td style="padding:7px 6px;font-weight:600;color:var(--azul);">${mttr}h</td>
-    `;
-    corpo.appendChild(tr);
-  });
-}
 
 function atualizarGraficos(dados) {
   // OS por setor
