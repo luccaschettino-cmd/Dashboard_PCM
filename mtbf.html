@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTBF por Setor — PCM</title>
+<style>
+  :root{
+    --azul: #2C5F8A;
+    --cinza: #6E7B8B;
+    --fundo: #F4F6F8;
+    --card: #FFFFFF;
+    --texto: #1F2A37;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--fundo); color: var(--texto); }
+  header { background: var(--azul); color: #fff; padding: 20px 32px; }
+  header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+  header a { color: #fff; font-size: 13px; }
+
+  .container { padding: 28px 32px; max-width: 900px; }
+  .card { background: var(--card); border-radius: 10px; padding: 22px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .card p.desc { font-size: 13px; color: var(--cinza); margin-top: -4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+  th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #E2E6EA; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--cinza); }
+  td { padding: 10px 8px; border-bottom: 1px solid #EEF1F4; }
+  input[type=number] {
+    width: 120px; padding: 7px 10px; border: 1px solid #D3D9DF; border-radius: 6px; font-size: 14px;
+  }
+  .mtbf-valor { font-weight: 700; color: var(--azul); font-size: 15px; }
+  .aviso { font-size: 12px; color: var(--cinza); margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MTBF por Setor</h1>
+  <p><a href="index.html">← Voltar ao Dashboard</a></p>
+</header>
+
+<div class="container">
+  <div class="card">
+    <p class="desc">
+      Informe as horas trabalhadas (H.T) de cada setor. O MTBF é calculado automaticamente como
+      H.T ÷ Nº de OS (falhas) registradas naquele setor. Os valores digitados ficam salvos neste navegador.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>O.S (falhas)</th>
+          <th>H.T (horas)</th>
+          <th>MTBF (h)</th>
+        </tr>
+      </thead>
+      <tbody id="corpoTabela"></tbody>
+    </table>
+    <p class="aviso" id="avisoCarregamento"></p>
+  </div>
+</div>
+
+<script>
+// Setores fixos exibidos na página, e o nome correspondente na base de dados (data.json)
+const SETORES = [
+  { rotulo: "QUEIJO",                             chave: "Queijo" },
+  { rotulo: "MANTEIGA/REQUEIJÃO",                 chave: "Manteiga e requeijão" },
+  { rotulo: "CÂMARAS FRIAS - SALGA / SECAGEM",    chave: "Camara fria" },
+  { rotulo: "FABRICAÇÃO DE IOGURTE",              chave: "Iogurte" },
+  { rotulo: "FABRICAÇÃO DE DOCE",                 chave: "Doce" },
+  { rotulo: "LEITE PASTEURIZADO",                 chave: "Pasteurização" },
+  { rotulo: "EMBALAGEM DE REFRIGERADOS",          chave: "Refrigerados" },
+];
+
+function carregarHT() {
+  try { return JSON.parse(localStorage.getItem("mtbf_ht_setor") || "{}"); }
+  catch (e) { return {}; }
+}
+function salvarHT(mapa) {
+  localStorage.setItem("mtbf_ht_setor", JSON.stringify(mapa));
+}
+
+function contarOSPorSetor(dados) {
+  const contagem = {};
+  dados.forEach(d => contagem[d.setor] = (contagem[d.setor] || 0) + 1);
+  return contagem;
+}
+
+function montarTabela(contagemOS) {
+  const htSalvo = carregarHT();
+  const corpo = document.getElementById("corpoTabela");
+  corpo.innerHTML = "";
+
+  SETORES.forEach(({ rotulo, chave }) => {
+    const qtdOS = contagemOS[chave] || 0;
+    const htAtual = htSalvo[chave] ?? "";
+    const mtbf = (htAtual !== "" && qtdOS > 0) ? (parseFloat(htAtual) / qtdOS).toFixed(1) : "—";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${rotulo}</td>
+      <td>${qtdOS}</td>
+      <td><input type="number" min="0" step="0.5" value="${htAtual}" data-chave="${chave}" class="input-ht"></td>
+      <td class="mtbf-valor" data-chave="${chave}">${mtbf}</td>
+    `;
+    corpo.appendChild(tr);
+  });
+
+  document.querySelectorAll(".input-ht").forEach(input => {
+    input.addEventListener("input", (e) => {
+      const chave = e.target.dataset.chave;
+      const valor = e.target.value;
+      const mapa = carregarHT();
+      mapa[chave] = valor;
+      salvarHT(mapa);
+
+      const qtd = contagemOS[chave] || 0;
+      const mtbf = (valor !== "" && qtd > 0) ? (parseFloat(valor) / qtd).toFixed(1) : "—";
+      document.querySelector(`.mtbf-valor[data-chave="${CSS.escape(chave)}"]`).textContent = mtbf;
+    });
+  });
+}
+
+fetch("data.json")
+  .then(r => r.json())
+  .then(dados => {
+    const contagemOS = contarOSPorSetor(dados);
+    montarTabela(contagemOS);
+  })
+  .catch(err => {
+    document.getElementById("avisoCarregamento").textContent =
+      "Não foi possível carregar data.json — verifique se ele está na mesma pasta desta página.";
+    montarTabela({});
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
