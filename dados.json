@@ -1,78 +1,78 @@
 {
-  "_gerado_em": "2026-07-25T09:42:41",
+  "_gerado_em": "2026-07-25T09:47:41",
   "_fonte": "PCM_OS_Intranet.xlsx",
   "intranet": {
     "resumo_mensal": [
       {
         "mes_num": 1,
         "mes": "Janeiro",
-        "abertas": 87,
+        "abertas": 77,
         "conc30": 60,
         "nconc30": 17,
         "tempo_medio": 7.13,
-        "indicador": 68.97,
-        "urgente": 48,
-        "alta": 23,
-        "normal": 16
+        "indicador": 77.92,
+        "urgente": 43,
+        "alta": 19,
+        "normal": 15
       },
       {
         "mes_num": 2,
         "mes": "Fevereiro",
-        "abertas": 87,
+        "abertas": 82,
         "conc30": 53,
         "nconc30": 29,
         "tempo_medio": 14.6,
-        "indicador": 60.92,
-        "urgente": 47,
-        "alta": 31,
+        "indicador": 64.63,
+        "urgente": 44,
+        "alta": 29,
         "normal": 9
       },
       {
         "mes_num": 3,
         "mes": "Março",
-        "abertas": 49,
+        "abertas": 48,
         "conc30": 43,
         "nconc30": 5,
         "tempo_medio": 11.28,
-        "indicador": 87.76,
+        "indicador": 89.58,
         "urgente": 29,
-        "alta": 15,
+        "alta": 14,
         "normal": 5
       },
       {
         "mes_num": 4,
         "mes": "Abril",
-        "abertas": 103,
+        "abertas": 97,
         "conc30": 91,
         "nconc30": 6,
         "tempo_medio": 7.85,
-        "indicador": 88.35,
-        "urgente": 45,
-        "alta": 53,
-        "normal": 5
+        "indicador": 93.81,
+        "urgente": 43,
+        "alta": 50,
+        "normal": 4
       },
       {
         "mes_num": 5,
         "mes": "Maio",
-        "abertas": 145,
+        "abertas": 139,
         "conc30": 133,
         "nconc30": 6,
         "tempo_medio": 2.84,
-        "indicador": 91.72,
-        "urgente": 59,
-        "alta": 60,
-        "normal": 26
+        "indicador": 95.68,
+        "urgente": 58,
+        "alta": 56,
+        "normal": 25
       },
       {
         "mes_num": 6,
         "mes": "Junho",
-        "abertas": 151,
+        "abertas": 148,
         "conc30": 148,
         "nconc30": 0,
         "tempo_medio": 3.39,
-        "indicador": 98.01,
-        "urgente": 74,
-        "alta": 62,
+        "indicador": 100.0,
+        "urgente": 73,
+        "alta": 60,
         "normal": 15
       },
       {
@@ -89,14 +89,14 @@
       }
     ],
     "totais": {
-      "abertas": 748,
+      "abertas": 717,
       "conc30": 653,
       "nconc30": 64,
       "tempo_medio": 5.52,
-      "indicador": 87.3,
-      "urgente": 374,
-      "alta": 285,
-      "normal": 89
+      "indicador": 91.07,
+      "urgente": 362,
+      "alta": 269,
+      "normal": 86
     },
     "os_ultimos_15d": 76,
     "meta_indicador": 90
