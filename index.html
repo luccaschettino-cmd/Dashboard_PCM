@@ -143,7 +143,8 @@ main{flex:1;padding:var(--sp-6) var(--sp-8);max-width:1120px;width:100%;}
   font-size:var(--fs-md);color:var(--text-secondary);
   display:flex;align-items:center;gap:var(--sp-2);
 }
-.filtro-bar input[type=date]{
+.filtro-bar input[type=date],
+  .filtro-bar select{
   height:34px;border-radius:var(--radius-sm);border:1px solid var(--border);
   background:var(--surface);color:var(--text-primary);
   font-size:var(--fs-md);padding:0 var(--sp-2);font-family:inherit;
@@ -724,10 +725,40 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <p data-periodo>Período: 10/07/2026 a 25/07/2026</p>
       </header>
 
-      <form class="filtro-bar" data-filtro="intranet" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-10" required></label>
+      <form class="filtro-bar" id="filtro-intranet">
+        <label>De
+          <select name="mes-de" id="intranet-mes-de">
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7" selected>Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </label>
         <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
+        <label>Até
+          <select name="mes-ate" id="intranet-mes-ate">
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7" selected>Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </label>
         <button class="btn" type="submit">Aplicar</button>
         <p class="filtro-erro" role="alert" data-erro></p>
       </form>
@@ -1516,11 +1547,95 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const tb = document.getElementById('tb-intranet');
       if (tb) { tb.textContent = ''; }
 
+      salvarDadosCompletos();
       console.log('✅ Dados reais carregados:', new Date(json._gerado_em).toLocaleString('pt-BR'));
     } catch (e) {
       console.warn('⚠️ Usando dados de exemplo. Erro ao carregar JSON:', e.message);
     }
   }
+
+  // ---- OS Intranet — filtro de mês ----
+  let INTRANET_FULL = null;
+  const MESES_NOME_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                            'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  function salvarDadosCompletos() {
+    INTRANET_FULL = {
+      meses_full:     [...DATA.intranet.meses],
+      meses_num:      DATA.intranet.meses.map(m => {
+                        const i = MESES_NOME_FULL.findIndex(n => n.startsWith(m));
+                        return i >= 0 ? i + 1 : 0;
+                      }),
+      abertas_full:   [...DATA.intranet.abertas],
+      conc30_full:    [...DATA.intranet.conc30],
+      nconc30_full:   [...DATA.intranet.nconc30],
+      tempo_full:     [...DATA.intranet.tempo],
+      indicador_full: [...DATA.intranet.indicador],
+    };
+  }
+
+  function filtrarIntranet(mesDeNum, mesAteNum) {
+    if (!INTRANET_FULL) salvarDadosCompletos();
+    const src = INTRANET_FULL;
+
+    const indices = src.meses_num.reduce((acc, n, i) => {
+      if (n >= mesDeNum && n <= mesAteNum) acc.push(i);
+      return acc;
+    }, []);
+
+    if (!indices.length) { alert('Nenhum dado para o período selecionado.'); return; }
+
+    DATA.intranet.meses     = indices.map(i => src.meses_full[i]);
+    DATA.intranet.abertas   = indices.map(i => src.abertas_full[i]);
+    DATA.intranet.conc30    = indices.map(i => src.conc30_full[i]);
+    DATA.intranet.nconc30   = indices.map(i => src.nconc30_full[i]);
+    DATA.intranet.tempo     = indices.map(i => src.tempo_full[i]);
+    DATA.intranet.indicador = indices.map(i => src.indicador_full[i]);
+
+    const totAb   = DATA.intranet.abertas.reduce((a, b) => a + b, 0);
+    const totConc = DATA.intranet.conc30.reduce((a, b) => a + b, 0);
+    const ind     = totAb ? +(totConc / totAb * 100).toFixed(2) : 0;
+    const tmArr   = DATA.intranet.tempo.filter(v => v > 0);
+    const tm      = tmArr.length ? +(tmArr.reduce((a, b) => a + b, 0) / tmArr.length).toFixed(2) : 0;
+
+    // atualiza cards
+    document.querySelectorAll('[data-kpi]').forEach(el => {
+      if (el.dataset.kpi === 'total')      el.textContent = totAb;
+      if (el.dataset.kpi === 'tmedio')     el.textContent = tm.toFixed(1) + ' dias';
+      if (el.dataset.kpi === 'indicador')  el.textContent = ind.toFixed(2) + '%';
+    });
+
+    // atualiza período
+    const nomeDe  = MESES_NOME_FULL[mesDeNum - 1];
+    const nomeAte = MESES_NOME_FULL[mesAteNum - 1];
+    const per = document.querySelector('#page-intranet [data-periodo]');
+    if (per) per.textContent = 'Período: ' + nomeDe + (mesDeNum !== mesAteNum ? ' a ' + nomeAte : '');
+
+    // reconstrói gráficos
+    ['indicadorMensal', 'osAbertas'].forEach(nome => {
+      if (charts.has(nome)) { charts.get(nome).destroy(); charts.delete(nome); }
+      montarGrafico(nome);
+    });
+
+    // reconstrói tabela
+    const tb = document.getElementById('tb-intranet');
+    if (tb) { tb.textContent = ''; renderTabelas(); }
+  }
+
+  // handler do formulário de filtro de mês (intranet)
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('filtro-intranet');
+    if (!form) return;
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const de  = parseInt(form.elements['mes-de'].value);
+      const ate = parseInt(form.elements['mes-ate'].value);
+      const erro = form.querySelector('[data-erro]');
+      if (de > ate) { erro.textContent = 'O mês inicial deve ser anterior ao final.'; return; }
+      erro.textContent = '';
+      filtrarIntranet(de, ate);
+    });
+  });
 
   /* ---------- 11. BOOT ---------- */
   function iniciar() {
