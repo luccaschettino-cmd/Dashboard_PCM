@@ -249,21 +249,40 @@
       </div>
       <div class="kpi-grid">
         <div class="kpi-card"><p class="label">MTTR médio geral</p><p class="value">3,4h</p><p class="delta down">▲ +0,3h vs mês anterior</p></div>
-        <div class="kpi-card"><p class="label">Melhor setor</p><p class="value">Envase</p><p class="delta up">1,2h</p></div>
-        <div class="kpi-card"><p class="label">Pior setor</p><p class="value">Caldeira</p><p class="delta down">6,8h</p></div>
+        <div class="kpi-card"><p class="label">Melhor mecânico</p><p class="value">Eduardo</p><p class="delta up">2,1h</p></div>
+        <div class="kpi-card"><p class="label">Maior MTTR</p><p class="value">Norberto</p><p class="delta down">4,8h</p></div>
+        <div class="kpi-card"><p class="label">OS atendidas</p><p class="value">45</p><p class="delta neutral">no período</p></div>
       </div>
       <div class="panel">
         <h3>MTTR por setor</h3>
-        <p class="sub">Todos os setores no período selecionado</p>
-        <div class="chart-box" style="height:260px;">
+        <p class="sub">Visão geral de todos os setores no período</p>
+        <div class="chart-box" style="height:240px;">
           <canvas id="mttrSetorChart" role="img" aria-label="MTTR por setor"></canvas>
         </div>
       </div>
       <div class="panel">
         <h3>Evolução semanal do MTTR</h3>
-        <p class="sub">Últimas 4 semanas</p>
-        <div class="chart-box" style="height:240px;">
+        <p class="sub">Visualize o geral ou filtre por mecânico clicando nos botões abaixo</p>
+        <div class="setor-chips" id="mecanico-chips-evol" style="margin-bottom:12px;"></div>
+        <div class="legend" id="legenda-mttr-evol"></div>
+        <div class="chart-box" style="height:260px;">
           <canvas id="mttrEvolChart" role="img" aria-label="Evolução semanal MTTR"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Comparativo entre mecânicos</h3>
+        <p class="sub">Selecione os mecânicos que deseja comparar</p>
+        <div class="setor-chips" id="mecanico-chips-comp"></div>
+        <div class="legend" id="legenda-mttr-comp"></div>
+        <div class="chart-box" style="height:280px;">
+          <canvas id="mttrCompChart" role="img" aria-label="Comparativo MTTR entre mecânicos"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>MTTR médio por mecânico</h3>
+        <p class="sub">Média do período selecionado</p>
+        <div class="chart-box" style="height:220px;">
+          <canvas id="mttrMecBarChart" role="img" aria-label="MTTR médio por mecânico"></canvas>
         </div>
       </div>
     </section>
@@ -485,18 +504,112 @@ new Chart(document.getElementById('mtbfEvolChart'),{
 });
 
 // ---- MTTR ----
+const MECANICOS = ['Geral','Norberto','Isaías','Eduardo','Guilherme'];
+const CORES_MEC = ['#3b6d11','#a32d2d','#b98b5e','#1D9E75','#534AB7'];
+const MTTR_MEC = {
+  'Geral':     [3.8,3.6,3.5,3.4],
+  'Norberto':  [5.2,4.9,4.8,4.8],
+  'Isaías':    [3.6,3.4,3.2,3.0],
+  'Eduardo':   [2.5,2.3,2.1,2.1],
+  'Guilherme': [3.9,3.8,3.7,3.6],
+};
+const MTTR_MEC_MEDIA = {'Norberto':4.8,'Isaías':3.1,'Eduardo':2.1,'Guilherme':3.8};
+
 new Chart(document.getElementById('mttrSetorChart'),{
   type:'bar',
   data:{labels:SETORES.map(s=>s.length>10?s.substring(0,10)+'…':s),
     datasets:[{data:[3.1,2.8,2.5,4.9,1.2,6.8,2.0],backgroundColor:'#a32d2d',borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true}}}
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true,title:{display:true,text:'MTTR (h)'}}}}
 });
-new Chart(document.getElementById('mttrEvolChart'),{
-  type:'line',
-  data:{labels:SEMANAS,datasets:[{data:[3.8,3.6,3.5,3.4],borderColor:'#a32d2d',backgroundColor:'rgba(163,45,45,0.1)',fill:true,tension:0.3}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{y:{grid:{color:'#e1ded2'}}}}
+
+// evolução com filtro por mecânico (um de cada vez)
+let mecEvolSel = 'Geral';
+let mttrEvolChart = null;
+function buildMecChipsEvol(){
+  const cont = document.getElementById('mecanico-chips-evol');
+  cont.innerHTML='';
+  MECANICOS.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.className='setor-chip'+(mecEvolSel===m?' sel':'');
+    b.textContent=m;
+    b.onclick=()=>{ mecEvolSel=m; buildMecChipsEvol(); atualizarMttrEvol(); };
+    cont.appendChild(b);
+  });
+}
+function atualizarMttrEvol(){
+  const leg=document.getElementById('legenda-mttr-evol');
+  const idx=MECANICOS.indexOf(mecEvolSel);
+  const cor=CORES_MEC[idx];
+  leg.innerHTML=`<span><span class="dot" style="background:${cor};"></span>${mecEvolSel}</span>`;
+  if(mttrEvolChart) mttrEvolChart.destroy();
+  mttrEvolChart=new Chart(document.getElementById('mttrEvolChart'),{
+    type:'line',
+    data:{labels:SEMANAS,datasets:[{label:mecEvolSel,data:MTTR_MEC[mecEvolSel],borderColor:cor,backgroundColor:cor+'22',fill:true,tension:0.3,pointRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'h'}}},
+      scales:{y:{grid:{color:'#e1ded2'},title:{display:true,text:'MTTR (h)'},beginAtZero:true}}}
+  });
+}
+buildMecChipsEvol();
+atualizarMttrEvol();
+
+// comparativo entre mecânicos (multi-select, igual MTBF)
+let mecCompSel = ['Eduardo','Norberto'];
+let mttrCompChart = null;
+function buildMecChipsComp(){
+  const cont=document.getElementById('mecanico-chips-comp');
+  cont.innerHTML='';
+  ['Norberto','Isaías','Eduardo','Guilherme'].forEach((m,i)=>{
+    const idx=MECANICOS.indexOf(m);
+    const b=document.createElement('button');
+    b.className='setor-chip'+(mecCompSel.includes(m)?' sel':'');
+    b.textContent=m;
+    b.onclick=()=>{
+      if(mecCompSel.includes(m)){ if(mecCompSel.length===1) return; mecCompSel=mecCompSel.filter(x=>x!==m); }
+      else mecCompSel.push(m);
+      buildMecChipsComp(); atualizarMttrComp();
+    };
+    cont.appendChild(b);
+  });
+}
+function atualizarMttrComp(){
+  const leg=document.getElementById('legenda-mttr-comp');
+  leg.innerHTML='';
+  const datasets=mecCompSel.map(m=>{
+    const idx=MECANICOS.indexOf(m);
+    const cor=CORES_MEC[idx];
+    const span=document.createElement('span');
+    span.innerHTML=`<span class="dot" style="background:${cor};"></span>${m}`;
+    leg.appendChild(span);
+    return {label:m,data:MTTR_MEC[m],borderColor:cor,backgroundColor:cor+'22',fill:false,tension:0.3,pointRadius:5};
+  });
+  if(mttrCompChart) mttrCompChart.destroy();
+  mttrCompChart=new Chart(document.getElementById('mttrCompChart'),{
+    type:'line',
+    data:{labels:SEMANAS,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{y:{grid:{color:'#e1ded2'},title:{display:true,text:'MTTR (h)'},beginAtZero:true}}}
+  });
+}
+buildMecChipsComp();
+atualizarMttrComp();
+
+// barra média por mecânico
+new Chart(document.getElementById('mttrMecBarChart'),{
+  type:'bar',
+  data:{
+    labels:['Norberto','Isaías','Eduardo','Guilherme'],
+    datasets:[{
+      data:[4.8,3.1,2.1,3.8],
+      backgroundColor:['#a32d2d','#b98b5e','#3b6d11','#534AB7'],
+      borderRadius:4
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+'h'}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true,title:{display:true,text:'MTTR médio (h)'}}}}
 });
 
 // ---- OS ----
