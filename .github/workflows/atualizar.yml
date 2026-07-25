@@ -1,0 +1,43 @@
+name: Atualizar dados do site PCM
+
+on:
+  # Toda sexta-feira às 15h (horário de Brasília = 18h UTC)
+  schedule:
+    - cron: '0 18 * * 5'
+
+  # Também roda sempre que a planilha for enviada ao GitHub
+  push:
+    paths:
+      - 'PCM_OS_Intranet.xlsx'
+
+  # Permite rodar manualmente pelo GitHub quando quiser
+  workflow_dispatch:
+
+jobs:
+  gerar-json:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: pip install openpyxl
+
+      - name: Rodar script de atualização
+        run: python atualizar.py PCM_OS_Intranet.xlsx
+
+      - name: Salvar dados.json no repositório
+        run: |
+          git config user.name "PCM Bot"
+          git config user.email "pcm-bot@produtosVicosa.com"
+          git add dados.json
+          git diff --staged --quiet || git commit -m "🔄 Dados atualizados automaticamente - $(date '+%d/%m/%Y %H:%M')"
+          git push
