@@ -1513,27 +1513,50 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   /* libera memória ao sair */
   window.addEventListener('pagehide', () => { charts.forEach(c => c.destroy()); charts.clear(); });
 
-  /* ---------- 11. CARREGAMENTO DOS DADOS REAIS ---------- */
-  const URL_DADOS = 'https://luccaschettino-cmd.github.io/Dashboard_PCM/dados.json';
+  /* ---------- 11. CARREGAMENTO DOS DADOS REAIS (Supabase) ---------- */
+  const SUPABASE_URL = 'https://vnpexblbdiwgwdjsqsuh.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_CVRsQ-Hjc2ZUq0Hd4FyG3g_8RX7Uh7n';
 
   async function carregarDados() {
     try {
-      const resp = await fetch(URL_DADOS);
+      // Busca todos os meses da tabela os_intranet ordenados por mes_num
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_intranet?select=*&order=mes_num.asc`,
+        { headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY
+        }}
+      );
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const json = await resp.json();
+      const resumo_mensal = await resp.json();
+      if (!resumo_mensal || !resumo_mensal.length) return;
 
-      const d = json.intranet;
-      if (!d) return;
+      // Calcula totais somando todos os meses
+      const totais = resumo_mensal.reduce((acc, m) => {
+        acc.abertas     += m.abertas  || 0;
+        acc.conc30      += m.conc30   || 0;
+        acc.nconc30     += m.nconc30  || 0;
+        acc.urgente     += m.urgente  || 0;
+        acc.alta        += m.alta     || 0;
+        acc.normal      += m.normal   || 0;
+        acc._tempos.push(m.tempo_medio || 0);
+        return acc;
+      }, { abertas:0, conc30:0, nconc30:0, urgente:0, alta:0, normal:0, _tempos:[] });
 
-      // ── totais (cards do topo) ──────────────────────
-      const totais = d.totais;
-      // atualiza cards da aba OS Intranet via data-kpi
+      const temposValidos = totais._tempos.filter(v => v > 0);
+      totais.tempo_medio = temposValidos.length
+        ? +(temposValidos.reduce((a,b) => a+b, 0) / temposValidos.length).toFixed(2)
+        : 0;
+      totais.indicador = totais.abertas
+        ? +(totais.conc30 / totais.abertas * 100).toFixed(2)
+        : 0;
+
+      // ── atualiza cards da aba OS Intranet via data-kpi ──
       document.querySelectorAll('[data-kpi]').forEach(el => {
         const k = el.dataset.kpi;
-        if (k === 'total'    && totais.abertas    != null) el.textContent = totais.abertas;
-        if (k === 'tmedio'   && totais.tempo_medio!= null) el.textContent = totais.tempo_medio.toFixed(1) + ' dias';
-        if (k === 'indicador'&& totais.indicador  != null) el.textContent = totais.indicador.toFixed(2) + '%';
-        if (k === 'os15d'    && d.os_ultimos_15d  != null) el.textContent = d.os_ultimos_15d;
+        if (k === 'total'    && totais.abertas     != null) el.textContent = totais.abertas;
+        if (k === 'tmedio'   && totais.tempo_medio != null) el.textContent = totais.tempo_medio.toFixed(1) + ' dias';
+        if (k === 'indicador'&& totais.indicador   != null) el.textContent = totais.indicador.toFixed(2) + '%';
         if (k === 'resumo-indicador' && totais.indicador != null) {
           el.textContent = totais.indicador.toFixed(2) + '%';
           const badge = document.getElementById('resumo-meta-status');
@@ -1547,32 +1570,29 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           }
         }
         if (k === 'resumo-mes-anterior') {
-          const meses = d.resumo_mensal;
-          if (meses && meses.length >= 2) {
-            const mesAnterior = meses[meses.length - 2];
+          if (resumo_mensal.length >= 2) {
+            const mesAnterior = resumo_mensal[resumo_mensal.length - 2];
             el.textContent = mesAnterior.mes + ': ' + mesAnterior.indicador.toFixed(2) + '%';
             el.className = 'delta ' + (mesAnterior.indicador >= 90 ? 'up' : 'down');
           }
         }
-        if (k === 'urgente'  && totais.urgente     != null) el.textContent = totais.urgente;
-        if (k === 'alta'     && totais.alta        != null) el.textContent = totais.alta;
-        if (k === 'normal'   && totais.normal      != null) el.textContent = totais.normal;
+        if (k === 'urgente' && totais.urgente != null) el.textContent = totais.urgente;
+        if (k === 'alta'    && totais.alta    != null) el.textContent = totais.alta;
+        if (k === 'normal'  && totais.normal  != null) el.textContent = totais.normal;
       });
 
       // ── atualiza DATA.intranet ──────────────────────
-      if (d.resumo_mensal && d.resumo_mensal.length) {
-        DATA.intranet.meses    = d.resumo_mensal.map(m => m.mes.substring(0,3));
-        DATA.intranet.abertas  = d.resumo_mensal.map(m => m.abertas);
-        DATA.intranet.tempo    = d.resumo_mensal.map(m => m.tempo_medio);
-        DATA.intranet.conc30   = d.resumo_mensal.map(m => m.conc30);
-        DATA.intranet.nconc30  = d.resumo_mensal.map(m => m.nconc30);
-        DATA.intranet.indicador= d.resumo_mensal.map(m => m.indicador);
-        DATA.intranet.criticidade = {
-          urgente: totais.urgente,
-          alta:    totais.alta,
-          normal:  totais.normal
-        };
-      }
+      DATA.intranet.meses     = resumo_mensal.map(m => m.mes.substring(0,3));
+      DATA.intranet.abertas   = resumo_mensal.map(m => m.abertas);
+      DATA.intranet.tempo     = resumo_mensal.map(m => m.tempo_medio);
+      DATA.intranet.conc30    = resumo_mensal.map(m => m.conc30);
+      DATA.intranet.nconc30   = resumo_mensal.map(m => m.nconc30);
+      DATA.intranet.indicador = resumo_mensal.map(m => m.indicador);
+      DATA.intranet.criticidade = {
+        urgente: totais.urgente,
+        alta:    totais.alta,
+        normal:  totais.normal
+      };
 
       // ── reconstrói gráficos da aba intranet se já montados ──
       ['criticidade','indicadorMensal','osAbertas'].forEach(nome => {
@@ -1586,17 +1606,17 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) { tb.textContent = ''; }
 
       salvarDadosCompletos();
-      const dtGer = new Date(json._gerado_em);
-      // converte UTC para horário de Brasília (UTC-3)
-      const dtBrasilia = new Date(dtGer.getTime() - 3 * 60 * 60 * 1000);
-      const dtStr = dtBrasilia.toLocaleDateString('pt-BR') + ' às ' + dtBrasilia.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+
+      // data de atualização = agora (Supabase é sempre atualizado)
+      const agora = new Date();
+      const dtStr = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
       const elData = document.getElementById('data-atualizacao');
       if (elData) elData.textContent = dtStr;
-      console.log('✅ Dados reais carregados:', dtStr);
+      console.log('✅ Dados carregados do Supabase:', dtStr);
     } catch (e) {
       const elData2 = document.getElementById('data-atualizacao');
       if (elData2) elData2.textContent = 'Dados de exemplo';
-      console.warn('⚠️ Usando dados de exemplo. Erro ao carregar JSON:', e.message);
+      console.warn('⚠️ Usando dados de exemplo. Erro ao carregar Supabase:', e.message);
     }
   }
 
