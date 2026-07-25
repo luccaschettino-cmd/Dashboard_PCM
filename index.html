@@ -135,6 +135,7 @@
       <button class="nav-btn" data-page="mttr"><span class="ic">▲</span> MTTR</button>
       <button class="nav-btn" data-page="os"><span class="ic">■</span> OS abertas</button>
       <button class="nav-btn" data-page="lenha"><span class="ic">●</span> Consumo de lenha</button>
+      <button class="nav-btn" data-page="agua"><span class="ic">◉</span> Consumo de água</button>
     </nav>
   </aside>
 
@@ -401,17 +402,200 @@
         <label>Até <input type="date" id="l-ate" value="2026-07-25"></label>
         <button class="btn-aplicar" onclick="aplicarFiltroLenha()">Aplicar</button>
       </div>
-      <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Consumo do período</p><p class="value">184 t</p><p class="delta up">▼ -4% vs anterior</p></div>
-        <div class="kpi-card"><p class="label">Custo médio/ton</p><p class="value">R$ 245</p><p class="delta neutral">estável</p></div>
-        <div class="kpi-card"><p class="label">Custo total</p><p class="value">R$ 45.080</p><p class="delta up">▼ -3,5%</p></div>
-      </div>
-      <div class="panel">
-        <h3>Consumo mensal</h3>
-        <p class="sub">Últimos 5 meses, em toneladas</p>
-        <div class="chart-box" style="height:260px;">
-          <canvas id="lenhaChart" role="img" aria-label="Consumo mensal de lenha"></canvas>
+
+      <!-- indicador principal: consumo específico -->
+      <div style="background:var(--pv-green);border-radius:14px;padding:24px 28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <p style="margin:0;color:var(--pv-brown-light);font-size:13px;font-weight:500;">Indicador principal · Consumo específico de lenha</p>
+          <p style="margin:6px 0 0;color:#fff;font-size:42px;font-weight:700;line-height:1;">0,87 <span style="font-size:18px;font-weight:400;">m³ lenha / t produto</span></p>
+          <p style="margin:8px 0 0;color:#aed47f;font-size:13.5px;">▼ -5% vs mês anterior · Meta: ≤ 0,90 m³/t</p>
         </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:14px 20px;min-width:180px;">
+          <p style="margin:0;color:var(--pv-brown-light);font-size:12px;">Meta do período</p>
+          <p style="margin:4px 0 0;color:#fff;font-size:22px;font-weight:700;">≤ 0,90</p>
+          <p style="margin:6px 0 0;">
+            <span style="background:#aed47f;color:var(--pv-green-dark);font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ Dentro da meta</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- cards secundários -->
+      <div class="kpi-grid" style="margin-bottom:20px;">
+        <div class="kpi-card">
+          <p class="label">Lenha consumida</p>
+          <p class="value">184 m³</p>
+          <p class="delta down">▲ volume do período</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Produção total</p>
+          <p class="value">211 t</p>
+          <p class="delta up">▲ +3% vs anterior</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Custo lenha / t prod.</p>
+          <p class="value">R$ 213</p>
+          <p class="delta neutral">estável</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Custo total lenha</p>
+          <p class="value">R$ 45.080</p>
+          <p class="delta up">▼ -3,5% vs anterior</p>
+        </div>
+      </div>
+
+      <!-- evolução do indicador principal -->
+      <div class="panel">
+        <h3>Evolução do consumo específico</h3>
+        <p class="sub">m³ de lenha por t de produto · últimos 5 meses</p>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:12.5px;color:var(--text-secondary);">
+          <span><span class="dot" style="background:#3b6d11;"></span>Consumo específico (t/t)</span>
+          <span style="display:flex;align-items:center;gap:5px;">
+            <span style="width:24px;height:2px;background:#a32d2d;display:inline-block;border-top:2px dashed #a32d2d;"></span>Meta 0,90
+          </span>
+        </div>
+        <div class="chart-box" style="height:260px;">
+          <canvas id="lenhaEspChart" role="img" aria-label="Evolução consumo específico de lenha"></canvas>
+        </div>
+      </div>
+
+      <!-- volumes: lenha consumida e produção -->
+      <div class="panel">
+        <h3>Volumes mensais</h3>
+        <p class="sub">Lenha consumida e produção total — últimos 5 meses</p>
+        <div class="legend" style="margin-bottom:10px;">
+          <span><span class="dot" style="background:#3b6d11;"></span>Lenha consumida (m³)</span>
+          <span><span class="dot" style="background:#b98b5e;"></span>Produção total (t)</span>
+        </div>
+        <div class="chart-box" style="height:260px;">
+          <canvas id="lenhaVolChart" role="img" aria-label="Volumes de lenha e produção"></canvas>
+        </div>
+        <table style="margin-top:20px;">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th style="text-align:right;">Lenha (t)</th>
+              <th style="text-align:right;">Produção (t)</th>
+              <th style="text-align:right;">Consumo esp. (m³/t)</th>
+              <th style="text-align:right;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Janeiro</td><td class="num">210 m³</td><td class="num">218 t</td><td class="num">0,96</td><td><span class="badge crit">Acima da meta</span></td></tr>
+            <tr><td>Fevereiro</td><td class="num">198 m³</td><td class="num">210 t</td><td class="num">0,94</td><td><span class="badge warn">Atenção</span></td></tr>
+            <tr><td>Março</td><td class="num">205 m³</td><td class="num">220 t</td><td class="num">0,93</td><td><span class="badge warn">Atenção</span></td></tr>
+            <tr><td>Abril</td><td class="num">192 m³</td><td class="num">208 t</td><td class="num">0,92</td><td><span class="badge warn">Atenção</span></td></tr>
+            <tr><td>Maio</td><td class="num">184 m³</td><td class="num">211 t</td><td class="num">0,87</td><td><span class="badge ok">Dentro da meta</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== ÁGUA ===== -->
+    <section class="page" id="page-agua">
+      <div class="page-header">
+        <h2>Consumo de água</h2>
+        <p id="agua-periodo">Período: 01/07/2026 a 25/07/2026</p>
+      </div>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="a-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="a-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroAgua()">Aplicar</button>
+      </div>
+
+      <!-- indicador principal -->
+      <div style="background:linear-gradient(135deg,#185FA5 0%,#042C53 100%);border-radius:14px;padding:24px 28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <p style="margin:0;color:#B5D4F4;font-size:13px;font-weight:500;">Indicador principal · Consumo específico de água</p>
+          <p style="margin:6px 0 0;color:#fff;font-size:42px;font-weight:700;line-height:1;">3,2 <span style="font-size:18px;font-weight:400;">L / kg produto</span></p>
+          <p style="margin:8px 0 0;color:#85B7EB;font-size:13.5px;">▼ -4% vs mês anterior · Meta: ≤ 3,5 L/kg</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:14px 20px;min-width:180px;">
+          <p style="margin:0;color:#B5D4F4;font-size:12px;">Meta do período</p>
+          <p style="margin:4px 0 0;color:#fff;font-size:22px;font-weight:700;">≤ 3,5 L/kg</p>
+          <p style="margin:6px 0 0;">
+            <span style="background:#85B7EB;color:#042C53;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ Dentro da meta</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- cards secundários -->
+      <div class="kpi-grid" style="margin-bottom:20px;">
+        <div class="kpi-card">
+          <p class="label">Volume total consumido</p>
+          <p class="value">675 m³</p>
+          <p class="delta neutral">no período</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Produção total</p>
+          <p class="value">211 t</p>
+          <p class="delta up">▲ +3% vs anterior</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Pico diário</p>
+          <p class="value">38 m³</p>
+          <p class="delta down">dia 14/07</p>
+        </div>
+        <div class="kpi-card">
+          <p class="label">Média diária</p>
+          <p class="value">27 m³</p>
+          <p class="delta neutral">no período</p>
+        </div>
+      </div>
+
+      <!-- consumo diário do medidor -->
+      <div class="panel">
+        <h3>Consumo diário de água</h3>
+        <p class="sub">Leitura do medidor de vazão · m³ por dia</p>
+        <div class="chart-box" style="height:280px;">
+          <canvas id="aguaDiariaChart" role="img" aria-label="Consumo diário de água"></canvas>
+        </div>
+      </div>
+
+      <!-- indicador L/kg evolução -->
+      <div class="panel">
+        <h3>Evolução do consumo específico</h3>
+        <p class="sub">Litros de água por kg de produto · últimos 5 meses</p>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:12.5px;color:var(--text-secondary);">
+          <span><span class="dot" style="background:#185FA5;"></span>Consumo esp. (L/kg)</span>
+          <span style="display:flex;align-items:center;gap:5px;">
+            <span style="width:24px;height:0;border-top:2px dashed #a32d2d;display:inline-block;"></span>Meta 3,5
+          </span>
+        </div>
+        <div class="chart-box" style="height:260px;">
+          <canvas id="aguaEspChart" role="img" aria-label="Evolução consumo específico de água"></canvas>
+        </div>
+      </div>
+
+      <!-- volumes mensais -->
+      <div class="panel">
+        <h3>Volumes mensais</h3>
+        <p class="sub">Água consumida e produção total — últimos 5 meses</p>
+        <div class="legend" style="margin-bottom:10px;">
+          <span><span class="dot" style="background:#185FA5;"></span>Água consumida (m³)</span>
+          <span><span class="dot" style="background:#b98b5e;"></span>Produção total (t)</span>
+        </div>
+        <div class="chart-box" style="height:260px;">
+          <canvas id="aguaVolChart" role="img" aria-label="Volumes de água e produção"></canvas>
+        </div>
+        <table style="margin-top:20px;">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th style="text-align:right;">Água (m³)</th>
+              <th style="text-align:right;">Produção (t)</th>
+              <th style="text-align:right;">Cons. esp. (L/kg)</th>
+              <th style="text-align:right;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Janeiro</td><td class="num">820</td><td class="num">218</td><td class="num">3,76</td><td><span class="badge crit">Acima da meta</span></td></tr>
+            <tr><td>Fevereiro</td><td class="num">780</td><td class="num">210</td><td class="num">3,71</td><td><span class="badge crit">Acima da meta</span></td></tr>
+            <tr><td>Março</td><td class="num">760</td><td class="num">220</td><td class="num">3,45</td><td><span class="badge ok">Dentro da meta</span></td></tr>
+            <tr><td>Abril</td><td class="num">720</td><td class="num">208</td><td class="num">3,46</td><td><span class="badge ok">Dentro da meta</span></td></tr>
+            <tr><td>Maio</td><td class="num">675</td><td class="num">211</td><td class="num">3,20</td><td><span class="badge ok">Dentro da meta</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -736,12 +920,158 @@ new Chart(document.getElementById('osChart'),{
     scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true,ticks:{stepSize:1}}}}
 });
 
-// ---- Lenha ----
-new Chart(document.getElementById('lenhaChart'),{
+// ---- Água ----
+function aplicarFiltroAgua(){
+  const de=document.getElementById('a-de').value, ate=document.getElementById('a-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('agua-periodo').textContent='Período: '+fmt(de)+' a '+fmt(ate);
+}
+
+// dados diários simulados (25 dias julho)
+const DIAS_JULHO = Array.from({length:25},(_,i)=>(i+1).toString().padStart(2,'0')+'/07');
+const AGUA_DIARIA = [24,26,28,25,30,27,29,31,26,28,38,27,25,38,30,27,26,28,25,29,27,26,28,25,27];
+
+new Chart(document.getElementById('aguaDiariaChart'),{
   type:'bar',
-  data:{labels:['Jan','Fev','Mar','Abr','Mai'],datasets:[{data:[210,198,205,192,184],backgroundColor:'#3b6d11',borderRadius:4}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true}}}
+  data:{
+    labels:DIAS_JULHO,
+    datasets:[{
+      label:'m³/dia',
+      data:AGUA_DIARIA,
+      backgroundColor:AGUA_DIARIA.map(v=>v>=35?'#a32d2d':v>=30?'#b98b5e':'#185FA5'),
+      borderRadius:3
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.parsed.y+' m³'}}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45}},
+      y:{grid:{color:'#e1ded2'},beginAtZero:true,title:{display:true,text:'m³ / dia'}}
+    }
+  }
+});
+
+const MESES_AGUA=['Jan','Fev','Mar','Abr','Mai'];
+const AGUA_VOL=[820,780,760,720,675];
+const AGUA_PROD=[218,210,220,208,211];
+const AGUA_META=3.5;
+const AGUA_ESP=AGUA_VOL.map((a,i)=>parseFloat((a/AGUA_PROD[i]).toFixed(2)));
+
+new Chart(document.getElementById('aguaEspChart'),{
+  type:'line',
+  data:{
+    labels:MESES_AGUA,
+    datasets:[
+      {label:'Consumo esp.',data:AGUA_ESP,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.1)',fill:true,tension:0.3,pointRadius:6,pointBackgroundColor:'#185FA5'},
+      {label:'Meta',data:MESES_AGUA.map(()=>AGUA_META),borderColor:'#a32d2d',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,tension:0}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===1?'Meta: '+AGUA_META:'Consumo esp.: '+ctx.parsed.y.toFixed(2)+' L/kg'}}},
+    scales:{
+      y:{grid:{color:'#e1ded2'},min:3.0,max:4.0,title:{display:true,text:'L / kg produto'},ticks:{callback:v=>v.toFixed(1)}},
+      x:{grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('aguaVolChart'),{
+  type:'bar',
+  data:{
+    labels:MESES_AGUA,
+    datasets:[
+      {label:'Água consumida',data:AGUA_VOL,backgroundColor:'#185FA5',borderRadius:4},
+      {label:'Produção total', data:AGUA_PROD,backgroundColor:'#b98b5e',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:false,min:150,title:{display:true,text:'Volume'}}}
+  }
+});
+
+// ---- Lenha ----
+const MESES_LENHA = ['Jan','Fev','Mar','Abr','Mai'];
+const LENHA_CONS  = [210,198,205,192,184];
+const LENHA_PROD  = [218,210,220,208,211];
+const LENHA_ESP   = LENHA_CONS.map((l,i)=>parseFloat((l/LENHA_PROD[i]).toFixed(2)));
+const LENHA_META  = 0.90;
+
+// gráfico consumo específico (linha + linha de meta)
+new Chart(document.getElementById('lenhaEspChart'),{
+  type:'line',
+  data:{
+    labels:MESES_LENHA,
+    datasets:[
+      {
+        label:'Consumo esp. (m³/t)',
+        data:LENHA_ESP,
+        borderColor:'#3b6d11',
+        backgroundColor:'rgba(59,109,17,0.12)',
+        fill:true,tension:0.3,pointRadius:6,pointBackgroundColor:'#3b6d11'
+      },
+      {
+        label:'Meta',
+        data:MESES_LENHA.map(()=>LENHA_META),
+        borderColor:'#a32d2d',
+        borderDash:[6,4],
+        borderWidth:2,
+        pointRadius:0,
+        fill:false,
+        tension:0
+      }
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{
+          label:ctx=>{
+            if(ctx.datasetIndex===1) return 'Meta: '+LENHA_META;
+            return 'Consumo esp.: '+ctx.parsed.y.toFixed(2)+' m³/t';
+          }
+        }
+      }
+    },
+    scales:{
+      y:{
+        grid:{color:'#e1ded2'},
+        min:0.80, max:1.00,
+        title:{display:true,text:'m³ lenha / t produto'},
+        ticks:{callback:v=>v.toFixed(2)}
+      },
+      x:{grid:{display:false}}
+    }
+  }
+});
+
+// gráfico volumes (barras agrupadas)
+new Chart(document.getElementById('lenhaVolChart'),{
+  type:'bar',
+  data:{
+    labels:MESES_LENHA,
+    datasets:[
+      {label:'Lenha consumida',data:LENHA_CONS,backgroundColor:'#3b6d11',borderRadius:4},
+      {label:'Produção total', data:LENHA_PROD,backgroundColor:'#b98b5e',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+    scales:{
+      x:{grid:{display:false}},
+      y:{grid:{color:'#e1ded2'},beginAtZero:false,
+        title:{display:true,text:'Volume'},
+        min:160
+      }
+    }
+  }
 });
 </script>
 </body>
