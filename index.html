@@ -733,10 +733,10 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </form>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Total de ordens realizadas</p><p class="value">750</p><p class="delta neutral">acumulado no ano</p></div>
-        <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value">8,8 dias</p><p class="delta down">acima da meta</p></div>
-        <div class="kpi-card"><p class="label">Indicador geral</p><p class="value">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
-        <div class="kpi-card"><p class="label">OS últimos 15 dias</p><p class="value">7</p><p class="delta neutral">10/07 a 25/07</p></div>
+        <div class="kpi-card"><p class="label">Total de ordens realizadas</p><p class="value" data-kpi="total">750</p><p class="delta neutral">acumulado no ano</p></div>
+        <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value" data-kpi="tmedio">8,8 dias</p><p class="delta down">acima da meta</p></div>
+        <div class="kpi-card"><p class="label">Indicador geral</p><p class="value" data-kpi="indicador">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
+        <div class="kpi-card"><p class="label">OS últimos 15 dias</p><p class="value" data-kpi="os15d">7</p><p class="delta neutral">10/07 a 25/07</p></div>
       </div>
 
       <div class="panel">
@@ -748,9 +748,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
               aria-label="Rosca de criticidade: Urgente 451 ordens, Alta 223, Normal 76"></canvas>
           </div>
           <div class="stat-list">
-            <div class="stat-row stat-row--red"><span>Urgente <small>prioridade máxima</small></span><span class="n">451</span></div>
-            <div class="stat-row stat-row--gold"><span>Alta <small>prazo curto</small></span><span class="n">223</span></div>
-            <div class="stat-row stat-row--green"><span>Normal <small>fluxo padrão</small></span><span class="n">76</span></div>
+            <div class="stat-row stat-row--red"><span>Urgente <small>prioridade máxima</small></span><span class="n" data-kpi="urgente">451</span></div>
+            <div class="stat-row stat-row--gold"><span>Alta <small>prazo curto</small></span><span class="n" data-kpi="alta">223</span></div>
+            <div class="stat-row stat-row--green"><span>Normal <small>fluxo padrão</small></span><span class="n" data-kpi="normal">76</span></div>
           </div>
         </div>
       </div>
@@ -1464,6 +1464,64 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   /* libera memória ao sair */
   window.addEventListener('pagehide', () => { charts.forEach(c => c.destroy()); charts.clear(); });
 
+  /* ---------- 11. CARREGAMENTO DOS DADOS REAIS ---------- */
+  const URL_DADOS = 'https://luccaschettino-cmd.github.io/Dashboard_PCM/dados.json';
+
+  async function carregarDados() {
+    try {
+      const resp = await fetch(URL_DADOS);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+
+      const d = json.intranet;
+      if (!d) return;
+
+      // ── totais (cards do topo) ──────────────────────
+      const totais = d.totais;
+      // atualiza cards da aba OS Intranet via data-kpi
+      document.querySelectorAll('[data-kpi]').forEach(el => {
+        const k = el.dataset.kpi;
+        if (k === 'total'    && totais.abertas    != null) el.textContent = totais.abertas;
+        if (k === 'tmedio'   && totais.tempo_medio!= null) el.textContent = totais.tempo_medio.toFixed(1) + ' dias';
+        if (k === 'indicador'&& totais.indicador  != null) el.textContent = totais.indicador.toFixed(2) + '%';
+        if (k === 'os15d'    && d.os_ultimos_15d  != null) el.textContent = d.os_ultimos_15d;
+        if (k === 'urgente'  && totais.urgente     != null) el.textContent = totais.urgente;
+        if (k === 'alta'     && totais.alta        != null) el.textContent = totais.alta;
+        if (k === 'normal'   && totais.normal      != null) el.textContent = totais.normal;
+      });
+
+      // ── atualiza DATA.intranet ──────────────────────
+      if (d.resumo_mensal && d.resumo_mensal.length) {
+        DATA.intranet.meses    = d.resumo_mensal.map(m => m.mes.substring(0,3));
+        DATA.intranet.abertas  = d.resumo_mensal.map(m => m.abertas);
+        DATA.intranet.tempo    = d.resumo_mensal.map(m => m.tempo_medio);
+        DATA.intranet.conc30   = d.resumo_mensal.map(m => m.conc30);
+        DATA.intranet.nconc30  = d.resumo_mensal.map(m => m.nconc30);
+        DATA.intranet.indicador= d.resumo_mensal.map(m => m.indicador);
+        DATA.intranet.criticidade = {
+          urgente: totais.urgente,
+          alta:    totais.alta,
+          normal:  totais.normal
+        };
+      }
+
+      // ── reconstrói gráficos da aba intranet se já montados ──
+      ['criticidade','indicadorMensal','osAbertas'].forEach(nome => {
+        if (charts.has(nome)) {
+          charts.get(nome).destroy();
+          charts.delete(nome);
+        }
+      });
+      // reconstrói tabela
+      const tb = document.getElementById('tb-intranet');
+      if (tb) { tb.textContent = ''; }
+
+      console.log('✅ Dados reais carregados:', new Date(json._gerado_em).toLocaleString('pt-BR'));
+    } catch (e) {
+      console.warn('⚠️ Usando dados de exemplo. Erro ao carregar JSON:', e.message);
+    }
+  }
+
   /* ---------- 11. BOOT ---------- */
   function iniciar() {
     if (typeof Chart === 'undefined') {
@@ -1488,8 +1546,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     irPara(document.getElementById('page-' + inicial) ? inicial : 'resumo');
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
-  else iniciar();
+  async function boot() {
+    await carregarDados();
+    iniciar();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 
 })();
 </script>
