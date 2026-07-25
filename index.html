@@ -395,7 +395,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <button class="kpi-card" type="button" data-goto="intranet" style="border-top-color:var(--pv-gold);">
           <span class="label">OS Intranet · indicador <span class="goto">Ver mais →</span></span>
           <span class="value" data-kpi="resumo-indicador">—</span>
-          <span class="delta neutral" data-kpi="resumo-mes-anterior">carregando...</span>
+          <span class="delta neutral" style="display:block;margin-top:2px;font-size:11px;" data-kpi="resumo-mes-anterior">carregando...</span>
           <span id="resumo-meta-status" style="
             display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;
             padding:2px 8px;border-radius:20px;
@@ -1587,7 +1587,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       salvarDadosCompletos();
       const dtGer = new Date(json._gerado_em);
-      const dtStr = dtGer.toLocaleDateString('pt-BR') + ' às ' + dtGer.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+      // converte UTC para horário de Brasília (UTC-3)
+      const dtBrasilia = new Date(dtGer.getTime() - 3 * 60 * 60 * 1000);
+      const dtStr = dtBrasilia.toLocaleDateString('pt-BR') + ' às ' + dtBrasilia.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
       const elData = document.getElementById('data-atualizacao');
       if (elData) elData.textContent = dtStr;
       console.log('✅ Dados reais carregados:', dtStr);

@@ -250,7 +250,7 @@ def main():
         datetime.fromisoformat(o["dt_abertura"]).date() >= hoje - timedelta(days=15))
 
     payload = {
-        "_gerado_em": datetime.now().isoformat(timespec="seconds"),
+        "_gerado_em": (datetime.utcnow() - timedelta(hours=3)).isoformat(timespec="seconds"),
         "_fonte":     caminho,
         "intranet": {
             "resumo_mensal":  resumo,
