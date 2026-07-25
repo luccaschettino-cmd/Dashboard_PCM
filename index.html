@@ -285,6 +285,66 @@
           <canvas id="mttrMecBarChart" role="img" aria-label="MTTR médio por mecânico"></canvas>
         </div>
       </div>
+
+      <div class="panel">
+        <h3>Produtividade por mecânico</h3>
+        <p class="sub">Ordens atendidas e horas totais trabalhadas no período</p>
+        <div class="legend" style="margin-bottom:14px;">
+          <span><span class="dot" style="background:#3b6d11;"></span>OS atendidas</span>
+          <span><span class="dot" style="background:#b98b5e;"></span>Horas trabalhadas</span>
+        </div>
+        <div class="chart-box" style="height:240px;">
+          <canvas id="mttrProdChart" role="img" aria-label="OS atendidas e horas por mecânico"></canvas>
+        </div>
+        <table style="margin-top:20px;">
+          <thead>
+            <tr>
+              <th>Mecânico</th>
+              <th style="text-align:right;">OS atendidas</th>
+              <th style="text-align:right;">Horas trabalhadas</th>
+              <th style="text-align:right;">MTTR médio</th>
+              <th style="text-align:right;">H. por OS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Norberto</strong></td>
+              <td class="num">10</td>
+              <td class="num">48h</td>
+              <td class="num"><span class="badge crit">4,8h</span></td>
+              <td class="num">4,8h</td>
+            </tr>
+            <tr>
+              <td><strong>Isaías</strong></td>
+              <td class="num">13</td>
+              <td class="num">40h</td>
+              <td class="num"><span class="badge warn">3,1h</span></td>
+              <td class="num">3,1h</td>
+            </tr>
+            <tr>
+              <td><strong>Eduardo</strong></td>
+              <td class="num">14</td>
+              <td class="num">29h</td>
+              <td class="num"><span class="badge ok">2,1h</span></td>
+              <td class="num">2,1h</td>
+            </tr>
+            <tr>
+              <td><strong>Guilherme</strong></td>
+              <td class="num">8</td>
+              <td class="num">30h</td>
+              <td class="num"><span class="badge warn">3,8h</span></td>
+              <td class="num">3,8h</td>
+            </tr>
+            <tr style="background:var(--bg-page); font-weight:600;">
+              <td>Total</td>
+              <td class="num">45</td>
+              <td class="num">147h</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- ===== OS ===== -->
@@ -610,6 +670,61 @@ new Chart(document.getElementById('mttrMecBarChart'),{
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
     tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+'h'}}},
     scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true,title:{display:true,text:'MTTR médio (h)'}}}}
+});
+
+// produtividade — OS atendidas x horas trabalhadas (grouped bar)
+new Chart(document.getElementById('mttrProdChart'),{
+  type:'bar',
+  data:{
+    labels:['Norberto','Isaías','Eduardo','Guilherme'],
+    datasets:[
+      {
+        label:'OS atendidas',
+        data:[10,13,14,8],
+        backgroundColor:'#3b6d11',
+        borderRadius:4,
+        yAxisID:'y'
+      },
+      {
+        label:'Horas trabalhadas',
+        data:[48,40,29,30],
+        backgroundColor:'#b98b5e',
+        borderRadius:4,
+        yAxisID:'y1'
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false,
+        callbacks:{
+          label:ctx=>{
+            if(ctx.datasetIndex===0) return 'OS atendidas: '+ctx.parsed.y;
+            return 'Horas trabalhadas: '+ctx.parsed.y+'h';
+          }
+        }
+      }
+    },
+    scales:{
+      x:{grid:{display:false}},
+      y:{
+        position:'left',
+        grid:{color:'#e1ded2'},
+        beginAtZero:true,
+        title:{display:true,text:'OS atendidas'},
+        ticks:{stepSize:2}
+      },
+      y1:{
+        position:'right',
+        grid:{display:false},
+        beginAtZero:true,
+        title:{display:true,text:'Horas (h)'}
+      }
+    }
+  }
 });
 
 // ---- OS ----
