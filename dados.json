@@ -1,0 +1,32 @@
+{
+  "_gerado_em": "2026-07-25T09:36:49",
+  "_fonte": "PCM_OS_Intranet.xlsx",
+  "intranet": {
+    "resumo_mensal": [
+      {
+        "mes_num": 4,
+        "mes": "Abril",
+        "abertas": 2,
+        "conc30": 0,
+        "nconc30": 0,
+        "tempo_medio": 0,
+        "indicador": 0.0,
+        "urgente": 0,
+        "alta": 0,
+        "normal": 2
+      }
+    ],
+    "totais": {
+      "abertas": 2,
+      "conc30": 0,
+      "nconc30": 0,
+      "tempo_medio": 0,
+      "indicador": 0.0,
+      "urgente": 0,
+      "alta": 0,
+      "normal": 2
+    },
+    "os_ultimos_15d": 76,
+    "meta_indicador": 90
+  }
+}
