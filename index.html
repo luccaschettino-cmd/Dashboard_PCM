@@ -3,296 +3,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard PCM</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<title>PCM Produtos Viçosa · Indicadores de Manutenção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
-    --azul: #2C5F8A;
-    --azul-claro: #5B8DB8;
-    --cinza: #6E7B8B;
-    --cinza-claro: #A9B4BF;
-    --fundo: #F4F6F8;
-    --card: #FFFFFF;
-    --texto: #1F2A37;
+    --pv-green:#3b6d11;
+    --pv-green-dark:#173404;
+    --pv-green-light:#eaf3de;
+    --pv-brown:#b98b5e;
+    --pv-brown-light:#f2e6d8;
+    --pv-red:#a32d2d;
+    --pv-red-light:#fcebeb;
+    --bg-page:#f7f5f0;
+    --surface:#ffffff;
+    --text-primary:#1c1c1a;
+    --text-secondary:#5f5e5a;
+    --border:#e1ded2;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: var(--fundo);
-    color: var(--texto);
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter', system-ui, sans-serif;
+    background:var(--bg-page);
+    color:var(--text-primary);
   }
-  header {
-    background: var(--azul);
-    color: #fff;
-    padding: 20px 32px;
-  }
-  header h1 { margin: 0; font-size: 22px; font-weight: 600; }
-  header p { margin: 4px 0 0; font-size: 13px; opacity: 0.85; }
+  .wrap{max-width:1180px; margin:0 auto; padding:20px;}
 
-  .filtros {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding: 18px 32px;
-    background: var(--card);
-    border-bottom: 1px solid #E2E6EA;
-    align-items: flex-end;
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:linear-gradient(135deg, var(--pv-green) 0%, var(--pv-green-dark) 100%);
+    border-radius:14px;
+    padding:18px 24px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:12px;
   }
-  .filtro { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
-  .filtro label { font-size: 12px; font-weight: 600; color: var(--cinza); text-transform: uppercase; letter-spacing: 0.03em; }
-  .filtro select, .filtro input {
-    padding: 8px 10px;
-    border: 1px solid #D3D9DF;
-    border-radius: 6px;
-    font-size: 14px;
-    background: #fff;
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .logo{
+    width:44px; height:44px; border-radius:50%;
+    background:#fff; color:var(--pv-green);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:16px; flex-shrink:0;
   }
-  .btn-limpar {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid var(--azul);
-    background: #fff;
-    color: var(--azul);
-    font-size: 13px;
-    cursor: pointer;
-    height: 37px;
+  .brand h1{margin:0; color:#fff; font-size:17px; font-weight:600;}
+  .brand p{margin:2px 0 0; color:var(--pv-brown-light); font-size:12.5px;}
+  .filters{display:flex; gap:8px; flex-wrap:wrap;}
+  .filters select{
+    height:34px; border-radius:8px; border:1px solid rgba(255,255,255,0.3);
+    background:rgba(255,255,255,0.15); color:#fff; font-size:12.5px; padding:0 10px;
   }
-  .btn-limpar:hover { background: var(--azul); color: #fff; }
+  .filters select option{color:#1c1c1a;}
 
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 14px;
-    padding: 20px 32px 0;
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px,1fr));
+    gap:14px;
+    margin-bottom:24px;
   }
-  .kpi {
-    background: var(--card);
-    border-radius: 10px;
-    padding: 16px 18px;
-    border-left: 4px solid var(--azul);
+  .kpi-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
   }
-  .kpi .valor { font-size: 26px; font-weight: 700; color: var(--azul); }
-  .kpi .rotulo { font-size: 12px; color: var(--cinza); margin-top: 2px; }
+  .kpi-card .label{margin:0; font-size:13px; color:var(--text-secondary);}
+  .kpi-card .value{margin:6px 0 0; font-size:26px; font-weight:700; color:var(--pv-green-dark);}
+  .kpi-card .delta{margin:4px 0 0; font-size:12.5px; display:flex; align-items:center; gap:4px;}
+  .delta.up{color:var(--pv-green);}
+  .delta.down{color:var(--pv-red);}
+  .delta.neutral{color:var(--text-secondary);}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-    gap: 18px;
-    padding: 20px 32px 40px;
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:20px;
   }
-  .card {
-    background: var(--card);
-    border-radius: 10px;
-    padding: 18px 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--texto); }
-  .card canvas { max-height: 320px; }
+  .panel h2{margin:0 0 4px; font-size:15px; font-weight:600;}
+  .panel .sub{margin:0 0 14px; font-size:12.5px; color:var(--text-secondary);}
+  .chart-box{position:relative; width:100%; height:260px;}
 
-  #vazio {
-    display: none;
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--cinza);
-  }
+  .legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px; font-size:12.5px; color:var(--text-secondary);}
+  .legend span{display:flex; align-items:center; gap:5px;}
+  .dot{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:820px){ .two-col{grid-template-columns:1fr;} }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
+  th{color:var(--text-secondary); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.02em;}
+  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  tr:last-child td{border-bottom:none;}
+  .badge{padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:600;}
+  .badge.ok{background:var(--pv-green-light); color:var(--pv-green-dark);}
+  .badge.warn{background:var(--pv-brown-light); color:#7a5530;}
+  .badge.crit{background:var(--pv-red-light); color:var(--pv-red);}
+
+  footer{text-align:center; padding:20px 0 10px; font-size:12px; color:var(--text-secondary);}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header>
-  <h1>Dashboard de Manutenção — PCM</h1>
-  <p>Fábrica Produtos Viçosa</p>
-  <p style="margin-top:8px;"><a href="mtbf.html" style="color:#fff;font-size:13px;">→ Indicadores de MTBF por Setor</a></p>
-</header>
+  <header>
+    <div class="brand">
+      <div class="logo">PV</div>
+      <div>
+        <h1>Produtos Viçosa · PCM</h1>
+        <p>Painel de indicadores de manutenção</p>
+      </div>
+    </div>
+    <div class="filters">
+      <select id="filtroMes">
+        <option>Julho 2026</option>
+        <option>Junho 2026</option>
+        <option>Maio 2026</option>
+      </select>
+      <select id="filtroSetor">
+        <option>Todos os setores</option>
+        <option>Pasteurização</option>
+        <option>Requeijão</option>
+        <option>Doce de leite</option>
+        <option>Câmaras frias</option>
+        <option>Envase</option>
+        <option>Caldeira</option>
+        <option>Utilidades</option>
+      </select>
+    </div>
+  </header>
 
-<div class="filtros">
-  <div class="filtro">
-    <label>Setor</label>
-    <select id="fSetor"><option value="">Todos</option></select>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <p class="label">MTBF médio</p>
+      <p class="value">128h</p>
+      <p class="delta up">▲ +6% vs mês anterior</p>
+    </div>
+    <div class="kpi-card">
+      <p class="label">MTTR médio</p>
+      <p class="value">3,4h</p>
+      <p class="delta down">▲ +0,3h vs mês anterior</p>
+    </div>
+    <div class="kpi-card">
+      <p class="label">OS abertas</p>
+      <p class="value">17</p>
+      <p class="delta neutral">de 62 no mês</p>
+    </div>
+    <div class="kpi-card">
+      <p class="label">Consumo de lenha</p>
+      <p class="value">184 t</p>
+      <p class="delta up">▼ -4% vs mês anterior</p>
+    </div>
   </div>
-  <div class="filtro">
-    <label>Responsável</label>
-    <select id="fResponsavel"><option value="">Todos</option></select>
-  </div>
-  <div class="filtro">
-    <label>De</label>
-    <input type="date" id="fDataIni">
-  </div>
-  <div class="filtro">
-    <label>Até</label>
-    <input type="date" id="fDataFim">
-  </div>
-  <button class="btn-limpar" onclick="limparFiltros()">Limpar filtros</button>
-</div>
 
-<div class="kpis">
-  <div class="kpi"><div class="valor" id="kpiTotal">0</div><div class="rotulo">Total de OS</div></div>
-  <div class="kpi"><div class="valor" id="kpiHoras">0</div><div class="rotulo">Horas de manutenção</div></div>
-  <div class="kpi"><div class="valor" id="kpiSetores">0</div><div class="rotulo">Setores atendidos</div></div>
-  <div class="kpi"><div class="valor" id="kpiMedia">0</div><div class="rotulo">Média de horas por OS</div></div>
-</div>
+  <div class="panel">
+    <h2>Evolução semanal · MTBF x MTTR</h2>
+    <p class="sub">Últimas 4 semanas</p>
+    <div class="legend">
+      <span><span class="dot" style="background:#3b6d11;"></span>MTBF (h)</span>
+      <span><span class="dot" style="background:#a32d2d;"></span>MTTR (h)</span>
+    </div>
+    <div class="chart-box">
+      <canvas id="kpiChart" role="img" aria-label="Evolução semanal de MTBF e MTTR">Semana 1: MTBF 110, MTTR 3.8. Semana 2: MTBF 118, MTTR 3.6. Semana 3: MTBF 125, MTTR 3.5. Semana 4: MTBF 128, MTTR 3.4.</canvas>
+    </div>
+  </div>
 
-<div id="vazio">Nenhum registro encontrado para os filtros selecionados.</div>
+  <div class="two-col">
+    <div class="panel">
+      <h2>OS abertas por setor</h2>
+      <p class="sub">Mês atual</p>
+      <div class="chart-box" style="height:240px;">
+        <canvas id="osChart" role="img" aria-label="OS abertas por setor">Pasteurização 4, Requeijão 3, Doce de leite 2, Câmaras frias 5, Envase 1, Caldeira 2, Utilidades 0</canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Consumo de lenha</h2>
+      <p class="sub">Últimos 5 meses, em toneladas</p>
+      <div class="chart-box" style="height:240px;">
+        <canvas id="lenhaChart" role="img" aria-label="Consumo mensal de lenha em toneladas">Jan 210, Fev 198, Mar 205, Abr 192, Mai 184</canvas>
+      </div>
+    </div>
+  </div>
 
-<div class="grid" id="areaGraficos">
-  <div class="card"><h3>OS por Setor</h3><canvas id="chartSetor"></canvas></div>
-  <div class="card"><h3>Horas de Manutenção por Setor</h3><canvas id="chartHoras"></canvas></div>
-  <div class="card"><h3>Evolução de OS por Semana</h3><canvas id="chartEvolucao"></canvas></div>
-  <div class="card"><h3>OS por Responsável</h3><canvas id="chartResponsavel"></canvas></div>
-  <div class="card"><h3>Tipo de Manutenção</h3><canvas id="chartTipo"></canvas></div>
+  <div class="panel">
+    <h2>OS abertas · detalhamento</h2>
+    <p class="sub">Ordens em aberto por setor e prioridade</p>
+    <table>
+      <thead>
+        <tr><th>Setor</th><th>OS abertas</th><th>Prioridade</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Câmaras frias</td><td class="num">5</td><td>Alta</td><td><span class="badge crit">Crítico</span></td></tr>
+        <tr><td>Pasteurização</td><td class="num">4</td><td>Média</td><td><span class="badge warn">Atenção</span></td></tr>
+        <tr><td>Requeijão</td><td class="num">3</td><td>Média</td><td><span class="badge warn">Atenção</span></td></tr>
+        <tr><td>Doce de leite</td><td class="num">2</td><td>Baixa</td><td><span class="badge ok">Normal</span></td></tr>
+        <tr><td>Caldeira</td><td class="num">2</td><td>Alta</td><td><span class="badge crit">Crítico</span></td></tr>
+        <tr><td>Envase</td><td class="num">1</td><td>Baixa</td><td><span class="badge ok">Normal</span></td></tr>
+        <tr><td>Utilidades</td><td class="num">0</td><td>—</td><td><span class="badge ok">Normal</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>PCM · Fábrica Produtos Viçosa – FUNARBE · Dados de exemplo</footer>
 </div>
 
 <script>
-const CORES = ["#2C5F8A", "#5B8DB8", "#8FB3D9", "#6E7B8B", "#A9B4BF", "#3D7A99", "#7FA8C9"];
-let dadosOriginais = [];
-let charts = {};
+Chart.defaults.font.family = "'Inter', sans-serif";
 
-fetch("data.json")
-  .then(r => r.json())
-  .then(dados => {
-    dadosOriginais = dados;
-    popularFiltros(dados);
-    aplicarFiltros();
-  })
-  .catch(err => {
-    document.getElementById("areaGraficos").innerHTML =
-      "<p style='padding:20px;color:#900'>Não foi possível carregar data.json. Verifique se o arquivo está na mesma pasta do index.html.</p>";
-    console.error(err);
-  });
+new Chart(document.getElementById('kpiChart'), {
+  type: 'line',
+  data: {
+    labels: ['Sem 1','Sem 2','Sem 3','Sem 4'],
+    datasets: [
+      { label:'MTBF', data:[110,118,125,128], borderColor:'#3b6d11', backgroundColor:'rgba(59,109,17,0.1)', fill:true, tension:0.3, yAxisID:'y' },
+      { label:'MTTR', data:[3.8,3.6,3.5,3.4], borderColor:'#a32d2d', backgroundColor:'rgba(163,45,45,0.1)', fill:true, tension:0.3, yAxisID:'y1' }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      y:{ position:'left', grid:{ color:'#e1ded2' }, title:{ display:true, text:'MTBF (h)' } },
+      y1:{ position:'right', grid:{ display:false }, title:{ display:true, text:'MTTR (h)' } }
+    }
+  }
+});
 
-function popularFiltros(dados) {
-  const setores = [...new Set(dados.map(d => d.setor))].sort();
-  const responsaveis = [...new Set(dados.map(d => d.responsavel))].sort();
+new Chart(document.getElementById('osChart'), {
+  type: 'bar',
+  data: {
+    labels:['Pasteur.','Requeijão','Doce de leite','Câmaras frias','Envase','Caldeira','Utilidades'],
+    datasets:[{ data:[4,3,2,5,1,2,0], backgroundColor:'#b98b5e', borderRadius:4 }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true, ticks:{ stepSize:1 } } }
+  }
+});
 
-  const selSetor = document.getElementById("fSetor");
-  setores.forEach(s => selSetor.appendChild(new Option(s, s)));
-
-  const selResp = document.getElementById("fResponsavel");
-  responsaveis.forEach(r => selResp.appendChild(new Option(r, r)));
-
-  ["fSetor", "fResponsavel", "fDataIni", "fDataFim"].forEach(id =>
-    document.getElementById(id).addEventListener("change", aplicarFiltros)
-  );
-}
-
-function limparFiltros() {
-  document.getElementById("fSetor").value = "";
-  document.getElementById("fResponsavel").value = "";
-  document.getElementById("fDataIni").value = "";
-  document.getElementById("fDataFim").value = "";
-  aplicarFiltros();
-}
-
-function aplicarFiltros() {
-  const setor = document.getElementById("fSetor").value;
-  const responsavel = document.getElementById("fResponsavel").value;
-  const dataIni = document.getElementById("fDataIni").value;
-  const dataFim = document.getElementById("fDataFim").value;
-
-  let dados = dadosOriginais.filter(d => {
-    if (setor && d.setor !== setor) return false;
-    if (responsavel && d.responsavel !== responsavel) return false;
-    if (dataIni && d.data < dataIni) return false;
-    if (dataFim && d.data > dataFim) return false;
-    return true;
-  });
-
-  document.getElementById("vazio").style.display = dados.length === 0 ? "block" : "none";
-  document.getElementById("areaGraficos").style.display = dados.length === 0 ? "none" : "grid";
-
-  atualizarKPIs(dados);
-  atualizarGraficos(dados);
-}
-
-function atualizarKPIs(dados) {
-  const totalHoras = dados.reduce((s, d) => s + d.horas, 0);
-  const setoresUnicos = new Set(dados.map(d => d.setor)).size;
-  document.getElementById("kpiTotal").textContent = dados.length;
-  document.getElementById("kpiHoras").textContent = totalHoras.toFixed(0) + "h";
-  document.getElementById("kpiSetores").textContent = setoresUnicos;
-  document.getElementById("kpiMedia").textContent = dados.length ? (totalHoras / dados.length).toFixed(1) + "h" : "0h";
-}
-
-function contarPor(dados, campo) {
-  const contagem = {};
-  dados.forEach(d => contagem[d[campo]] = (contagem[d[campo]] || 0) + 1);
-  return contagem;
-}
-
-function somarHorasPorSetor(dados) {
-  const soma = {};
-  dados.forEach(d => soma[d.setor] = (soma[d.setor] || 0) + d.horas);
-  return soma;
-}
-
-function topN(obj, n) {
-  return Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
-}
-
-function semanaISO(dataStr) {
-  const d = new Date(dataStr);
-  const primeiraDiaAno = new Date(d.getFullYear(), 0, 1);
-  const dias = Math.floor((d - primeiraDiaAno) / 86400000);
-  const semana = Math.ceil((dias + primeiraDiaAno.getDay() + 1) / 7);
-  return `${d.getFullYear()}-S${String(semana).padStart(2, "0")}`;
-}
-
-
-
-function destruir(id) { if (charts[id]) charts[id].destroy(); }
-
-function atualizarGraficos(dados) {
-  // OS por setor
-  const porSetor = topN(contarPor(dados, "setor"), 12);
-  destruir("chartSetor");
-  charts["chartSetor"] = new Chart(document.getElementById("chartSetor"), {
-    type: "bar",
-    data: { labels: porSetor.map(x => x[0]), datasets: [{ data: porSetor.map(x => x[1]), backgroundColor: CORES[0] }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
-  });
-
-  // Horas por setor
-  const horasSetor = topN(somarHorasPorSetor(dados), 12);
-  destruir("chartHoras");
-  charts["chartHoras"] = new Chart(document.getElementById("chartHoras"), {
-    type: "bar",
-    data: { labels: horasSetor.map(x => x[0]), datasets: [{ data: horasSetor.map(x => x[1].toFixed(1)), backgroundColor: CORES[3] }] },
-    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
-  });
-
-  // Evolução semanal
-  const porSemana = {};
-  dados.forEach(d => { const s = semanaISO(d.data); porSemana[s] = (porSemana[s] || 0) + 1; });
-  const semanasOrdenadas = Object.keys(porSemana).sort();
-  destruir("chartEvolucao");
-  charts["chartEvolucao"] = new Chart(document.getElementById("chartEvolucao"), {
-    type: "line",
-    data: {
-      labels: semanasOrdenadas,
-      datasets: [{ data: semanasOrdenadas.map(s => porSemana[s]), borderColor: CORES[0], backgroundColor: "rgba(44,95,138,0.12)", fill: true, tension: 0.3 }]
-    },
-    options: { plugins: { legend: { display: false } } }
-  });
-
-  // Por responsável
-  const porResp = contarPor(dados, "responsavel");
-  destruir("chartResponsavel");
-  charts["chartResponsavel"] = new Chart(document.getElementById("chartResponsavel"), {
-    type: "bar",
-    data: { labels: Object.keys(porResp), datasets: [{ data: Object.values(porResp), backgroundColor: CORES }] },
-    options: { plugins: { legend: { display: false } } }
-  });
-
-  // Tipo de manutenção
-  const porTipo = contarPor(dados, "tipo");
-  destruir("chartTipo");
-  charts["chartTipo"] = new Chart(document.getElementById("chartTipo"), {
-    type: "pie",
-    data: { labels: Object.keys(porTipo), datasets: [{ data: Object.values(porTipo), backgroundColor: CORES }] }
-  });
-}
+new Chart(document.getElementById('lenhaChart'), {
+  type: 'bar',
+  data: {
+    labels:['Jan','Fev','Mar','Abr','Mai'],
+    datasets:[{ data:[210,198,205,192,184], backgroundColor:'#3b6d11', borderRadius:4 }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true } }
+  }
+});
 </script>
-
 </body>
 </html>
