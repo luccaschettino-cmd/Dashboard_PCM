@@ -1582,12 +1582,14 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       });
 
       // ── atualiza DATA.intranet ──────────────────────
-      DATA.intranet.meses     = resumo_mensal.map(m => m.mes.substring(0,3));
-      DATA.intranet.abertas   = resumo_mensal.map(m => m.abertas);
-      DATA.intranet.tempo     = resumo_mensal.map(m => m.tempo_medio);
-      DATA.intranet.conc30    = resumo_mensal.map(m => m.conc30);
-      DATA.intranet.nconc30   = resumo_mensal.map(m => m.nconc30);
-      DATA.intranet.indicador = resumo_mensal.map(m => m.indicador);
+      DATA.intranet.meses       = resumo_mensal.map(m => m.mes.substring(0,3));
+      DATA.intranet.abertas     = resumo_mensal.map(m => m.abertas);
+      DATA.intranet.tempo       = resumo_mensal.map(m => m.tempo_medio);
+      DATA.intranet.conc30      = resumo_mensal.map(m => m.conc30);
+      DATA.intranet.nconc30     = resumo_mensal.map(m => m.nconc30);
+      DATA.intranet.indicador   = resumo_mensal.map(m => m.indicador);
+      DATA.intranet.total_dias  = resumo_mensal.map(m => m.total_dias  || 0);
+      DATA.intranet.os_com_tempo= resumo_mensal.map(m => m.os_com_tempo|| 0);
       DATA.intranet.criticidade = {
         urgente: totais.urgente,
         alta:    totais.alta,
@@ -1627,16 +1629,18 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   function salvarDadosCompletos() {
     INTRANET_FULL = {
-      meses_full:     [...DATA.intranet.meses],
-      meses_num:      DATA.intranet.meses.map(m => {
-                        const i = MESES_NOME_FULL.findIndex(n => n.startsWith(m));
-                        return i >= 0 ? i + 1 : 0;
-                      }),
-      abertas_full:   [...DATA.intranet.abertas],
-      conc30_full:    [...DATA.intranet.conc30],
-      nconc30_full:   [...DATA.intranet.nconc30],
-      tempo_full:     [...DATA.intranet.tempo],
-      indicador_full: [...DATA.intranet.indicador],
+      meses_full:      [...DATA.intranet.meses],
+      meses_num:       DATA.intranet.meses.map(m => {
+                         const i = MESES_NOME_FULL.findIndex(n => n.startsWith(m));
+                         return i >= 0 ? i + 1 : 0;
+                       }),
+      abertas_full:    [...DATA.intranet.abertas],
+      conc30_full:     [...DATA.intranet.conc30],
+      nconc30_full:    [...DATA.intranet.nconc30],
+      tempo_full:      [...DATA.intranet.tempo],
+      indicador_full:  [...DATA.intranet.indicador],
+      total_dias_full: [...(DATA.intranet.total_dias || [])],
+      os_tempo_full:   [...(DATA.intranet.os_com_tempo || [])],
     };
   }
 
@@ -1658,11 +1662,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     DATA.intranet.tempo     = indices.map(i => src.tempo_full[i]);
     DATA.intranet.indicador = indices.map(i => src.indicador_full[i]);
 
-    const totAb   = DATA.intranet.abertas.reduce((a, b) => a + b, 0);
-    const totConc = DATA.intranet.conc30.reduce((a, b) => a + b, 0);
-    const ind     = totAb ? +(totConc / totAb * 100).toFixed(2) : 0;
-    const tmArr   = DATA.intranet.tempo.filter(v => v > 0);
-    const tm      = tmArr.length ? +(tmArr.reduce((a, b) => a + b, 0) / tmArr.length).toFixed(2) : 0;
+    const totAb      = DATA.intranet.abertas.reduce((a, b) => a + b, 0);
+    const totConc    = DATA.intranet.conc30.reduce((a, b) => a + b, 0);
+    const ind        = totAb ? +(totConc / totAb * 100).toFixed(2) : 0;
+    const totDias    = indices.map(i => src.total_dias_full[i] || 0).reduce((a, b) => a + b, 0);
+    const totOsTempo = indices.map(i => src.os_tempo_full[i]   || 0).reduce((a, b) => a + b, 0);
+    const tm         = totOsTempo ? +(totDias / totOsTempo).toFixed(2) : 0;
 
     // atualiza cards
     document.querySelectorAll('[data-kpi]').forEach(el => {
