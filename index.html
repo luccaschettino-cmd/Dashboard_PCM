@@ -1539,13 +1539,13 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         acc.urgente     += m.urgente  || 0;
         acc.alta        += m.alta     || 0;
         acc.normal      += m.normal   || 0;
-        acc._tempos.push(m.tempo_medio || 0);
+        acc._total_dias   += m.total_dias   || 0;
+        acc._os_com_tempo += m.os_com_tempo || 0;
         return acc;
-      }, { abertas:0, conc30:0, nconc30:0, urgente:0, alta:0, normal:0, _tempos:[] });
+      }, { abertas:0, conc30:0, nconc30:0, urgente:0, alta:0, normal:0, _total_dias:0, _os_com_tempo:0 });
 
-      const temposValidos = totais._tempos.filter(v => v > 0);
-      totais.tempo_medio = temposValidos.length
-        ? +(temposValidos.reduce((a,b) => a+b, 0) / temposValidos.length).toFixed(2)
+      totais.tempo_medio = totais._os_com_tempo
+        ? +(totais._total_dias / totais._os_com_tempo).toFixed(2)
         : 0;
       totais.indicador = totais.abertas
         ? +(totais.conc30 / totais.abertas * 100).toFixed(2)
