@@ -782,8 +782,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </form>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Total de ordens realizadas</p><p class="value" data-kpi="total">750</p><p class="delta neutral">acumulado no ano</p></div>
-        <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value" data-kpi="tmedio">8,8 dias</p><p class="delta neutral">acumulado no ano</p></div>
+        <div class="kpi-card"><p class="label">Total de ordens realizadas</p><p class="value" data-kpi="total">750</p><p class="delta neutral" data-kpi="periodo-label">acumulado no ano</p></div>
+        <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value" data-kpi="tmedio">8,8 dias</p><p class="delta neutral" data-kpi="periodo-label">acumulado no ano</p></div>
         <div class="kpi-card"><p class="label">Indicador geral</p><p class="value" data-kpi="indicador">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
         <div class="kpi-card"><p class="label">OS últimos 15 dias</p><p class="value" data-kpi="os15d">7</p><p class="delta neutral">10/07 a 25/07</p></div>
       </div>
@@ -1656,6 +1656,10 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     const nomeAte = MESES_NOME_FULL[mesAteNum - 1];
     const per = document.querySelector('#page-intranet [data-periodo]');
     if (per) per.textContent = 'Período: ' + nomeDe + (mesDeNum !== mesAteNum ? ' a ' + nomeAte : '');
+    const labelPeriodo = mesDeNum === mesAteNum ? nomeDe : nomeDe + ' a ' + nomeAte;
+    document.querySelectorAll('[data-kpi="periodo-label"]').forEach(el => {
+      el.textContent = labelPeriodo;
+    });
 
     // gráficos e tabela mostram sempre o acumulado completo — não mudam com o filtro
   }
