@@ -9,108 +9,113 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
-    --pv-green:#3b6d11;
-    --pv-green-dark:#173404;
-    --pv-green-light:#eaf3de;
-    --pv-brown:#b98b5e;
-    --pv-brown-light:#f2e6d8;
-    --pv-red:#a32d2d;
-    --pv-red-light:#fcebeb;
-    --bg-page:#f7f5f0;
-    --surface:#ffffff;
-    --text-primary:#1c1c1a;
-    --text-secondary:#5f5e5a;
-    --border:#e1ded2;
+    --pv-green:#3b6d11; --pv-green-dark:#173404; --pv-green-light:#eaf3de;
+    --pv-brown:#b98b5e; --pv-brown-light:#f2e6d8;
+    --pv-red:#a32d2d; --pv-red-light:#fcebeb;
+    --bg-page:#f7f5f0; --surface:#ffffff;
+    --text-primary:#1c1c1a; --text-secondary:#5f5e5a; --border:#e1ded2;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:'Inter', system-ui, sans-serif;
-    background:var(--bg-page);
-    color:var(--text-primary);
-  }
-  .app{display:flex; min-height:100vh;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg-page);color:var(--text-primary);}
+  .app{display:flex;min-height:100vh;}
   .sidebar{
-    width:230px; flex-shrink:0;
-    background:linear-gradient(180deg, var(--pv-green) 0%, var(--pv-green-dark) 100%);
-    padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;
+    width:230px;flex-shrink:0;
+    background:linear-gradient(180deg,var(--pv-green) 0%,var(--pv-green-dark) 100%);
+    padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;
   }
-  .sidebar .brand{display:flex; align-items:center; gap:10px; padding:0 6px 20px;}
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 20px;}
   .sidebar .brand .logo{
-    width:38px; height:38px; border-radius:50%;
-    background:#fff; color:var(--pv-green);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:700; font-size:14px; flex-shrink:0;
+    width:38px;height:38px;border-radius:50%;background:#fff;color:var(--pv-green);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;
   }
-  .sidebar .brand h1{margin:0; color:#fff; font-size:14.5px; font-weight:600; line-height:1.3;}
-  .sidebar .brand p{margin:1px 0 0; color:var(--pv-brown-light); font-size:11px;}
-  nav{display:flex; flex-direction:column; gap:2px;}
+  .sidebar .brand h1{margin:0;color:#fff;font-size:14.5px;font-weight:600;line-height:1.3;}
+  .sidebar .brand p{margin:1px 0 0;color:var(--pv-brown-light);font-size:11px;}
+  nav{display:flex;flex-direction:column;gap:2px;}
   nav button{
-    display:flex; align-items:center; gap:10px;
-    background:transparent; border:none; text-align:left;
-    color:rgba(255,255,255,0.82); font-size:13.5px; font-family:inherit;
-    padding:10px 12px; border-radius:8px; cursor:pointer;
-    transition:background .15s; width:100%;
+    display:flex;align-items:center;gap:10px;background:transparent;border:none;text-align:left;
+    color:rgba(255,255,255,0.82);font-size:13.5px;font-family:inherit;
+    padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s;width:100%;
   }
   nav button:hover{background:rgba(255,255,255,0.1);}
-  nav button.active{background:rgba(255,255,255,0.18); color:#fff; font-weight:600;}
-  nav button .ic{width:16px; text-align:center; flex-shrink:0;}
+  nav button.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;}
+  nav button .ic{width:16px;text-align:center;flex-shrink:0;}
   nav .section-label{
-    color:rgba(255,255,255,0.5); font-size:10.5px; text-transform:uppercase;
-    letter-spacing:.04em; padding:14px 12px 4px;
+    color:rgba(255,255,255,0.5);font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.04em;padding:14px 12px 4px;
   }
-  main{flex:1; padding:24px 28px; max-width:1100px;}
+  main{flex:1;padding:24px 28px;max-width:1100px;}
   .page{display:none;}
   .page.active{display:block;}
-  .page-header{margin-bottom:20px;}
-  .page-header h2{margin:0 0 4px; font-size:20px; font-weight:700;}
-  .page-header p{margin:0; font-size:13.5px; color:var(--text-secondary);}
-  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
-  .filters select{
-    height:34px; border-radius:8px; border:1px solid var(--border);
-    background:#fff; color:var(--text-primary); font-size:12.5px; padding:0 10px;
+  .page-header{margin-bottom:16px;}
+  .page-header h2{margin:0 0 4px;font-size:20px;font-weight:700;}
+  .page-header p{margin:0;font-size:13.5px;color:var(--text-secondary);}
+
+  /* filtro padrão reutilizável */
+  .filtro-bar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:10px 14px;margin-bottom:20px;
   }
-  .kpi-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr));
-    gap:14px; margin-bottom:24px;
+  .filtro-bar label{font-size:12.5px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+  .filtro-bar input[type=date]{
+    height:32px;border-radius:8px;border:1px solid var(--border);
+    background:#fff;color:var(--text-primary);font-size:12.5px;padding:0 8px;font-family:inherit;
   }
+  .filtro-bar select{
+    height:32px;border-radius:8px;border:1px solid var(--border);
+    background:#fff;color:var(--text-primary);font-size:12.5px;padding:0 8px;font-family:inherit;
+  }
+  .filtro-bar .sep{color:var(--border);font-size:18px;margin:0 2px;}
+  .btn-aplicar{
+    height:32px;padding:0 14px;border-radius:8px;border:none;
+    background:var(--pv-green);color:#fff;font-size:12.5px;font-family:inherit;cursor:pointer;
+    margin-left:4px;
+  }
+  .btn-aplicar:hover{background:var(--pv-green-dark);}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}
   .kpi-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    padding:16px 18px; cursor:pointer; transition:border-color .15s, transform .1s;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;cursor:pointer;transition:border-color .15s,transform .1s;
   }
-  .kpi-card:hover{border-color:var(--pv-green); transform:translateY(-1px);}
-  .kpi-card .label{margin:0; font-size:13px; color:var(--text-secondary); display:flex; align-items:center; justify-content:space-between;}
-  .kpi-card .value{margin:6px 0 0; font-size:26px; font-weight:700; color:var(--pv-green-dark);}
-  .kpi-card .delta{margin:4px 0 0; font-size:12.5px; display:flex; align-items:center; gap:4px;}
+  .kpi-card:hover{border-color:var(--pv-green);transform:translateY(-1px);}
+  .kpi-card .label{margin:0;font-size:13px;color:var(--text-secondary);display:flex;align-items:center;justify-content:space-between;}
+  .kpi-card .value{margin:6px 0 0;font-size:26px;font-weight:700;color:var(--pv-green-dark);}
+  .kpi-card .delta{margin:4px 0 0;font-size:12.5px;}
   .delta.up{color:var(--pv-green);}
   .delta.down{color:var(--pv-red);}
   .delta.neutral{color:var(--text-secondary);}
-  .goto{font-size:11px; color:var(--pv-brown); font-weight:600;}
-  .panel{
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    padding:18px 20px; margin-bottom:20px;
-  }
-  .panel h3{margin:0 0 4px; font-size:15px; font-weight:600;}
-  .panel .sub{margin:0 0 14px; font-size:12.5px; color:var(--text-secondary);}
-  .chart-box{position:relative; width:100%; height:260px;}
-  .legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px; font-size:12.5px; color:var(--text-secondary);}
-  .legend span{display:flex; align-items:center; gap:5px;}
-  .dot{width:10px; height:10px; border-radius:3px; display:inline-block;}
-  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
-  @media (max-width:900px){ .two-col{grid-template-columns:1fr;} }
-  table{width:100%; border-collapse:collapse; font-size:13px;}
-  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
-  th{color:var(--text-secondary); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.02em;}
-  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .goto{font-size:11px;color:var(--pv-brown);font-weight:600;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:20px;}
+  .panel h3{margin:0 0 4px;font-size:15px;font-weight:600;}
+  .panel .sub{margin:0 0 14px;font-size:12.5px;color:var(--text-secondary);}
+  .chart-box{position:relative;width:100%;height:260px;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;font-size:12.5px;color:var(--text-secondary);}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+  th{color:var(--text-secondary);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.02em;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
   tr:last-child td{border-bottom:none;}
-  .badge{padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:600;}
-  .badge.ok{background:var(--pv-green-light); color:var(--pv-green-dark);}
-  .badge.warn{background:var(--pv-brown-light); color:#7a5530;}
-  .badge.crit{background:var(--pv-red-light); color:var(--pv-red);}
-  footer{text-align:center; padding:24px 0 10px; font-size:12px; color:var(--text-secondary);}
-  @media (max-width:760px){
+  .badge{padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:600;}
+  .badge.ok{background:var(--pv-green-light);color:var(--pv-green-dark);}
+  .badge.warn{background:var(--pv-brown-light);color:#7a5530;}
+  .badge.crit{background:var(--pv-red-light);color:var(--pv-red);}
+
+  /* seletor de setores para comparação */
+  .setor-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .setor-chip{
+    padding:5px 12px;border-radius:20px;border:1px solid var(--border);
+    background:#fff;font-size:12.5px;cursor:pointer;transition:all .15s;
+    color:var(--text-secondary);
+  }
+  .setor-chip.sel{background:var(--pv-green);color:#fff;border-color:var(--pv-green);}
+
+  footer{text-align:center;padding:24px 0 10px;font-size:12px;color:var(--text-secondary);}
+  @media(max-width:760px){
     .app{flex-direction:column;}
-    .sidebar{width:100%; height:auto; position:relative;}
+    .sidebar{width:100%;height:auto;position:relative;}
     main{padding:18px;}
   }
 </style>
@@ -135,23 +140,17 @@
 
   <main>
 
+    <!-- ===== RESUMO ===== -->
     <section class="page active" id="page-resumo">
       <div class="page-header">
         <h2>Resumo geral</h2>
-        <p>Visão consolidada dos indicadores de manutenção · Julho 2026</p>
+        <p id="resumo-periodo">Visão consolidada dos indicadores · 01/07/2026 a 25/07/2026</p>
       </div>
-      <div class="filters" style="align-items:center;">
-        <label style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-          De
-          <input type="date" id="filtroDataInicio" value="2026-07-01"
-            style="height:34px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text-primary); font-size:12.5px; padding:0 10px; font-family:inherit;">
-        </label>
-        <label style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-          Até
-          <input type="date" id="filtroDataFim" value="2026-07-25"
-            style="height:34px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text-primary); font-size:12.5px; padding:0 10px; font-family:inherit;">
-        </label>
-        <button onclick="aplicarFiltro()" style="height:34px; padding:0 16px; border-radius:8px; border:1px solid var(--pv-green); background:var(--pv-green); color:#fff; font-size:12.5px; font-family:inherit; cursor:pointer;">Aplicar</button>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="r-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="r-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroResumo()">Aplicar</button>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card" data-goto="mtbf">
@@ -177,47 +176,76 @@
       </div>
       <div class="panel">
         <h3>Evolução semanal · MTBF x MTTR</h3>
-        <p class="sub">Últimas 4 semanas · clique em um card acima ou na barra lateral para detalhar</p>
+        <p class="sub">Últimas 4 semanas · clique nos cards para detalhar</p>
         <div class="legend">
           <span><span class="dot" style="background:#3b6d11;"></span>MTBF (h)</span>
           <span><span class="dot" style="background:#a32d2d;"></span>MTTR (h)</span>
         </div>
         <div class="chart-box">
-          <canvas id="resumoChart" role="img" aria-label="Evolução semanal de MTBF e MTTR">Semana 1: MTBF 110, MTTR 3.8. Semana 2: MTBF 118, MTTR 3.6. Semana 3: MTBF 125, MTTR 3.5. Semana 4: MTBF 128, MTTR 3.4.</canvas>
+          <canvas id="resumoChart" role="img" aria-label="Evolução semanal MTBF e MTTR"></canvas>
         </div>
       </div>
     </section>
 
+    <!-- ===== MTBF ===== -->
     <section class="page" id="page-mtbf">
       <div class="page-header">
         <h2>MTBF · Tempo médio entre falhas</h2>
-        <p>Detalhamento por setor e evolução semanal</p>
+        <p id="mtbf-periodo">Período: 01/07/2026 a 25/07/2026</p>
+      </div>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="m-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="m-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroMTBF()">Aplicar</button>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card"><p class="label">MTBF médio geral</p><p class="value">128h</p><p class="delta up">▲ +6% vs mês anterior</p></div>
         <div class="kpi-card"><p class="label">Melhor setor</p><p class="value">Envase</p><p class="delta up">210h</p></div>
         <div class="kpi-card"><p class="label">Pior setor</p><p class="value">Câmaras frias</p><p class="delta down">68h</p></div>
       </div>
+
+      <!-- gráfico geral -->
       <div class="panel">
         <h3>MTBF por setor</h3>
-        <p class="sub">Mês atual, em horas</p>
+        <p class="sub">Todos os setores no período selecionado</p>
         <div class="chart-box" style="height:260px;">
-          <canvas id="mtbfSetorChart" role="img" aria-label="MTBF por setor">Pasteurização 130h, Requeijão 145h, Doce de leite 160h, Câmaras frias 68h, Envase 210h, Caldeira 95h, Utilidades 175h</canvas>
+          <canvas id="mtbfSetorChart" role="img" aria-label="MTBF por setor"></canvas>
         </div>
       </div>
+
+      <!-- gráfico comparativo -->
+      <div class="panel">
+        <h3>Comparativo entre setores</h3>
+        <p class="sub">Selecione os setores que deseja comparar</p>
+        <div class="setor-chips" id="setor-chips-mtbf"></div>
+        <div class="legend" id="legenda-comp"></div>
+        <div class="chart-box" style="height:280px;">
+          <canvas id="mtbfCompChart" role="img" aria-label="Comparativo MTBF entre setores"></canvas>
+        </div>
+      </div>
+
+      <!-- evolução semanal -->
       <div class="panel">
         <h3>Evolução semanal do MTBF</h3>
         <p class="sub">Últimas 4 semanas</p>
         <div class="chart-box" style="height:240px;">
-          <canvas id="mtbfEvolChart" role="img" aria-label="Evolução semanal do MTBF">Semana 1: 110h, Semana 2: 118h, Semana 3: 125h, Semana 4: 128h</canvas>
+          <canvas id="mtbfEvolChart" role="img" aria-label="Evolução semanal MTBF"></canvas>
         </div>
       </div>
     </section>
 
+    <!-- ===== MTTR ===== -->
     <section class="page" id="page-mttr">
       <div class="page-header">
         <h2>MTTR · Tempo médio de reparo</h2>
-        <p>Detalhamento por setor e evolução semanal</p>
+        <p id="mttr-periodo">Período: 01/07/2026 a 25/07/2026</p>
+      </div>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="t-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="t-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroMTTR()">Aplicar</button>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card"><p class="label">MTTR médio geral</p><p class="value">3,4h</p><p class="delta down">▲ +0,3h vs mês anterior</p></div>
@@ -226,24 +254,31 @@
       </div>
       <div class="panel">
         <h3>MTTR por setor</h3>
-        <p class="sub">Mês atual, em horas</p>
+        <p class="sub">Todos os setores no período selecionado</p>
         <div class="chart-box" style="height:260px;">
-          <canvas id="mttrSetorChart" role="img" aria-label="MTTR por setor">Pasteurização 3.1h, Requeijão 2.8h, Doce de leite 2.5h, Câmaras frias 4.9h, Envase 1.2h, Caldeira 6.8h, Utilidades 2.0h</canvas>
+          <canvas id="mttrSetorChart" role="img" aria-label="MTTR por setor"></canvas>
         </div>
       </div>
       <div class="panel">
         <h3>Evolução semanal do MTTR</h3>
         <p class="sub">Últimas 4 semanas</p>
         <div class="chart-box" style="height:240px;">
-          <canvas id="mttrEvolChart" role="img" aria-label="Evolução semanal do MTTR">Semana 1: 3.8h, Semana 2: 3.6h, Semana 3: 3.5h, Semana 4: 3.4h</canvas>
+          <canvas id="mttrEvolChart" role="img" aria-label="Evolução semanal MTTR"></canvas>
         </div>
       </div>
     </section>
 
+    <!-- ===== OS ===== -->
     <section class="page" id="page-os">
       <div class="page-header">
         <h2>OS abertas</h2>
-        <p>Ordens de serviço em aberto, por setor e prioridade</p>
+        <p id="os-periodo">Período: 01/07/2026 a 25/07/2026</p>
+      </div>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="o-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="o-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroOS()">Aplicar</button>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card"><p class="label">Total abertas</p><p class="value">17</p><p class="delta neutral">de 62 no mês</p></div>
@@ -252,9 +287,9 @@
       </div>
       <div class="panel">
         <h3>OS abertas por setor</h3>
-        <p class="sub">Mês atual</p>
+        <p class="sub">Período selecionado</p>
         <div class="chart-box" style="height:260px;">
-          <canvas id="osChart" role="img" aria-label="OS abertas por setor">Pasteurização 4, Requeijão 3, Doce de leite 2, Câmaras frias 5, Envase 1, Caldeira 2, Utilidades 0</canvas>
+          <canvas id="osChart" role="img" aria-label="OS abertas por setor"></canvas>
         </div>
       </div>
       <div class="panel">
@@ -275,21 +310,28 @@
       </div>
     </section>
 
+    <!-- ===== LENHA ===== -->
     <section class="page" id="page-lenha">
       <div class="page-header">
         <h2>Consumo de lenha</h2>
-        <p>Consumo mensal e indicadores de custo</p>
+        <p id="lenha-periodo">Período: 01/07/2026 a 25/07/2026</p>
+      </div>
+      <div class="filtro-bar">
+        <label>De <input type="date" id="l-de" value="2026-07-01"></label>
+        <span class="sep">—</span>
+        <label>Até <input type="date" id="l-ate" value="2026-07-25"></label>
+        <button class="btn-aplicar" onclick="aplicarFiltroLenha()">Aplicar</button>
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Consumo do mês</p><p class="value">184 t</p><p class="delta up">▼ -4% vs mês anterior</p></div>
+        <div class="kpi-card"><p class="label">Consumo do período</p><p class="value">184 t</p><p class="delta up">▼ -4% vs anterior</p></div>
         <div class="kpi-card"><p class="label">Custo médio/ton</p><p class="value">R$ 245</p><p class="delta neutral">estável</p></div>
-        <div class="kpi-card"><p class="label">Custo total do mês</p><p class="value">R$ 45.080</p><p class="delta up">▼ -3,5%</p></div>
+        <div class="kpi-card"><p class="label">Custo total</p><p class="value">R$ 45.080</p><p class="delta up">▼ -3,5%</p></div>
       </div>
       <div class="panel">
         <h3>Consumo mensal</h3>
         <p class="sub">Últimos 5 meses, em toneladas</p>
         <div class="chart-box" style="height:260px;">
-          <canvas id="lenhaChart" role="img" aria-label="Consumo mensal de lenha em toneladas">Jan 210, Fev 198, Mar 205, Abr 192, Mai 184</canvas>
+          <canvas id="lenhaChart" role="img" aria-label="Consumo mensal de lenha"></canvas>
         </div>
       </div>
     </section>
@@ -301,88 +343,177 @@
 <script>
 Chart.defaults.font.family = "'Inter', sans-serif";
 
-function aplicarFiltro(){
-  const de = document.getElementById('filtroDataInicio').value;
-  const ate = document.getElementById('filtroDataFim').value;
-  if(!de || !ate){ alert('Selecione as duas datas.'); return; }
-  if(de > ate){ alert('A data inicial deve ser anterior 00e0 data final.'); return; }
-  const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR');
-  document.querySelector('#page-resumo .page-header p').textContent =
-    'Vis00e3o consolidada dos indicadores de manuten00e700e3o 00b7 ' + fmt(de) + ' a ' + fmt(ate);
+const SETORES = ['Pasteurização','Requeijão','Doce de leite','Câmaras frias','Envase','Caldeira','Utilidades'];
+const CORES = ['#3b6d11','#a32d2d','#b98b5e','#1D9E75','#534AB7','#BA7517','#E87BA4'];
+
+const MTBF_DATA = {
+  'Pasteurização': [120,130,125,130],
+  'Requeijão':     [140,138,148,145],
+  'Doce de leite': [155,160,158,160],
+  'Câmaras frias': [70,65,68,68],
+  'Envase':        [200,205,212,210],
+  'Caldeira':      [90,98,92,95],
+  'Utilidades':    [170,175,178,175],
+};
+const SEMANAS = ['Sem 1','Sem 2','Sem 3','Sem 4'];
+
+// ---- utilidades ----
+function fmt(d){ return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); }
+function validar(de,ate){
+  if(!de||!ate){ alert('Selecione as duas datas.'); return false; }
+  if(de>ate){ alert('A data inicial deve ser anterior à data final.'); return false; }
+  return true;
 }
 
+// ---- filtros ----
+function aplicarFiltroResumo(){
+  const de=document.getElementById('r-de').value, ate=document.getElementById('r-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('resumo-periodo').textContent='Visão consolidada dos indicadores · '+fmt(de)+' a '+fmt(ate);
+}
+function aplicarFiltroMTBF(){
+  const de=document.getElementById('m-de').value, ate=document.getElementById('m-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('mtbf-periodo').textContent='Período: '+fmt(de)+' a '+fmt(ate);
+}
+function aplicarFiltroMTTR(){
+  const de=document.getElementById('t-de').value, ate=document.getElementById('t-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('mttr-periodo').textContent='Período: '+fmt(de)+' a '+fmt(ate);
+}
+function aplicarFiltroOS(){
+  const de=document.getElementById('o-de').value, ate=document.getElementById('o-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('os-periodo').textContent='Período: '+fmt(de)+' a '+fmt(ate);
+}
+function aplicarFiltroLenha(){
+  const de=document.getElementById('l-de').value, ate=document.getElementById('l-ate').value;
+  if(!validar(de,ate)) return;
+  document.getElementById('lenha-periodo').textContent='Período: '+fmt(de)+' a '+fmt(ate);
+}
+
+// ---- navegação ----
 const navButtons = document.querySelectorAll('.nav-btn');
 const pages = document.querySelectorAll('.page');
 function goToPage(id){
-  navButtons.forEach(b => b.classList.toggle('active', b.dataset.page === id));
-  pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+  navButtons.forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+id));
   window.scrollTo(0,0);
 }
-navButtons.forEach(btn => btn.addEventListener('click', () => goToPage(btn.dataset.page)));
-document.querySelectorAll('.kpi-card[data-goto]').forEach(card => {
-  card.addEventListener('click', () => goToPage(card.dataset.goto));
+navButtons.forEach(btn=>btn.addEventListener('click',()=>goToPage(btn.dataset.page)));
+document.querySelectorAll('.kpi-card[data-goto]').forEach(card=>{
+  card.addEventListener('click',()=>goToPage(card.dataset.goto));
 });
 
-new Chart(document.getElementById('resumoChart'), {
-  type: 'line',
-  data: {
-    labels: ['Sem 1','Sem 2','Sem 3','Sem 4'],
-    datasets: [
-      { label:'MTBF', data:[110,118,125,128], borderColor:'#3b6d11', backgroundColor:'rgba(59,109,17,0.1)', fill:true, tension:0.3, yAxisID:'y' },
-      { label:'MTTR', data:[3.8,3.6,3.5,3.4], borderColor:'#a32d2d', backgroundColor:'rgba(163,45,45,0.1)', fill:true, tension:0.3, yAxisID:'y1' }
+// ---- gráfico resumo ----
+new Chart(document.getElementById('resumoChart'),{
+  type:'line',
+  data:{
+    labels:SEMANAS,
+    datasets:[
+      {label:'MTBF',data:[110,118,125,128],borderColor:'#3b6d11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.3,yAxisID:'y'},
+      {label:'MTTR',data:[3.8,3.6,3.5,3.4],borderColor:'#a32d2d',backgroundColor:'rgba(163,45,45,0.1)',fill:true,tension:0.3,yAxisID:'y1'}
     ]
   },
-  options: {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ display:false } },
-    scales:{
-      y:{ position:'left', grid:{ color:'#e1ded2' } },
-      y1:{ position:'right', grid:{ display:false } }
-    }
-  }
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{position:'left',grid:{color:'#e1ded2'}},y1:{position:'right',grid:{display:false}}}}
 });
 
-new Chart(document.getElementById('mtbfSetorChart'), {
+// ---- MTBF setor (geral) ----
+new Chart(document.getElementById('mtbfSetorChart'),{
   type:'bar',
-  data:{ labels:['Pasteur.','Requeijão','Doce de leite','Câmaras frias','Envase','Caldeira','Utilidades'],
-    datasets:[{ data:[130,145,160,68,210,95,175], backgroundColor:'#3b6d11', borderRadius:4 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ x:{ grid:{display:false} }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true } } }
+  data:{labels:SETORES.map(s=>s.length>10?s.substring(0,10)+'…':s),
+    datasets:[{data:[130,145,160,68,210,95,175],backgroundColor:CORES,borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true}}}
 });
-new Chart(document.getElementById('mtbfEvolChart'), {
+
+// ---- MTBF comparativo entre setores (chips) ----
+let setoresSel = ['Pasteurização','Câmaras frias'];
+let compChart = null;
+
+function buildChips(){
+  const cont = document.getElementById('setor-chips-mtbf');
+  cont.innerHTML='';
+  SETORES.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='setor-chip'+(setoresSel.includes(s)?' sel':'');
+    b.textContent=s;
+    b.onclick=()=>{
+      if(setoresSel.includes(s)){
+        if(setoresSel.length===1) return;
+        setoresSel=setoresSel.filter(x=>x!==s);
+      } else {
+        setoresSel.push(s);
+      }
+      buildChips();
+      atualizarCompChart();
+    };
+    cont.appendChild(b);
+  });
+}
+
+function atualizarCompChart(){
+  const leg=document.getElementById('legenda-comp');
+  leg.innerHTML='';
+  const datasets=setoresSel.map(s=>{
+    const idx=SETORES.indexOf(s);
+    const cor=CORES[idx];
+    const span=document.createElement('span');
+    span.innerHTML=`<span class="dot" style="background:${cor};"></span>${s}`;
+    leg.appendChild(span);
+    return {label:s,data:MTBF_DATA[s],borderColor:cor,backgroundColor:cor+'22',fill:false,tension:0.3,pointRadius:5};
+  });
+  if(compChart){ compChart.destroy(); }
+  compChart=new Chart(document.getElementById('mtbfCompChart'),{
+    type:'line',
+    data:{labels:SEMANAS,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{y:{grid:{color:'#e1ded2'},title:{display:true,text:'MTBF (horas)'},beginAtZero:false}}}
+  });
+}
+buildChips();
+atualizarCompChart();
+
+// ---- MTBF evolução ----
+new Chart(document.getElementById('mtbfEvolChart'),{
   type:'line',
-  data:{ labels:['Sem 1','Sem 2','Sem 3','Sem 4'], datasets:[{ data:[110,118,125,128], borderColor:'#3b6d11', backgroundColor:'rgba(59,109,17,0.1)', fill:true, tension:0.3 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ y:{ grid:{ color:'#e1ded2' } } } }
+  data:{labels:SEMANAS,datasets:[{data:[110,118,125,128],borderColor:'#3b6d11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{grid:{color:'#e1ded2'}}}}
 });
 
-new Chart(document.getElementById('mttrSetorChart'), {
+// ---- MTTR ----
+new Chart(document.getElementById('mttrSetorChart'),{
   type:'bar',
-  data:{ labels:['Pasteur.','Requeijão','Doce de leite','Câmaras frias','Envase','Caldeira','Utilidades'],
-    datasets:[{ data:[3.1,2.8,2.5,4.9,1.2,6.8,2.0], backgroundColor:'#a32d2d', borderRadius:4 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ x:{ grid:{display:false} }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true } } }
+  data:{labels:SETORES.map(s=>s.length>10?s.substring(0,10)+'…':s),
+    datasets:[{data:[3.1,2.8,2.5,4.9,1.2,6.8,2.0],backgroundColor:'#a32d2d',borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true}}}
 });
-new Chart(document.getElementById('mttrEvolChart'), {
+new Chart(document.getElementById('mttrEvolChart'),{
   type:'line',
-  data:{ labels:['Sem 1','Sem 2','Sem 3','Sem 4'], datasets:[{ data:[3.8,3.6,3.5,3.4], borderColor:'#a32d2d', backgroundColor:'rgba(163,45,45,0.1)', fill:true, tension:0.3 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ y:{ grid:{ color:'#e1ded2' } } } }
+  data:{labels:SEMANAS,datasets:[{data:[3.8,3.6,3.5,3.4],borderColor:'#a32d2d',backgroundColor:'rgba(163,45,45,0.1)',fill:true,tension:0.3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{grid:{color:'#e1ded2'}}}}
 });
 
-new Chart(document.getElementById('osChart'), {
+// ---- OS ----
+new Chart(document.getElementById('osChart'),{
   type:'bar',
-  data:{ labels:['Pasteur.','Requeijão','Doce de leite','Câmaras frias','Envase','Caldeira','Utilidades'],
-    datasets:[{ data:[4,3,2,5,1,2,0], backgroundColor:'#b98b5e', borderRadius:4 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ x:{ grid:{display:false} }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true, ticks:{ stepSize:1 } } } }
+  data:{labels:SETORES.map(s=>s.length>10?s.substring(0,10)+'…':s),
+    datasets:[{data:[4,3,2,5,1,2,0],backgroundColor:'#b98b5e',borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true,ticks:{stepSize:1}}}}
 });
 
-new Chart(document.getElementById('lenhaChart'), {
+// ---- Lenha ----
+new Chart(document.getElementById('lenhaChart'),{
   type:'bar',
-  data:{ labels:['Jan','Fev','Mar','Abr','Mai'], datasets:[{ data:[210,198,205,192,184], backgroundColor:'#3b6d11', borderRadius:4 }] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-    scales:{ x:{ grid:{display:false} }, y:{ grid:{ color:'#e1ded2' }, beginAtZero:true } } }
+  data:{labels:['Jan','Fev','Mar','Abr','Mai'],datasets:[{data:[210,198,205,192,184],backgroundColor:'#3b6d11',borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#e1ded2'},beginAtZero:true}}}
 });
 </script>
 </body>
