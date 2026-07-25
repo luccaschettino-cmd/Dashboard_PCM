@@ -1,5 +1,5 @@
 {
-  "_gerado_em": "2026-07-25T13:07:41",
+  "_gerado_em": "2026-07-25T13:14:02",
   "_fonte": "PCM_OS_Intranet.xlsx",
   "intranet": {
     "resumo_mensal": [
@@ -79,10 +79,10 @@
         "mes_num": 7,
         "mes": "Julho",
         "abertas": 126,
-        "conc30": 125,
-        "nconc30": 1,
-        "tempo_medio": 2.6,
-        "indicador": 99.21,
+        "conc30": 126,
+        "nconc30": 0,
+        "tempo_medio": 2.58,
+        "indicador": 100.0,
         "urgente": 72,
         "alta": 41,
         "normal": 13
@@ -90,10 +90,10 @@
     ],
     "totais": {
       "abertas": 717,
-      "conc30": 653,
-      "nconc30": 64,
-      "tempo_medio": 5.52,
-      "indicador": 91.07,
+      "conc30": 654,
+      "nconc30": 63,
+      "tempo_medio": 5.51,
+      "indicador": 91.21,
       "urgente": 362,
       "alta": 269,
       "normal": 86
