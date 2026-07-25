@@ -392,6 +392,16 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </form>
 
       <div class="kpi-grid">
+        <button class="kpi-card" type="button" data-goto="intranet" style="border-top-color:var(--pv-gold);">
+          <span class="label">OS Intranet · indicador <span class="goto">Ver mais →</span></span>
+          <span class="value" data-kpi="resumo-indicador">—</span>
+          <span class="delta neutral" data-kpi="resumo-mes-anterior">carregando...</span>
+          <span id="resumo-meta-status" style="
+            display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;
+            padding:2px 8px;border-radius:20px;
+            background:var(--pv-green-light);color:var(--pv-green);
+          ">▲ Acima da meta (90%)</span>
+        </button>
         <button class="kpi-card" type="button" data-goto="mtbf">
           <span class="label">MTBF médio <span class="goto">Ver mais →</span></span>
           <span class="value">128 h</span>
@@ -1524,6 +1534,26 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         if (k === 'tmedio'   && totais.tempo_medio!= null) el.textContent = totais.tempo_medio.toFixed(1) + ' dias';
         if (k === 'indicador'&& totais.indicador  != null) el.textContent = totais.indicador.toFixed(2) + '%';
         if (k === 'os15d'    && d.os_ultimos_15d  != null) el.textContent = d.os_ultimos_15d;
+        if (k === 'resumo-indicador' && totais.indicador != null) {
+          el.textContent = totais.indicador.toFixed(2) + '%';
+          const badge = document.getElementById('resumo-meta-status');
+          if (badge) {
+            const acima = totais.indicador >= 90;
+            badge.textContent = acima
+              ? '▲ Acima da meta (90%)'
+              : '▼ Abaixo da meta (90%)';
+            badge.style.background = acima ? 'var(--pv-green-light)' : 'var(--pv-red-light)';
+            badge.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
+          }
+        }
+        if (k === 'resumo-mes-anterior') {
+          const meses = d.resumo_mensal;
+          if (meses && meses.length >= 2) {
+            const mesAnterior = meses[meses.length - 2];
+            el.textContent = mesAnterior.mes + ': ' + mesAnterior.indicador.toFixed(2) + '%';
+            el.className = 'delta ' + (mesAnterior.indicador >= 90 ? 'up' : 'down');
+          }
+        }
         if (k === 'urgente'  && totais.urgente     != null) el.textContent = totais.urgente;
         if (k === 'alta'     && totais.alta        != null) el.textContent = totais.alta;
         if (k === 'normal'   && totais.normal      != null) el.textContent = totais.normal;
