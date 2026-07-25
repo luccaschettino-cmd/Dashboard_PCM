@@ -1,0 +1,104 @@
+{
+  "_gerado_em": "2026-07-25T09:42:41",
+  "_fonte": "PCM_OS_Intranet.xlsx",
+  "intranet": {
+    "resumo_mensal": [
+      {
+        "mes_num": 1,
+        "mes": "Janeiro",
+        "abertas": 87,
+        "conc30": 60,
+        "nconc30": 17,
+        "tempo_medio": 7.13,
+        "indicador": 68.97,
+        "urgente": 48,
+        "alta": 23,
+        "normal": 16
+      },
+      {
+        "mes_num": 2,
+        "mes": "Fevereiro",
+        "abertas": 87,
+        "conc30": 53,
+        "nconc30": 29,
+        "tempo_medio": 14.6,
+        "indicador": 60.92,
+        "urgente": 47,
+        "alta": 31,
+        "normal": 9
+      },
+      {
+        "mes_num": 3,
+        "mes": "Março",
+        "abertas": 49,
+        "conc30": 43,
+        "nconc30": 5,
+        "tempo_medio": 11.28,
+        "indicador": 87.76,
+        "urgente": 29,
+        "alta": 15,
+        "normal": 5
+      },
+      {
+        "mes_num": 4,
+        "mes": "Abril",
+        "abertas": 103,
+        "conc30": 91,
+        "nconc30": 6,
+        "tempo_medio": 7.85,
+        "indicador": 88.35,
+        "urgente": 45,
+        "alta": 53,
+        "normal": 5
+      },
+      {
+        "mes_num": 5,
+        "mes": "Maio",
+        "abertas": 145,
+        "conc30": 133,
+        "nconc30": 6,
+        "tempo_medio": 2.84,
+        "indicador": 91.72,
+        "urgente": 59,
+        "alta": 60,
+        "normal": 26
+      },
+      {
+        "mes_num": 6,
+        "mes": "Junho",
+        "abertas": 151,
+        "conc30": 148,
+        "nconc30": 0,
+        "tempo_medio": 3.39,
+        "indicador": 98.01,
+        "urgente": 74,
+        "alta": 62,
+        "normal": 15
+      },
+      {
+        "mes_num": 7,
+        "mes": "Julho",
+        "abertas": 126,
+        "conc30": 125,
+        "nconc30": 1,
+        "tempo_medio": 2.6,
+        "indicador": 99.21,
+        "urgente": 72,
+        "alta": 41,
+        "normal": 13
+      }
+    ],
+    "totais": {
+      "abertas": 748,
+      "conc30": 653,
+      "nconc30": 64,
+      "tempo_medio": 5.52,
+      "indicador": 87.3,
+      "urgente": 374,
+      "alta": 285,
+      "normal": 89
+    },
+    "os_ultimos_15d": 76,
+    "meta_indicador": 90
+  }
+}
