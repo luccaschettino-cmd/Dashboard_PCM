@@ -381,13 +381,27 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     <section class="page active" id="page-resumo" role="tabpanel" aria-labelledby="tab-resumo" tabindex="0">
       <header class="page-header">
         <h2>Resumo geral</h2>
-        <p data-periodo>Visão consolidada dos indicadores · 01/07/2026 a 25/07/2026</p>
+        <p data-periodo>Visão consolidada dos indicadores · 2026</p>
       </header>
 
       <form class="filtro-bar" data-filtro="resumo" data-label="Visão consolidada dos indicadores">
-        <label>De <input type="date" name="de" value="2026-07-01" required></label>
-        <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
+        <label>Mês
+          <select name="mes" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);font-size:13px;background:var(--surface);">
+            <option value="0">Ano todo</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </label>
         <button class="btn" type="submit">Aplicar</button>
         <p class="filtro-erro" role="alert" data-erro></p>
       </form>
@@ -403,15 +417,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
             background:var(--pv-green-light);color:var(--pv-green);
           ">▲ Acima da meta (90%)</span>
         </button>
-        <button class="kpi-card" type="button" data-goto="mtbf">
-          <span class="label">MTBF médio <span class="goto">Ver mais →</span></span>
-          <span class="value">128 h</span>
-          <span class="delta up">▲ +6% vs mês anterior</span>
-        </button>
-        <button class="kpi-card" type="button" data-goto="mttr">
-          <span class="label">MTTR médio <span class="goto">Ver mais →</span></span>
-          <span class="value">3,4 h</span>
-          <span class="delta down">▲ +0,3 h vs mês anterior</span>
+        <button class="kpi-card" type="button" data-goto="planejamento">
+          <span class="label">Aderência ao planejamento <span class="goto">Ver mais →</span></span>
+          <span class="value" id="resumo-plan-ader">—</span>
+          <span class="delta neutral" id="resumo-plan-sub" style="display:block;margin-top:2px;font-size:11px;">acumulado 2026</span>
+          <span id="resumo-plan-pill" style="
+            display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;
+            padding:2px 8px;border-radius:20px;
+            background:var(--pv-green-light);color:var(--pv-green);
+          ">—</span>
         </button>
         <button class="kpi-card" type="button" data-goto="lenha">
           <span class="label">Lenha específica <span class="goto">Ver mais →</span></span>
@@ -422,6 +436,16 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           <span class="label">Água específica <span class="goto">Ver mais →</span></span>
           <span class="value">3,2 L/kg</span>
           <span class="delta up">▼ -4% vs mês anterior</span>
+        </button>
+        <button class="kpi-card" type="button" data-goto="mtbf">
+          <span class="label">MTBF médio <span class="goto">Ver mais →</span></span>
+          <span class="value">128 h</span>
+          <span class="delta up">▲ +6% vs mês anterior</span>
+        </button>
+        <button class="kpi-card" type="button" data-goto="mttr">
+          <span class="label">MTTR médio <span class="goto">Ver mais →</span></span>
+          <span class="value">3,4 h</span>
+          <span class="delta down">▲ +0,3 h vs mês anterior</span>
         </button>
       </div>
 
@@ -748,6 +772,21 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </header>
         <p data-periodo>Período: 10/07/2026 a 25/07/2026</p>
       </header>
+
+      <!-- Alerta OS pendentes de avaliação -->
+      <div id="alerta-avaliacao" style="display:none;background:#fffbf0;border:1.5px solid #e6a817;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:20px;">⚠️</span>
+          <div>
+            <p style="margin:0;font-weight:700;color:#b8860b;font-size:14px;"><span id="qtd-avaliacao">—</span> OS aguardando avaliação de contagem</p>
+            <p style="margin:4px 0 0;font-size:12px;color:#888;">Campo "Entra na contagem?" não preenchido — verifique no Drive</p>
+          </div>
+        </div>
+        <a href="https://docs.google.com/spreadsheets/d/1k0opt7fDCp-rECaGL0N5ZU-2Q-nKf18tvY8dO1xvndc/edit?gid=1760832858#gid=1760832858" target="_blank"
+          style="padding:7px 16px;background:#e6a817;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">
+          📂 Abrir no Drive
+        </a>
+      </div>
 
       <form class="filtro-bar" id="filtro-intranet">
         <label>De
@@ -1562,19 +1601,76 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   /* ---------- 9. FILTROS (1 handler para as 6 abas) ---------- */
   $$('form[data-filtro]').forEach(form => {
+    // Formulário do resumo geral tem select de mês, os outros têm datas
+    if (form.dataset.filtro === 'resumo') {
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const mes = parseInt(form.elements.mes.value);
+        const alvo = $('[data-periodo]', form.closest('.page'));
+        const MESES_FULL = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+        if (alvo) alvo.textContent = mes === 0 ? 'Visão consolidada · Ano todo 2026' : 'Visão consolidada · ' + MESES_FULL[mes] + ' 2026';
+
+        // Filtra OS Intranet
+        try {
+          const url = mes === 0
+            ? `${SUPABASE_URL}/rest/v1/os_intranet?select=*&order=mes_num.asc`
+            : `${SUPABASE_URL}/rest/v1/os_intranet?select=*&mes_num=eq.${mes}`;
+          const resp = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }});
+          const dados = await resp.json();
+          if (dados && dados.length) {
+            const totAb  = dados.reduce((a, m) => a + (m.abertas || 0), 0);
+            const totConc = dados.reduce((a, m) => a + (m.conc30  || 0), 0);
+            const ind = totAb ? +(totConc / totAb * 100).toFixed(2) : 0;
+            const elInd = document.querySelector('[data-kpi="resumo-indicador"]');
+            const elPill = document.getElementById('resumo-meta-status');
+            if (elInd) elInd.textContent = ind.toFixed(2) + '%';
+            if (elPill) {
+              const acima = ind >= 90;
+              elPill.textContent = acima ? '▲ Acima da meta (90%)' : '▼ Abaixo da meta (90%)';
+              elPill.style.background = acima ? 'var(--pv-green-light)' : 'var(--pv-red-light)';
+              elPill.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
+            }
+          }
+        } catch(e) { console.warn('Erro filtro OS:', e); }
+
+        // Filtra Planejamento
+        try {
+          const dadosFilt = mes === 0
+            ? dadosPlanejamento
+            : dadosPlanejamento.filter(s => (s.mes_num || 0) == mes);
+          const totalProg = dadosFilt.reduce((a, s) => a + (s.programadas || 0), 0);
+          const totalConc = dadosFilt.reduce((a, s) => a + (s.concluidas  || 0), 0);
+          const ader = totalProg ? Math.round(totalConc / totalProg * 100) : 0;
+          const acima = ader >= 90;
+          const elAder = document.getElementById('resumo-plan-ader');
+          const elSub  = document.getElementById('resumo-plan-sub');
+          const elPill = document.getElementById('resumo-plan-pill');
+          if (elAder) elAder.textContent = ader + '%';
+          if (elSub)  elSub.textContent  = totalConc + ' conc. / ' + totalProg + ' prog. · ' + dadosFilt.length + ' semana(s)';
+          if (elPill) {
+            elPill.textContent = acima ? '▲ Acima da meta (90%)' : '▼ Abaixo da meta (90%)';
+            elPill.style.background = acima ? 'var(--pv-green-light)' : 'var(--pv-red-light)';
+            elPill.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
+          }
+        } catch(e) { console.warn('Erro filtro Planejamento:', e); }
+      });
+      return;
+    }
+
+    // Demais formulários (data)
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const de = form.elements.de.value;
-      const ate = form.elements.ate.value;
+      const de = form.elements.de ? form.elements.de.value : null;
+      const ate = form.elements.ate ? form.elements.ate.value : null;
       const erro = $('[data-erro]', form);
       const alvo = $('[data-periodo]', form.closest('.page'));
 
-      if (!de || !ate) { erro.textContent = 'Preencha as duas datas.'; return; }
-      if (de > ate) { erro.textContent = 'A data inicial deve ser anterior à data final.'; return; }
+      if (!de || !ate) { if (erro) erro.textContent = 'Preencha as duas datas.'; return; }
+      if (de > ate) { if (erro) erro.textContent = 'A data inicial deve ser anterior à data final.'; return; }
 
-      erro.textContent = '';
-      alvo.textContent = `${form.dataset.label}: ${fmtData(de)} a ${fmtData(ate)}`;
-      /* ponto de integração: aqui entraria o recarregamento dos dados do período */
+      if (erro) erro.textContent = '';
+      if (alvo) alvo.textContent = `${form.dataset.label}: ${fmtData(de)} a ${fmtData(ate)}`;
     });
   });
 
@@ -1850,6 +1946,18 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const aderAcum  = totalProg ? Math.round(totalConc / totalProg * 100) : 0;
       const META = DATA.planejamento.meta;
       const acima = aderAcum >= META;
+
+      // Card planejamento no resumo geral
+      const resumoPlanAder = document.getElementById('resumo-plan-ader');
+      const resumoPlanPill = document.getElementById('resumo-plan-pill');
+      const resumoPlanSub  = document.getElementById('resumo-plan-sub');
+      if (resumoPlanAder) resumoPlanAder.textContent = aderAcum + '%';
+      if (resumoPlanSub)  resumoPlanSub.textContent  = totalConc + ' conc. / ' + totalProg + ' prog. · ' + dadosPlanejamento.length + ' semanas';
+      if (resumoPlanPill) {
+        resumoPlanPill.textContent = acima ? '▲ Acima da meta (90%)' : '▼ Abaixo da meta (90%)';
+        resumoPlanPill.style.background = acima ? 'var(--pv-green-light)' : 'var(--pv-red-light)';
+        resumoPlanPill.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
+      }
 
       const elAder   = document.getElementById('plan-aderencia');
       const elLabel  = document.getElementById('plan-semana-label');
@@ -2143,7 +2251,19 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       cardInd.style.background = ind >= 90 ? '#f0faf0' : '#fdf0f0';
     }
 
-    // OS em aberto (situacao contendo aguardando ou andamento)
+    // OS pendentes de avaliação de contagem
+    try {
+      const respAval = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?select=codigo&entra_contagem=is.null&situacao=neq.Cancelada`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dadosAval = await respAval.json();
+      const qtd = dadosAval.length;
+      const alertaEl = document.getElementById('alerta-avaliacao');
+      const qtdEl    = document.getElementById('qtd-avaliacao');
+      if (qtdEl) qtdEl.textContent = qtd;
+      if (alertaEl) alertaEl.style.display = qtd > 0 ? 'flex' : 'none';
+    } catch(e) { console.warn('Erro ao buscar OS sem avaliação:', e); }
     try {
       const resp = await fetch(
         `${SUPABASE_URL}/rest/v1/os_individual?select=situacao&or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)`,
