@@ -2187,6 +2187,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     if (de)  de.value  = '1';
     if (ate) ate.value = String(mesAtual);
     await carregarDados();
+    await carregarPlanejamento();
     iniciar();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
