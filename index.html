@@ -1889,12 +1889,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   // ── EXPORTAR PDF ─────────────────────────────────────────
   window.exportarPDF = function() {
-    const secao = document.getElementById('page-intranet');
-    const original = document.body.innerHTML;
-    document.body.innerHTML = secao.innerHTML;
     window.print();
-    document.body.innerHTML = original;
-    window.location.reload();
   }
 
   // Define filtro de Janeiro até mês atual automaticamente
