@@ -1077,16 +1077,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     },
 
     planejamento: {
-      semana: { concluidas: 28, naoRealizadas: 5, reprogramadas: 3 },
-      meses: [
-        { mes: 'Janeiro', prog: 92, conc: 62, nreal: 15, repr: 15 },
-        { mes: 'Fevereiro', prog: 88, conc: 68, nreal: 12, repr: 8 },
-        { mes: 'Março', prog: 95, conc: 79, nreal: 10, repr: 6 },
-        { mes: 'Abril', prog: 110, conc: 94, nreal: 9, repr: 7 },
-        { mes: 'Maio', prog: 128, conc: 112, nreal: 10, repr: 6 },
-        { mes: 'Junho', prog: 124, conc: 112, nreal: 8, repr: 4 },
-        { mes: 'Julho', prog: 113, conc: 94, nreal: 14, repr: 5 }
-      ],
+      semana: { concluidas: 0, naoRealizadas: 0, reprogramadas: 0 },
+      meses: [],
       meta: 90
     }
   };
@@ -1202,23 +1194,6 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       ));
     }
 
-    /* tabela mensal compacta */
-    const tbMensal = $('#tb-mensal-body');
-    if (tbMensal) {
-      DATA.planejamento.meses.forEach(m => {
-        const cor = m.ader >= 85 ? '#2d6a2d' : m.ader >= 70 ? '#b8860b' : '#c0392b';
-        const bg  = m.ader >= 85 ? '#f0faf0' : m.ader >= 70 ? '#fffbf0' : '#fdf0f0';
-        const tr = el('tr', { style: 'background:' + bg + ';border-bottom:1px solid var(--border)' },
-          el('td', { text: m.mes, style: 'padding:9px 12px;font-weight:600;color:' + cor }),
-          el('td', { text: String(m.prog), style: 'padding:9px 12px;text-align:right;' }),
-          el('td', { text: String(m.conc), style: 'padding:9px 12px;text-align:right;color:#2d6a2d;font-weight:600;' }),
-          el('td', { text: String(m.nreal), style: 'padding:9px 12px;text-align:right;color:#c0392b;' }),
-          el('td', { text: String(m.repr), style: 'padding:9px 12px;text-align:right;color:#b8860b;' }),
-          el('td', { text: m.ader + '%', style: 'padding:9px 12px;text-align:right;font-weight:700;color:' + cor })
-        );
-        tbMensal.appendChild(tr);
-      });
-    }
   }
 
   /* ---------- 5. CHART.JS — defaults centralizados ---------- */
