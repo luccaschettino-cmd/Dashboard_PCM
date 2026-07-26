@@ -1353,7 +1353,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       type: 'bar',
       data: { labels: DATA.intranet.meses, datasets: [
         { label: 'Concluídas em 30d', data: DATA.intranet.conc30, backgroundColor: PALETA.c1, borderRadius: 4, stack: 's' },
-        { label: 'Não concluídas', data: DATA.intranet.nconc30, backgroundColor: PALETA.c2, borderRadius: 4, stack: 's' }
+        { label: 'Não concluídas', data: DATA.intranet.nconc30, backgroundColor: PALETA.c2, borderRadius: 4, stack: 's' },
+          { label: 'Em aberto', data: DATA.intranet.em_aberto, backgroundColor: PALETA.gold, borderRadius: 4, stack: 's' }
       ] },
       options: { interaction: { mode: 'index', intersect: false },
         scales: { x: eixoX(), y: eixoY('Quantidade de OS', { beginAtZero: true, stacked: true }) } }
@@ -1859,7 +1860,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   // ── EXPORTAR PDF ─────────────────────────────────────────
   window.exportarPDF = function() {
+    const secao = document.getElementById('page-intranet');
+    const original = document.body.innerHTML;
+    document.body.innerHTML = secao.innerHTML;
     window.print();
+    document.body.innerHTML = original;
+    window.location.reload();
   }
 
   async function boot() {
