@@ -877,35 +877,27 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     <section class="page" id="page-planejamento" role="tabpanel" aria-labelledby="tab-planejamento" tabindex="0" hidden>
       <header class="page-header">
         <h2>Planejamento semanal</h2>
-        <p data-periodo>Semana atual · 21/07/2026 a 25/07/2026</p>
+        <p id="plan-periodo">Carregando...</p>
       </header>
-
-      <form class="filtro-bar" data-filtro="planejamento" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-21" required></label>
-        <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
-        <button class="btn" type="submit">Aplicar</button>
-        <p class="filtro-erro" role="alert" data-erro></p>
-      </form>
 
       <section class="hero hero--green" aria-label="Indicador principal de planejamento">
         <div>
           <p class="hero__label">Indicador principal · Aderência ao planejamento</p>
-          <p class="hero__value">78% <small>OS concluídas / programadas</small></p>
-          <p class="hero__meta">Semana 30 · 21/07 a 25/07/2026</p>
+          <p class="hero__value"><span id="plan-aderencia">—</span>% <small>OS concluídas / programadas</small></p>
+          <p class="hero__meta" id="plan-semana-label">Carregando...</p>
         </div>
         <div class="hero__box">
           <p>Meta de aderência</p>
-          <p class="big">≥ 85%</p>
-          <span class="pill pill--bad">✗ Abaixo da meta</span>
+          <p class="big">≥ 90%</p>
+          <span class="pill" id="plan-meta-pill">—</span>
         </div>
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Programadas</p><p class="value">36</p><p class="delta neutral">na semana</p></div>
-        <div class="kpi-card"><p class="label">Concluídas</p><p class="value">28</p><p class="delta up">78% do programado</p></div>
-        <div class="kpi-card"><p class="label">Não realizadas</p><p class="value">5</p><p class="delta down">14% do programado</p></div>
-        <div class="kpi-card"><p class="label">Reprogramadas</p><p class="value">3</p><p class="delta neutral">8% do programado</p></div>
+        <div class="kpi-card"><p class="label">Programadas</p><p class="value" id="plan-prog">—</p><p class="delta neutral">na semana</p></div>
+        <div class="kpi-card"><p class="label">Concluídas</p><p class="value" id="plan-conc">—</p><p class="delta up" id="plan-conc-pct">—</p></div>
+        <div class="kpi-card"><p class="label">Não realizadas</p><p class="value" id="plan-nreal">—</p><p class="delta down" id="plan-nreal-pct">—</p></div>
+        <div class="kpi-card"><p class="label">Reprogramadas</p><p class="value" id="plan-repr">—</p><p class="delta neutral" id="plan-repr-pct">—</p></div>
       </div>
 
       <div class="panel">
@@ -913,13 +905,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <p class="sub">Situação de cada OS programada na semana</p>
         <div class="split">
           <div class="chart-box chart-box--sm">
-            <canvas data-chart="planDist" role="img"
-              aria-label="Rosca da semana: 28 concluídas, 5 não realizadas, 3 reprogramadas"></canvas>
+            <canvas data-chart="planDist" role="img" aria-label="Rosca da semana atual"></canvas>
           </div>
           <div class="stat-list">
-            <div class="stat-row stat-row--green"><span>Concluídas <small>dentro do prazo</small></span><span class="n">28</span></div>
-            <div class="stat-row stat-row--red"><span>Não realizadas <small>pendente de ação</small></span><span class="n">5</span></div>
-            <div class="stat-row stat-row--gold"><span>Reprogramadas <small>movidas para a próxima semana</small></span><span class="n">3</span></div>
+            <div class="stat-row stat-row--green"><span>Concluídas <small>dentro do prazo</small></span><span class="n" id="dist-conc">—</span></div>
+            <div class="stat-row stat-row--red"><span>Não realizadas <small>pendente de ação</small></span><span class="n" id="dist-nreal">—</span></div>
+            <div class="stat-row stat-row--gold"><span>Reprogramadas <small>movidas para a próxima semana</small></span><span class="n" id="dist-repr">—</span></div>
           </div>
         </div>
       </div>
@@ -987,11 +978,25 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         </div>
       </div>
 
-      <!-- Cards mensais (mantidos) -->
+      <!-- Tabela mensal compacta -->
       <div class="panel">
         <h3>Acompanhamento mensal</h3>
         <p class="sub">Visão consolidada mês a mês · 2026</p>
-        <div class="mes-list" id="cards-mensais"></div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--surface-alt,#f5f5f3);">
+                <th style="padding:10px 12px;text-align:left;">Mês</th>
+                <th style="padding:10px 12px;text-align:right;">Programadas</th>
+                <th style="padding:10px 12px;text-align:right;">Concluídas</th>
+                <th style="padding:10px 12px;text-align:right;">Não realizadas</th>
+                <th style="padding:10px 12px;text-align:right;">Reprogramadas</th>
+                <th style="padding:10px 12px;text-align:right;">Aderência</th>
+              </tr>
+            </thead>
+            <tbody id="tb-mensal-body"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1082,7 +1087,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         { mes: 'Junho', prog: 124, conc: 112, nreal: 8, repr: 4 },
         { mes: 'Julho', prog: 113, conc: 94, nreal: 14, repr: 5 }
       ],
-      meta: 85
+      meta: 90
     }
   };
 
@@ -1197,35 +1202,21 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       ));
     }
 
-    /* cards mensais do planejamento */
-    const cont = $('#cards-mensais');
-    if (cont) {
+    /* tabela mensal compacta */
+    const tbMensal = $('#tb-mensal-body');
+    if (tbMensal) {
       DATA.planejamento.meses.forEach(m => {
-        const nivel = m.ader >= 85 ? 'ok' : m.ader >= 70 ? 'warn' : 'bad';
-        const cor = nivel === 'ok' ? PALETA.green : nivel === 'warn' ? PALETA.gold : PALETA.red;
-
-        const nums = el('div', { class: 'mes-card__nums' });
-        [['Programadas', m.prog, 'var(--text-primary)'],
-         ['Concluídas', m.conc, PALETA.green],
-         ['Não realizadas', m.nreal, PALETA.red],
-         ['Reprogramadas', m.repr, PALETA.gold]].forEach(([rot, val, c]) => {
-          nums.appendChild(el('div', {},
-            el('p', { text: rot }),
-            el('p', { text: String(val), style: 'color:' + c })
-          ));
-        });
-
-        const barra = el('div', { class: 'bar' }, el('i', { style: `width:${m.ader}%;background:${cor}` }));
-
-        cont.appendChild(el('div', { class: 'mes-card mes-card--' + nivel },
-          el('p', { class: 'mes-card__name', text: m.mes, style: 'color:' + cor }),
-          nums,
-          el('div', { class: 'mes-card__ader' },
-            el('p', { text: 'Aderência' }),
-            el('p', { text: m.ader + '%', style: 'color:' + cor })
-          ),
-          barra
-        ));
+        const cor = m.ader >= 85 ? '#2d6a2d' : m.ader >= 70 ? '#b8860b' : '#c0392b';
+        const bg  = m.ader >= 85 ? '#f0faf0' : m.ader >= 70 ? '#fffbf0' : '#fdf0f0';
+        const tr = el('tr', { style: 'background:' + bg + ';border-bottom:1px solid var(--border)' },
+          el('td', { text: m.mes, style: 'padding:9px 12px;font-weight:600;color:' + cor }),
+          el('td', { text: String(m.prog), style: 'padding:9px 12px;text-align:right;' }),
+          el('td', { text: String(m.conc), style: 'padding:9px 12px;text-align:right;color:#2d6a2d;font-weight:600;' }),
+          el('td', { text: String(m.nreal), style: 'padding:9px 12px;text-align:right;color:#c0392b;' }),
+          el('td', { text: String(m.repr), style: 'padding:9px 12px;text-align:right;color:#b8860b;' }),
+          el('td', { text: m.ader + '%', style: 'padding:9px 12px;text-align:right;font-weight:700;color:' + cor })
+        );
+        tbMensal.appendChild(tr);
       });
     }
   }
@@ -1878,8 +1869,51 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         ch.update();
       }
 
-      // Atualiza sub-label
-      const sub = document.getElementById('plan-evol-sub');
+      // Atualiza hero + cards com a semana mais recente
+      const semanaRecente = dadosPlanejamento[dadosPlanejamento.length - 1];
+      if (semanaRecente) {
+        const ader = semanaRecente.aderencia || 0;
+        const prog = semanaRecente.programadas || 0;
+        const conc = semanaRecente.concluidas || 0;
+        const nreal = semanaRecente.nao_realizadas || 0;
+        const repr = semanaRecente.reprogramadas || 0;
+        const META = DATA.planejamento.meta;
+        const acima = ader >= META;
+
+        // Hero
+        const elAder = document.getElementById('plan-aderencia');
+        const elLabel = document.getElementById('plan-semana-label');
+        const elPill  = document.getElementById('plan-meta-pill');
+        const elPeriodo = document.getElementById('plan-periodo');
+        if (elAder)   elAder.textContent = num(ader, 1);
+        if (elLabel)  elLabel.textContent = semanaRecente.semana_label || ('Semana ' + semanaRecente.semana_num);
+        if (elPeriodo) elPeriodo.textContent = 'Semana mais recente · ' + (semanaRecente.semana_label || ('Semana ' + semanaRecente.semana_num));
+        if (elPill) {
+          elPill.textContent = acima ? '✓ Acima da meta' : '✗ Abaixo da meta';
+          elPill.className = 'pill ' + (acima ? 'pill--ok' : 'pill--bad');
+        }
+
+        // Cards KPI
+        const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+        set('plan-prog',  prog);
+        set('plan-conc',  conc);
+        set('plan-nreal', nreal);
+        set('plan-repr',  repr);
+        set('plan-conc-pct',  prog ? Math.round(conc  / prog * 100) + '% do programado' : '—');
+        set('plan-nreal-pct', prog ? Math.round(nreal / prog * 100) + '% do programado' : '—');
+        set('plan-repr-pct',  prog ? Math.round(repr  / prog * 100) + '% do programado' : '—');
+
+        // Distribuição (rosca)
+        set('dist-conc',  conc);
+        set('dist-nreal', nreal);
+        set('dist-repr',  repr);
+        DATA.planejamento.semana = { concluidas: conc, naoRealizadas: nreal, reprogramadas: repr };
+        const chDist = charts.get('planDist');
+        if (chDist) {
+          chDist.data.datasets[0].data = [conc, nreal, repr];
+          chDist.update();
+        }
+      }
       if (sub) sub.textContent = labels.length + ' mês(es) com dados · ' + dadosPlanejamento.length + ' semana(s) exportada(s)';
 
       // Popula seletor de mês
