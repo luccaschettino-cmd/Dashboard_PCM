@@ -752,7 +752,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       <form class="filtro-bar" id="filtro-intranet">
         <label>De
           <select name="mes-de" id="intranet-mes-de">
-            <option value="1">Janeiro</option>
+            <option value="1" selected>Janeiro</option>
             <option value="2">Fevereiro</option>
             <option value="3">Março</option>
             <option value="4">Abril</option>
@@ -1896,6 +1896,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     document.body.innerHTML = original;
     window.location.reload();
   }
+
+  // Define filtro de Janeiro até mês atual automaticamente
+  (function() {
+    const mesAtual = new Date().getMonth() + 1;
+    const de  = document.getElementById('intranet-mes-de');
+    const ate = document.getElementById('intranet-mes-ate');
+    if (de)  de.value  = '1';
+    if (ate) ate.value = String(mesAtual);
+  })();
 
   async function boot() {
     await carregarDados();
