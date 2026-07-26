@@ -739,8 +739,13 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     <!-- ---------- OS INTRANET ---------- -->
     <section class="page" id="page-intranet" role="tabpanel" aria-labelledby="tab-intranet" tabindex="0" hidden>
-      <header class="page-header">
+      <header class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <h2>OS Intranet · Ordens de serviço</h2>
+        <div style="display:flex; gap:8px;">
+          <button onclick="exportarExcel()" style="padding:6px 14px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">📥 Exportar Excel</button>
+          <button onclick="exportarPDF()" style="padding:6px 14px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">📄 Exportar PDF</button>
+        </div>
+      </header>
         <p data-periodo>Período: 10/07/2026 a 25/07/2026</p>
       </header>
 
