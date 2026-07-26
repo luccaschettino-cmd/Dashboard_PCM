@@ -613,24 +613,71 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <p class="filtro-erro" role="alert" data-erro></p>
       </form>
 
+      <header class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2>Consumo de lenha</h2>
+          <p data-periodo>Período: 2026</p>
+        </div>
+        <button type="button" id="btn-lancar-lenha" style="padding:7px 16px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">
+          📝 Lançar dados
+        </button>
+      </header>
+
+      <!-- Formulário de lançamento -->
+      <div id="form-lenha" style="display:none;background:#f9fdf9;border:1.5px solid var(--pv-green);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+        <h4 style="margin:0 0 16px;color:#0f2d0f;">Lançar consumo de lenha</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+          <label style="font-size:13px;font-weight:600;">Mês
+            <select id="lenha-mes" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
+              <option value="1,Janeiro">Janeiro</option>
+              <option value="2,Fevereiro">Fevereiro</option>
+              <option value="3,Março">Março</option>
+              <option value="4,Abril">Abril</option>
+              <option value="5,Maio">Maio</option>
+              <option value="6,Junho">Junho</option>
+              <option value="7,Julho">Julho</option>
+              <option value="8,Agosto">Agosto</option>
+              <option value="9,Setembro">Setembro</option>
+              <option value="10,Outubro">Outubro</option>
+              <option value="11,Novembro">Novembro</option>
+              <option value="12,Dezembro">Dezembro</option>
+            </select>
+          </label>
+          <label style="font-size:13px;font-weight:600;">Consumo (m³)
+            <input id="lenha-consumo" type="number" step="0.01" min="0" placeholder="ex: 184.50" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
+          </label>
+          <label style="font-size:13px;font-weight:600;">Produção (t)
+            <input id="lenha-producao" type="number" step="0.01" min="0" placeholder="ex: 211.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
+          </label>
+          <label style="font-size:13px;font-weight:600;">Custo total (R$)
+            <input id="lenha-custo" type="number" step="0.01" min="0" placeholder="ex: 45080.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button type="button" id="btn-salvar-lenha" style="padding:8px 20px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar</button>
+          <button type="button" id="btn-cancelar-lenha" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Cancelar</button>
+          <span id="lenha-form-msg" style="font-size:13px;"></span>
+        </div>
+      </div>
+
       <section class="hero hero--green" aria-label="Indicador principal de lenha">
         <div>
           <p class="hero__label">Indicador principal · Consumo específico de lenha</p>
-          <p class="hero__value">0,87 <small>m³ de lenha / t produzida</small></p>
-          <p class="hero__meta">▼ -5% vs mês anterior · Meta: ≤ 0,90 m³/t</p>
+          <p class="hero__value"><span id="lenha-hero-esp">—</span> <small>m³ de lenha / t produzida</small></p>
+          <p class="hero__meta" id="lenha-hero-meta">Carregando...</p>
         </div>
         <div class="hero__box">
           <p>Meta do período</p>
           <p class="big">≤ 0,90</p>
-          <span class="pill pill--ok">✓ Dentro da meta</span>
+          <span class="pill" id="lenha-hero-pill">—</span>
         </div>
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Lenha consumida</p><p class="value">184 m³</p><p class="delta neutral">volume do período</p></div>
-        <div class="kpi-card"><p class="label">Produção total</p><p class="value">211 t</p><p class="delta up">▲ +3% vs anterior</p></div>
-        <div class="kpi-card"><p class="label">Custo lenha / t prod.</p><p class="value">R$ 213</p><p class="delta neutral">estável</p></div>
-        <div class="kpi-card"><p class="label">Custo total lenha</p><p class="value">R$ 45.080</p><p class="delta up">▼ -3,5% vs anterior</p></div>
+        <div class="kpi-card"><p class="label">Lenha consumida</p><p class="value" id="lenha-kpi-consumo">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="lenha-kpi-prod">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Custo lenha / t prod.</p><p class="value" id="lenha-kpi-custoT">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Custo total lenha</p><p class="value" id="lenha-kpi-custo">—</p><p class="delta neutral">último mês</p></div>
       </div>
 
       <div class="panel">
@@ -676,37 +723,68 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     <!-- ---------- ÁGUA ---------- -->
     <section class="page" id="page-agua" role="tabpanel" aria-labelledby="tab-agua" tabindex="0" hidden>
-      <header class="page-header">
-        <h2>Consumo de água</h2>
-        <p data-periodo>Período: 01/07/2026 a 25/07/2026</p>
+      <header class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2>Consumo de água</h2>
+          <p data-periodo>Período: 2026</p>
+        </div>
+        <button type="button" id="btn-lancar-agua" style="padding:7px 16px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">
+          📝 Lançar dados
+        </button>
       </header>
 
-      <form class="filtro-bar" data-filtro="agua" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-01" required></label>
-        <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
-        <button class="btn" type="submit">Aplicar</button>
-        <p class="filtro-erro" role="alert" data-erro></p>
-      </form>
+      <!-- Formulário de lançamento -->
+      <div id="form-agua" style="display:none;background:#f0f6ff;border:1.5px solid var(--pv-blue);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+        <h4 style="margin:0 0 16px;color:#1a6eb5;">Lançar consumo de água</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+          <label style="font-size:13px;font-weight:600;">Mês
+            <select id="agua-mes" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
+              <option value="1,Janeiro">Janeiro</option>
+              <option value="2,Fevereiro">Fevereiro</option>
+              <option value="3,Março">Março</option>
+              <option value="4,Abril">Abril</option>
+              <option value="5,Maio">Maio</option>
+              <option value="6,Junho">Junho</option>
+              <option value="7,Julho">Julho</option>
+              <option value="8,Agosto">Agosto</option>
+              <option value="9,Setembro">Setembro</option>
+              <option value="10,Outubro">Outubro</option>
+              <option value="11,Novembro">Novembro</option>
+              <option value="12,Dezembro">Dezembro</option>
+            </select>
+          </label>
+          <label style="font-size:13px;font-weight:600;">Consumo (m³)
+            <input id="agua-consumo" type="number" step="0.01" min="0" placeholder="ex: 675.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
+          </label>
+          <label style="font-size:13px;font-weight:600;">Produção (t)
+            <input id="agua-producao" type="number" step="0.01" min="0" placeholder="ex: 211.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button type="button" id="btn-salvar-agua" style="padding:8px 20px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar</button>
+          <button type="button" id="btn-cancelar-agua" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Cancelar</button>
+          <span id="agua-form-msg" style="font-size:13px;"></span>
+        </div>
+      </div>
 
       <section class="hero hero--blue" aria-label="Indicador principal de água">
         <div>
           <p class="hero__label">Indicador principal · Consumo específico de água</p>
-          <p class="hero__value">3,2 <small>L de água / kg produzido</small></p>
-          <p class="hero__meta">▼ -4% vs mês anterior · Meta: ≤ 3,5 L/kg</p>
+          <p class="hero__value"><span id="agua-hero-esp">—</span> <small>L de água / kg produzido</small></p>
+          <p class="hero__meta" id="agua-hero-meta">Carregando...</p>
         </div>
         <div class="hero__box">
           <p>Meta do período</p>
           <p class="big">≤ 3,5 L/kg</p>
-          <span class="pill pill--ok">✓ Dentro da meta</span>
+          <span class="pill" id="agua-hero-pill">—</span>
         </div>
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Volume total consumido</p><p class="value">675 m³</p><p class="delta neutral">no período</p></div>
-        <div class="kpi-card"><p class="label">Produção total</p><p class="value">211 t</p><p class="delta up">▲ +3% vs anterior</p></div>
-        <div class="kpi-card"><p class="label">Pico diário</p><p class="value">38 m³</p><p class="delta down">dia 14/07</p></div>
-        <div class="kpi-card"><p class="label">Média diária</p><p class="value">27 m³</p><p class="delta neutral">no período</p></div>
+        <div class="kpi-card"><p class="label">Volume total consumido</p><p class="value" id="agua-kpi-consumo">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="agua-kpi-prod">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Consumo específico</p><p class="value" id="agua-kpi-esp">—</p><p class="delta neutral">L/kg · último mês</p></div>
+        <div class="kpi-card"><p class="label">Meses registrados</p><p class="value" id="agua-kpi-meses">—</p><p class="delta neutral">em 2026</p></div>
       </div>
 
       <div class="panel">
@@ -1563,6 +1641,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       montarGraficosDaPagina(alvo);
       jaMontou.add(nome);
       if (nome === 'planejamento') carregarPlanejamento();
+      if (nome === 'lenha') carregarLenha();
+      if (nome === 'agua')  carregarAgua();
     }
     if (history.replaceState) history.replaceState(null, '', '#' + nome);
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -2147,6 +2227,175 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     });
     if (selMes) selMes.addEventListener('change', () => {
       if (selMes.value) renderizarSemanasMes(selMes.value);
+    });
+  });
+
+  // ── CONSUMO DE LENHA ─────────────────────────────────────
+  async function carregarLenha() {
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/consumo_lenha?select=*&ano=eq.2026&order=mes_num.asc`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+      if (!dados || !dados.length) return;
+
+      // Último mês
+      const ult = dados[dados.length - 1];
+      const esp = parseFloat(ult.especifico || 0);
+      const META_LENHA = 0.90;
+      const dentro = esp <= META_LENHA;
+
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+      set('lenha-hero-esp', esp.toFixed(2).replace('.', ','));
+      set('lenha-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 0,90 m³/t');
+      const pill = document.getElementById('lenha-hero-pill');
+      if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
+
+      set('lenha-kpi-consumo', ult.consumo_m3.toLocaleString('pt-BR') + ' m³');
+      set('lenha-kpi-prod', ult.producao_t.toLocaleString('pt-BR') + ' t');
+      const custoT = ult.custo_total && ult.producao_t ? (ult.custo_total / ult.producao_t).toFixed(0) : '—';
+      set('lenha-kpi-custoT', ult.custo_total ? 'R$ ' + custoT : '—');
+      set('lenha-kpi-custo', ult.custo_total ? 'R$ ' + parseFloat(ult.custo_total).toLocaleString('pt-BR') : '—');
+
+      // Atualiza gráficos e tabela
+      const meses = dados.map(d => d.mes.substring(0,3));
+      const esps  = dados.map(d => parseFloat(d.especifico || 0));
+      const cons  = dados.map(d => parseFloat(d.consumo_m3));
+      const prods = dados.map(d => parseFloat(d.producao_t));
+
+      const chEsp = charts.get('lenhaEsp');
+      if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_LENHA); chEsp.update(); }
+      const chVol = charts.get('lenhaVol');
+      if (chVol) { chVol.data.labels = meses; chVol.data.datasets[0].data = cons; chVol.data.datasets[1].data = prods; chVol.update(); }
+
+      const tb = document.getElementById('tb-lenha');
+      if (tb) {
+        tb.innerHTML = '';
+        dados.forEach(d => {
+          const e = parseFloat(d.especifico || 0);
+          const tipo = e <= META_LENHA ? 'ok' : e <= META_LENHA + .05 ? 'warn' : 'crit';
+          const rot  = e <= META_LENHA ? 'Dentro da meta' : e <= META_LENHA + .05 ? 'Atenção' : 'Acima da meta';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_t).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tb.appendChild(tr);
+        });
+      }
+    } catch(e) { console.warn('Erro ao carregar lenha:', e); }
+  }
+
+  // ── CONSUMO DE ÁGUA ───────────────────────────────────────
+  async function carregarAgua() {
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/consumo_agua?select=*&ano=eq.2026&order=mes_num.asc`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+      if (!dados || !dados.length) return;
+
+      const ult = dados[dados.length - 1];
+      const esp = parseFloat(ult.especifico || 0);
+      const META_AGUA = 3.5;
+      const dentro = esp <= META_AGUA;
+
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+      set('agua-hero-esp', esp.toFixed(1).replace('.', ','));
+      set('agua-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 3,5 L/kg');
+      const pill = document.getElementById('agua-hero-pill');
+      if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
+
+      set('agua-kpi-consumo', parseFloat(ult.consumo_m3).toLocaleString('pt-BR') + ' m³');
+      set('agua-kpi-prod', parseFloat(ult.producao_t).toLocaleString('pt-BR') + ' t');
+      set('agua-kpi-esp', esp.toFixed(1).replace('.', ',') + ' L/kg');
+      set('agua-kpi-meses', dados.length);
+
+      const meses = dados.map(d => d.mes.substring(0,3));
+      const esps  = dados.map(d => parseFloat(d.especifico || 0));
+      const cons  = dados.map(d => parseFloat(d.consumo_m3));
+      const prods = dados.map(d => parseFloat(d.producao_t));
+
+      const chEsp = charts.get('aguaEsp');
+      if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_AGUA); chEsp.update(); }
+      const chVol = charts.get('aguaVol');
+      if (chVol) { chVol.data.labels = meses; chVol.data.datasets[0].data = cons; chVol.data.datasets[1].data = prods; chVol.update(); }
+
+      const tb = document.getElementById('tb-agua');
+      if (tb) {
+        tb.innerHTML = '';
+        dados.forEach(d => {
+          const e = parseFloat(d.especifico || 0);
+          const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .2 ? 'warn' : 'crit';
+          const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .2 ? 'Atenção' : 'Acima da meta';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_t).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tb.appendChild(tr);
+        });
+      }
+    } catch(e) { console.warn('Erro ao carregar água:', e); }
+  }
+
+  // ── FORMULÁRIOS DE LANÇAMENTO ─────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // Lenha
+    const btnLancarLenha   = document.getElementById('btn-lancar-lenha');
+    const btnCancelarLenha = document.getElementById('btn-cancelar-lenha');
+    const btnSalvarLenha   = document.getElementById('btn-salvar-lenha');
+    const formLenha        = document.getElementById('form-lenha');
+
+    if (btnLancarLenha)   btnLancarLenha.addEventListener('click', () => { formLenha.style.display = formLenha.style.display === 'none' ? 'block' : 'none'; });
+    if (btnCancelarLenha) btnCancelarLenha.addEventListener('click', () => { formLenha.style.display = 'none'; });
+    if (btnSalvarLenha)   btnSalvarLenha.addEventListener('click', async () => {
+      const [mesNum, mesNome] = document.getElementById('lenha-mes').value.split(',');
+      const consumo  = parseFloat(document.getElementById('lenha-consumo').value);
+      const producao = parseFloat(document.getElementById('lenha-producao').value);
+      const custo    = parseFloat(document.getElementById('lenha-custo').value) || null;
+      const msg      = document.getElementById('lenha-form-msg');
+
+      if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
+      msg.textContent = '⏳ Salvando...'; msg.style.color = '#888';
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_lenha?on_conflict=mes_num,ano`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, consumo_m3: consumo, producao_t: producao, custo_total: custo })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
+        setTimeout(() => { formLenha.style.display = 'none'; msg.textContent = ''; }, 1500);
+        await carregarLenha();
+      } catch(e) { msg.textContent = '❌ Erro ao salvar.'; msg.style.color = '#c0392b'; }
+    });
+
+    // Água
+    const btnLancarAgua   = document.getElementById('btn-lancar-agua');
+    const btnCancelarAgua = document.getElementById('btn-cancelar-agua');
+    const btnSalvarAgua   = document.getElementById('btn-salvar-agua');
+    const formAgua        = document.getElementById('form-agua');
+
+    if (btnLancarAgua)   btnLancarAgua.addEventListener('click', () => { formAgua.style.display = formAgua.style.display === 'none' ? 'block' : 'none'; });
+    if (btnCancelarAgua) btnCancelarAgua.addEventListener('click', () => { formAgua.style.display = 'none'; });
+    if (btnSalvarAgua)   btnSalvarAgua.addEventListener('click', async () => {
+      const [mesNum, mesNome] = document.getElementById('agua-mes').value.split(',');
+      const consumo  = parseFloat(document.getElementById('agua-consumo').value);
+      const producao = parseFloat(document.getElementById('agua-producao').value);
+      const msg      = document.getElementById('agua-form-msg');
+
+      if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
+      msg.textContent = '⏳ Salvando...'; msg.style.color = '#888';
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?on_conflict=mes_num,ano`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, consumo_m3: consumo, producao_t: producao })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
+        setTimeout(() => { formAgua.style.display = 'none'; msg.textContent = ''; }, 1500);
+        await carregarAgua();
+      } catch(e) { msg.textContent = '❌ Erro ao salvar.'; msg.style.color = '#c0392b'; }
     });
   });
 
