@@ -839,6 +839,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <div class="legend">
           <span><i class="dot" style="background:var(--c1)"></i>Concluídas em 30 dias</span>
           <span><i class="dot" style="background:var(--c2)"></i>Não concluídas</span>
+          <span><i class="dot" style="background:var(--pv-gold)"></i>Em aberto</span>
         </div>
         <div class="chart-box">
           <canvas data-chart="osAbertas" role="img" aria-label="Barras empilhadas de ordens concluídas e não concluídas por mês"></canvas>
@@ -1624,6 +1625,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       DATA.intranet.indicador   = resumo_mensal.map(m => m.indicador);
       DATA.intranet.total_dias  = resumo_mensal.map(m => m.total_dias  || 0);
       DATA.intranet.os_com_tempo= resumo_mensal.map(m => m.os_com_tempo|| 0);
+      DATA.intranet.em_aberto   = resumo_mensal.map(m => m.em_aberto   || 0);
       DATA.intranet.criticidade = {
         urgente: totais.urgente,
         alta:    totais.alta,
