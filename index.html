@@ -785,8 +785,23 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       <div class="kpi-grid">
         <div class="kpi-card"><p class="label">Total de ordens realizadas</p><p class="value" data-kpi="total">750</p><p class="delta neutral" data-kpi="periodo-label">acumulado no ano</p></div>
         <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value" data-kpi="tmedio">8,8 dias</p><p class="delta neutral" data-kpi="periodo-label">acumulado no ano</p></div>
-        <div class="kpi-card"><p class="label">Indicador geral</p><p class="value" data-kpi="indicador">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
+        <div class="kpi-card" id="card-indicador"><p class="label">Indicador geral</p><p class="value" data-kpi="indicador">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
         <div class="kpi-card"><p class="label">OS últimos 15 dias</p><p class="value" data-kpi="os15d">7</p><p class="delta neutral">10/07 a 25/07</p></div>
+        <div class="kpi-card" id="card-em-aberto"><p class="label">OS em aberto</p><p class="value" data-kpi="em-aberto">—</p><p class="delta neutral">aguardando + andamento</p></div>
+      </div>
+
+      <div class="panel">
+        <h3>🔍 Buscar OS por código</h3>
+        <p class="sub">Digite o código da OS para ver os detalhes</p>
+        <div style="display:flex;gap:10px;margin-bottom:12px;">
+          <input id="busca-os-input" type="text" placeholder="Ex: 12345"
+            style="flex:1;padding:8px 12px;border:1px solid #dedede;border-radius:8px;font-size:13px;">
+          <button id="busca-os-btn" onclick="buscarOS()"
+            style="padding:8px 18px;background:#2d6a2d;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">
+            Buscar
+          </button>
+        </div>
+        <div id="busca-os-resultado" style="display:none;background:#f4f4f0;border-radius:10px;padding:14px;font-size:13px;"></div>
       </div>
 
       <div class="panel">
@@ -827,6 +842,21 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         </div>
         <div class="chart-box">
           <canvas data-chart="osAbertas" role="img" aria-label="Barras empilhadas de ordens concluídas e não concluídas por mês"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Exportar dados</h3>
+        <p class="sub">Baixe os dados da aba OS Intranet</p>
+        <div style="display:flex;gap:10px;margin-bottom:4px;">
+          <button onclick="exportarExcel()"
+            style="padding:8px 18px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">
+            📥 Exportar Excel
+          </button>
+          <button onclick="exportarPDF()"
+            style="padding:8px 18px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">
+            📄 Exportar PDF
+          </button>
         </div>
       </div>
 
@@ -1612,6 +1642,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) { tb.textContent = ''; }
 
       salvarDadosCompletos();
+      atualizarExtras(resumo_mensal);
 
       // data de atualização = agora (Supabase é sempre atualizado)
       const agora = new Date();
@@ -1730,6 +1761,103 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     const inicial = (location.hash || '').replace('#', '');
     irPara(document.getElementById('page-' + inicial) ? inicial : 'resumo');
+  }
+
+  // ── BUSCA OS INDIVIDUAL ──────────────────────────────────
+  async function buscarOS() {
+    const codigo = document.getElementById('busca-os-input').value.trim();
+    const resultado = document.getElementById('busca-os-resultado');
+    if (!codigo) { resultado.style.display='none'; return; }
+
+    resultado.style.display = 'block';
+    resultado.innerHTML = '⏳ Buscando...';
+
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?codigo=eq.${encodeURIComponent(codigo)}&select=*`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+      if (!dados.length) {
+        resultado.innerHTML = '❌ OS não encontrada.';
+        return;
+      }
+      const o = dados[0];
+      resultado.innerHTML = `
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr><td style="padding:4px 8px;color:#888;width:140px;">Código</td><td style="padding:4px 8px;font-weight:600;">${o.codigo||'—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Setor</td><td style="padding:4px 8px;">${o.setor||'—'}</td></tr>
+          <tr><td style="padding:4px 8px;color:#888;">Categoria</td><td style="padding:4px 8px;">${o.categoria||'—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Situação</td><td style="padding:4px 8px;">${o.situacao||'—'}</td></tr>
+          <tr><td style="padding:4px 8px;color:#888;">Prioridade</td><td style="padding:4px 8px;">${o.prioridade||'—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Solicitante</td><td style="padding:4px 8px;">${o.solicitante||'—'}</td></tr>
+          <tr><td style="padding:4px 8px;color:#888;">Abertura</td><td style="padding:4px 8px;">${o.abertura||'—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Conclusão</td><td style="padding:4px 8px;">${o.conclusao||'—'}</td></tr>
+          <tr><td style="padding:4px 8px;color:#888;">Contagem</td><td style="padding:4px 8px;">${o.entra_contagem||'—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;vertical-align:top;">Descrição</td><td style="padding:4px 8px;white-space:pre-wrap;">${o.descricao||'—'}</td></tr>
+        </table>`;
+    } catch(e) {
+      resultado.innerHTML = '❌ Erro ao buscar OS.';
+    }
+  }
+
+  // Busca ao apertar Enter no campo
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('busca-os-input');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') buscarOS(); });
+  });
+
+  // ── ALERTA VISUAL DE META + OS EM ABERTO ─────────────────
+  async function atualizarExtras(resumo_mensal) {
+    // Alerta visual no card do indicador
+    const totais_abertas = resumo_mensal.reduce((a, m) => a + (m.abertas||0), 0);
+    const totais_conc30  = resumo_mensal.reduce((a, m) => a + (m.conc30||0), 0);
+    const ind = totais_abertas ? +(totais_conc30 / totais_abertas * 100).toFixed(2) : 0;
+    const cardInd = document.getElementById('card-indicador');
+    if (cardInd) {
+      cardInd.style.borderLeft = ind >= 90 ? '4px solid #2d6a2d' : '4px solid #c0392b';
+      cardInd.style.background = ind >= 90 ? '#f0faf0' : '#fdf0f0';
+    }
+
+    // OS em aberto (situacao contendo aguardando ou andamento)
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?select=situacao&or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+      const elAberto = document.querySelector('[data-kpi="em-aberto"]');
+      if (elAberto) elAberto.textContent = dados.length;
+      const cardAberto = document.getElementById('card-em-aberto');
+      if (cardAberto && dados.length > 0) {
+        cardAberto.style.borderLeft = '4px solid #e67e22';
+        cardAberto.style.background = '#fffbf0';
+      }
+    } catch(e) {}
+  }
+
+  // ── EXPORTAR EXCEL ───────────────────────────────────────
+  async function exportarExcel() {
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?select=*&order=abertura.desc`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+      const cab = ['Código','Setor','Categoria','Situação','Solicitante','Prioridade','Abertura','Conclusão','Entra na contagem?','Descrição'];
+      const linhas = dados.map(o => [o.codigo,o.setor,o.categoria,o.situacao,o.solicitante,o.prioridade,o.abertura,o.conclusao,o.entra_contagem,o.descricao]);
+      const csv = [cab, ...linhas].map(r => r.map(c => `"${(c||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'OS_Intranet.csv'; a.click();
+      URL.revokeObjectURL(url);
+    } catch(e) { alert('Erro ao exportar: ' + e.message); }
+  }
+
+  // ── EXPORTAR PDF ─────────────────────────────────────────
+  function exportarPDF() {
+    window.print();
   }
 
   async function boot() {
