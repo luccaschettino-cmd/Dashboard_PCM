@@ -792,7 +792,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <div class="kpi-card"><p class="label">Tempo médio de conclusão</p><p class="value" data-kpi="tmedio">8,8 dias</p><p class="delta neutral" data-kpi="periodo-label">acumulado no ano</p></div>
         <div class="kpi-card" id="card-indicador"><p class="label">Indicador geral</p><p class="value" data-kpi="indicador">91,74%</p><p class="delta up">OS concluídas em 30 dias</p></div>
         <div class="kpi-card"><p class="label">OS últimos 15 dias</p><p class="value" data-kpi="os15d">7</p><p class="delta neutral">10/07 a 25/07</p></div>
-        <div class="kpi-card" id="card-em-aberto"><p class="label">OS em aberto</p><p class="value" data-kpi="em-aberto">—</p><p class="delta neutral">aguardando + andamento</p></div>
+        <div class="kpi-card" id="card-em-aberto" onclick="abrirOsAberto()" style="cursor:pointer;"><p class="label">OS em aberto</p><p class="value" data-kpi="em-aberto">—</p><p class="delta neutral">aguardando + andamento</p></div>
       </div>
 
       <div class="panel">
@@ -1757,6 +1757,45 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── BUSCA OS INDIVIDUAL ──────────────────────────────────
+  // ── MODAL OS EM ABERTO ───────────────────────────────────
+  window.abrirOsAberto = async function() {
+    const modal = document.getElementById('modal-aberto');
+    const lista = document.getElementById('modal-aberto-lista');
+    modal.style.display = 'block';
+    lista.innerHTML = '<p style="color:#888;">Carregando...</p>';
+
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)&select=codigo,solicitante,descricao,prioridade,abertura&order=abertura.desc`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados = await resp.json();
+
+      if (!dados.length) {
+        lista.innerHTML = '<p style="color:#888;">Nenhuma OS em aberto.</p>';
+        return;
+      }
+
+      lista.innerHTML = dados.map(o => `
+        <div style="border:1px solid #e0e0e0;border-radius:10px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-weight:600;color:#0f2d0f;">#${o.codigo}</span>
+            <span style="font-size:12px;color:#888;">${o.abertura||'—'}</span>
+          </div>
+          <p style="margin:0 0 6px;font-size:13px;color:#555;">👤 ${o.solicitante||'—'}</p>
+          <p style="margin:0;font-size:13px;color:#777;white-space:pre-wrap;">${o.descricao||'Sem descrição'}</p>
+        </div>
+      `).join('');
+
+    } catch(e) {
+      lista.innerHTML = '<p style="color:#c0392b;">Erro ao carregar OS.</p>';
+    }
+  }
+
+  window.fecharModal = function() {
+    document.getElementById('modal-aberto').style.display = 'none';
+  }
+
   window.buscarOS = async function() {
     const codigo = document.getElementById('busca-os-input').value.trim();
     const resultado = document.getElementById('busca-os-resultado');
@@ -1867,5 +1906,18 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
 })();
 </script>
+<!-- Modal OS em aberto -->
+<div id="modal-aberto" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:600px;margin:40px auto;padding:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;color:#0f2d0f;">OS em aberto</h3>
+      <button onclick="fecharModal()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="modal-aberto-lista" style="display:flex;flex-direction:column;gap:10px;">
+      <p style="color:#888;">Carregando...</p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
