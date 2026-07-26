@@ -1764,7 +1764,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── BUSCA OS INDIVIDUAL ──────────────────────────────────
-  async function buscarOS() {
+  window.buscarOS = async function() {
     const codigo = document.getElementById('busca-os-input').value.trim();
     const resultado = document.getElementById('busca-os-resultado');
     if (!codigo) { resultado.style.display='none'; return; }
@@ -1837,7 +1837,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── EXPORTAR EXCEL ───────────────────────────────────────
-  async function exportarExcel() {
+  window.exportarExcel = async function() {
     try {
       const resp = await fetch(
         `${SUPABASE_URL}/rest/v1/os_individual?select=*&order=abertura.desc`,
@@ -1856,7 +1856,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── EXPORTAR PDF ─────────────────────────────────────────
-  function exportarPDF() {
+  window.exportarPDF = function() {
     window.print();
   }
 
