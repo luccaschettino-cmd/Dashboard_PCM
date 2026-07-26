@@ -1905,11 +1905,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           chDist.update();
         }
       }
+      const sub = document.getElementById('plan-evol-sub');
       if (sub) sub.textContent = labels.length + ' mês(es) com dados · ' + dadosPlanejamento.length + ' semana(s) exportada(s)';
 
       // Tabela mensal: agrupa por mês a partir do Supabase
       const tbMensal = document.getElementById('tb-mensal-body');
-      if (tbMensal && dadosPlanejamento.length) {
+      if (tbMensal) {
         const META = DATA.planejamento.meta;
         const porMes = {};
         dadosPlanejamento.forEach(s => {
@@ -1921,23 +1922,27 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           porMes[mn].repr  += s.reprogramadas  || 0;
         });
         tbMensal.innerHTML = '';
-        Object.keys(porMes).sort((a,b) => +a - +b).forEach(mn => {
-          const m = porMes[mn];
-          const ader = m.prog ? Math.round(m.conc / m.prog * 100) : 0;
-          const cor = ader >= META ? '#2d6a2d' : ader >= 70 ? '#b8860b' : '#c0392b';
-          const bg  = ader >= META ? '#f0faf0' : ader >= 70 ? '#fffbf0' : '#fdf0f0';
-          const tr = document.createElement('tr');
-          tr.style.cssText = 'background:' + bg + ';border-bottom:1px solid var(--border)';
-          tr.innerHTML = `
-            <td style="padding:9px 12px;font-weight:600;color:${cor}">${m.label}</td>
-            <td style="padding:9px 12px;text-align:right">${m.prog}</td>
-            <td style="padding:9px 12px;text-align:right;color:#2d6a2d;font-weight:600">${m.conc}</td>
-            <td style="padding:9px 12px;text-align:right;color:#c0392b">${m.nreal}</td>
-            <td style="padding:9px 12px;text-align:right;color:#b8860b">${m.repr}</td>
-            <td style="padding:9px 12px;text-align:right;font-weight:700;color:${cor}">${ader}%</td>
-          `;
-          tbMensal.appendChild(tr);
-        });
+        if (Object.keys(porMes).length === 0) {
+          tbMensal.innerHTML = '<tr><td colspan="6" style="padding:16px;text-align:center;color:#888;">Nenhum dado encontrado.</td></tr>';
+        } else {
+          Object.keys(porMes).sort((a,b) => +a - +b).forEach(mn => {
+            const m = porMes[mn];
+            const ader = m.prog ? Math.round(m.conc / m.prog * 100) : 0;
+            const cor = ader >= META ? '#2d6a2d' : ader >= 70 ? '#b8860b' : '#c0392b';
+            const bg  = ader >= META ? '#f0faf0' : ader >= 70 ? '#fffbf0' : '#fdf0f0';
+            const tr = document.createElement('tr');
+            tr.style.cssText = 'background:' + bg + ';border-bottom:1px solid var(--border)';
+            tr.innerHTML = `
+              <td style="padding:9px 12px;font-weight:600;color:${cor}">${m.label}</td>
+              <td style="padding:9px 12px;text-align:right">${m.prog}</td>
+              <td style="padding:9px 12px;text-align:right;color:#2d6a2d;font-weight:600">${m.conc}</td>
+              <td style="padding:9px 12px;text-align:right;color:#c0392b">${m.nreal}</td>
+              <td style="padding:9px 12px;text-align:right;color:#b8860b">${m.repr}</td>
+              <td style="padding:9px 12px;text-align:right;font-weight:700;color:${cor}">${ader}%</td>
+            `;
+            tbMensal.appendChild(tr);
+          });
+        }
       }
 
       // Popula seletor de mês
