@@ -924,6 +924,70 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         </div>
       </div>
 
+      <!-- Gráfico de linha: aderência mês a mês -->
+      <div class="panel">
+        <h3>Evolução da aderência · mês a mês</h3>
+        <p class="sub" id="plan-evol-sub">Carregando dados...</p>
+        <div class="chart-box" style="height:220px;">
+          <canvas data-chart="planEvol" role="img" aria-label="Evolução da aderência ao planejamento por mês"></canvas>
+        </div>
+      </div>
+
+      <!-- Botão Ver semanas -->
+      <div class="panel" style="text-align:center;padding:16px 24px;">
+        <button id="btn-ver-semanas" class="btn" type="button"
+          style="background:#0f2d0f;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;">
+          📅 Ver semanas por mês
+        </button>
+      </div>
+
+      <!-- Painel de semanas (oculto por padrão) -->
+      <div id="painel-semanas" style="display:none;">
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div>
+              <h3 style="margin:0;">Semanas do mês</h3>
+              <p class="sub" style="margin:4px 0 0;" id="plan-sem-sub">Selecione um mês</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label style="font-size:13px;font-weight:600;">Mês:</label>
+              <select id="sel-mes-semanas" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);font-size:13px;background:var(--surface);">
+                <option value="">-- selecione --</option>
+              </select>
+              <button id="btn-fechar-semanas" type="button"
+                style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;">
+                ✕ Fechar
+              </button>
+            </div>
+          </div>
+
+          <!-- Gráfico de barras das semanas -->
+          <div class="chart-box" style="height:200px;margin-bottom:20px;">
+            <canvas id="chart-semanas-barras" role="img" aria-label="Aderência por semana do mês selecionado"></canvas>
+          </div>
+
+          <!-- Tabela de semanas -->
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;" id="tb-semanas">
+              <thead>
+                <tr style="background:var(--surface-alt,#f5f5f3);">
+                  <th style="padding:8px 12px;text-align:left;">Semana</th>
+                  <th style="padding:8px 12px;text-align:right;">Programadas</th>
+                  <th style="padding:8px 12px;text-align:right;">Concluídas</th>
+                  <th style="padding:8px 12px;text-align:right;">Não realizadas</th>
+                  <th style="padding:8px 12px;text-align:right;">Reprogramadas</th>
+                  <th style="padding:8px 12px;text-align:right;">Aderência</th>
+                </tr>
+              </thead>
+              <tbody id="tb-semanas-body">
+                <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-muted);">Selecione um mês para ver as semanas.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards mensais (mantidos) -->
       <div class="panel">
         <h3>Acompanhamento mensal</h3>
         <p class="sub">Visão consolidada mês a mês · 2026</p>
@@ -1357,7 +1421,22 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           datasets: [{ data: [s.concluidas, s.naoRealizadas, s.reprogramadas],
             backgroundColor: [PALETA.green, PALETA.red, PALETA.gold], borderWidth: 3, borderColor: '#fff' }] },
         options: { cutout: '62%', plugins: { tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} OS` } } } } };
-    }
+    },
+
+    planEvol: () => ({
+      type: 'line',
+      data: { labels: [], datasets: [
+        Object.assign(linha('Aderência (%)', [], PALETA.green), {
+          pointBackgroundColor: [],
+          pointRadius: 5
+        }),
+        linhaMeta(DATA.planejamento.meta, 0)
+      ] },
+      options: {
+        plugins: { tooltip: { callbacks: { label: c => c.datasetIndex ? 'Meta: ' + DATA.planejamento.meta + '%' : 'Aderência: ' + num(c.parsed.y, 1) + '%' } } },
+        scales: { x: eixoX(), y: eixoY('Aderência (%)', { suggestedMin: 50, suggestedMax: 105, ticks: { callback: v => v + '%' } }) }
+      }
+    })
   };
 
   /* ---------- 6. GERENCIADOR DE GRÁFICOS (lazy + destroy seguro) ---------- */
@@ -1481,7 +1560,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       p.hidden = !on;
     });
 
-    if (!jaMontou.has(nome)) { montarGraficosDaPagina(alvo); jaMontou.add(nome); }
+    if (!jaMontou.has(nome)) {
+      montarGraficosDaPagina(alvo);
+      jaMontou.add(nome);
+      if (nome === 'planejamento') carregarPlanejamento();
+    }
     if (history.replaceState) history.replaceState(null, '', '#' + nome);
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -1755,6 +1838,152 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     const inicial = (location.hash || '').replace('#', '');
     irPara(document.getElementById('page-' + inicial) ? inicial : 'resumo');
   }
+
+  // ── PLANEJAMENTO: CARREGAR DO SUPABASE ───────────────────
+  let dadosPlanejamento = []; // cache das semanas do Supabase
+  let chartSemanasBarras = null;
+
+  async function carregarPlanejamento() {
+    try {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/planejamento_resumo?select=*&order=semana_num.asc`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      if (!resp.ok) return;
+      dadosPlanejamento = await resp.json();
+      if (!dadosPlanejamento.length) return;
+
+      // Agrupa por mês para o gráfico de linha
+      const porMes = {};
+      dadosPlanejamento.forEach(s => {
+        const mes = s.mes || s.semana_label || ('Sem ' + s.semana_num);
+        const mesNum = s.mes_num || 0;
+        if (!porMes[mesNum]) porMes[mesNum] = { label: s.mes || mes, prog: 0, conc: 0 };
+        porMes[mesNum].prog += s.programadas || 0;
+        porMes[mesNum].conc += s.concluidas  || 0;
+      });
+
+      const mesesOrdenados = Object.keys(porMes).sort((a, b) => +a - +b).map(k => porMes[k]);
+      const labels = mesesOrdenados.map(m => m.label);
+      const adMeses = mesesOrdenados.map(m => m.prog ? Math.round(m.conc / m.prog * 100) : 0);
+
+      // Atualiza gráfico planEvol
+      const ch = charts.get('planEvol');
+      if (ch) {
+        ch.data.labels = labels;
+        ch.data.datasets[0].data = adMeses;
+        ch.data.datasets[0].pointBackgroundColor = adMeses.map(v =>
+          v >= DATA.planejamento.meta ? PALETA.green : v >= 70 ? PALETA.gold : PALETA.red);
+        ch.data.datasets[1].data = Array(labels.length).fill(DATA.planejamento.meta);
+        ch.update();
+      }
+
+      // Atualiza sub-label
+      const sub = document.getElementById('plan-evol-sub');
+      if (sub) sub.textContent = labels.length + ' mês(es) com dados · ' + dadosPlanejamento.length + ' semana(s) exportada(s)';
+
+      // Popula seletor de mês
+      const sel = document.getElementById('sel-mes-semanas');
+      if (sel) {
+        const mesesUnicos = {};
+        dadosPlanejamento.forEach(s => {
+          const mn = s.mes_num || 0;
+          if (!mesesUnicos[mn]) mesesUnicos[mn] = s.mes || ('Mês ' + mn);
+        });
+        Object.keys(mesesUnicos).sort((a,b)=>+a-+b).forEach(mn => {
+          const opt = document.createElement('option');
+          opt.value = mn;
+          opt.textContent = mesesUnicos[mn];
+          sel.appendChild(opt);
+        });
+      }
+
+    } catch(e) {
+      console.warn('Erro ao carregar planejamento:', e);
+    }
+  }
+
+  function renderizarSemanasMes(mesNum) {
+    const semanas = dadosPlanejamento.filter(s => (s.mes_num || 0) == mesNum);
+    const tbody = document.getElementById('tb-semanas-body');
+    const sub   = document.getElementById('plan-sem-sub');
+
+    if (!semanas.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-muted);">Nenhuma semana encontrada para este mês.</td></tr>';
+      return;
+    }
+
+    const nomeMes = semanas[0].mes || ('Mês ' + mesNum);
+    if (sub) sub.textContent = nomeMes + ' · ' + semanas.length + ' semana(s)';
+
+    // Tabela
+    tbody.innerHTML = '';
+    semanas.forEach(s => {
+      const ader = s.aderencia || 0;
+      const cor = ader >= DATA.planejamento.meta ? '#2d6a2d' : ader >= 70 ? '#b8860b' : '#c0392b';
+      const bg  = ader >= DATA.planejamento.meta ? '#f0faf0' : ader >= 70 ? '#fffbf0' : '#fdf0f0';
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'background:' + bg + ';';
+      tr.innerHTML = `
+        <td style="padding:8px 12px;font-weight:600;">${s.semana_label || ('Semana ' + s.semana_num)}</td>
+        <td style="padding:8px 12px;text-align:right;">${s.programadas || 0}</td>
+        <td style="padding:8px 12px;text-align:right;color:#2d6a2d;">${s.concluidas || 0}</td>
+        <td style="padding:8px 12px;text-align:right;color:#c0392b;">${s.nao_realizadas || 0}</td>
+        <td style="padding:8px 12px;text-align:right;color:#b8860b;">${s.reprogramadas || 0}</td>
+        <td style="padding:8px 12px;text-align:right;font-weight:700;color:${cor};">${num(ader, 1)}%</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Gráfico de barras
+    const labels = semanas.map(s => s.semana_label || 'Sem ' + s.semana_num);
+    const adSem  = semanas.map(s => s.aderencia || 0);
+    const cores  = adSem.map(v => v >= DATA.planejamento.meta ? PALETA.green : v >= 70 ? PALETA.gold : PALETA.red);
+
+    const canvas = document.getElementById('chart-semanas-barras');
+    if (chartSemanasBarras) { chartSemanasBarras.destroy(); chartSemanasBarras = null; }
+    if (canvas) {
+      chartSemanasBarras = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Aderência (%)', data: adSem, backgroundColor: cores, borderRadius: 6 },
+            { label: 'Meta', data: Array(labels.length).fill(DATA.planejamento.meta),
+              type: 'line', borderColor: PALETA.red, borderDash: [6,4], borderWidth: 2,
+              pointRadius: 0, fill: false, tension: 0 }
+          ]
+        },
+        options: {
+          plugins: { legend: { display: true }, tooltip: { callbacks: {
+            label: c => c.datasetIndex ? 'Meta: ' + DATA.planejamento.meta + '%' : 'Aderência: ' + num(c.parsed.y, 1) + '%'
+          }}},
+          scales: {
+            x: eixoX(),
+            y: eixoY('Aderência (%)', { beginAtZero: true, suggestedMax: 105, ticks: { callback: v => v + '%' } })
+          }
+        }
+      });
+    }
+  }
+
+  // Listeners do painel de semanas
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnVer    = document.getElementById('btn-ver-semanas');
+    const btnFechar = document.getElementById('btn-fechar-semanas');
+    const painel    = document.getElementById('painel-semanas');
+    const selMes    = document.getElementById('sel-mes-semanas');
+
+    if (btnVer) btnVer.addEventListener('click', () => {
+      painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+    });
+    if (btnFechar) btnFechar.addEventListener('click', () => {
+      painel.style.display = 'none';
+    });
+    if (selMes) selMes.addEventListener('change', () => {
+      if (selMes.value) renderizarSemanasMes(selMes.value);
+    });
+  });
 
   // ── BUSCA OS INDIVIDUAL ──────────────────────────────────
   // ── MODAL OS EM ABERTO ───────────────────────────────────
