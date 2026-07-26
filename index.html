@@ -882,7 +882,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       <section class="hero hero--green" aria-label="Indicador principal de planejamento">
         <div>
-          <p class="hero__label">Indicador principal · Aderência ao planejamento</p>
+          <p class="hero__label">Aderência acumulada · ano 2026</p>
           <p class="hero__value"><span id="plan-aderencia">—</span>% <small>OS concluídas / programadas</small></p>
           <p class="hero__meta" id="plan-semana-label">Carregando...</p>
         </div>
@@ -894,15 +894,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Programadas</p><p class="value" id="plan-prog">—</p><p class="delta neutral">na semana</p></div>
+        <div class="kpi-card"><p class="label">Programadas</p><p class="value" id="plan-prog">—</p><p class="delta neutral" id="plan-sem-ref">última semana</p></div>
         <div class="kpi-card"><p class="label">Concluídas</p><p class="value" id="plan-conc">—</p><p class="delta up" id="plan-conc-pct">—</p></div>
         <div class="kpi-card"><p class="label">Não realizadas</p><p class="value" id="plan-nreal">—</p><p class="delta down" id="plan-nreal-pct">—</p></div>
         <div class="kpi-card"><p class="label">Reprogramadas</p><p class="value" id="plan-repr">—</p><p class="delta neutral" id="plan-repr-pct">—</p></div>
       </div>
 
       <div class="panel">
-        <h3>Distribuição das ordens · semana atual</h3>
-        <p class="sub">Situação de cada OS programada na semana</p>
+        <h3 id="dist-titulo">Distribuição das ordens · semana atual</h3>
+        <p class="sub" id="dist-sub">Situação de cada OS programada na semana</p>
         <div class="split">
           <div class="chart-box chart-box--sm">
             <canvas data-chart="planDist" role="img" aria-label="Rosca da semana atual"></canvas>
@@ -1869,44 +1869,60 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         ch.update();
       }
 
-      // Atualiza hero + cards com a semana mais recente
+      // Hero: acumulado do ano
+      const totalProg = dadosPlanejamento.reduce((a, s) => a + (s.programadas || 0), 0);
+      const totalConc = dadosPlanejamento.reduce((a, s) => a + (s.concluidas  || 0), 0);
+      const aderAcum  = totalProg ? Math.round(totalConc / totalProg * 100) : 0;
+      const META = DATA.planejamento.meta;
+      const acima = aderAcum >= META;
+
+      const elAder   = document.getElementById('plan-aderencia');
+      const elLabel  = document.getElementById('plan-semana-label');
+      const elPill   = document.getElementById('plan-meta-pill');
+      const elPeriodo = document.getElementById('plan-periodo');
+      if (elAder)  elAder.textContent = aderAcum;
+      if (elLabel) elLabel.textContent = totalConc + ' concluídas de ' + totalProg + ' programadas em ' + dadosPlanejamento.length + ' semanas';
+      if (elPeriodo) elPeriodo.textContent = 'Aderência acumulada · 2026';
+      if (elPill) {
+        elPill.textContent = acima ? '✓ Acima da meta' : '✗ Abaixo da meta';
+        elPill.className = 'pill ' + (acima ? 'pill--ok' : 'pill--bad');
+      }
+
+      // Cards KPI + rosca: semana mais recente
       const semanaRecente = dadosPlanejamento[dadosPlanejamento.length - 1];
       if (semanaRecente) {
-        const ader = semanaRecente.aderencia || 0;
-        const prog = semanaRecente.programadas || 0;
-        const conc = semanaRecente.concluidas || 0;
+        const prog  = semanaRecente.programadas    || 0;
+        const conc  = semanaRecente.concluidas     || 0;
         const nreal = semanaRecente.nao_realizadas || 0;
-        const repr = semanaRecente.reprogramadas || 0;
-        const META = DATA.planejamento.meta;
-        const acima = ader >= META;
+        const repr  = semanaRecente.reprogramadas  || 0;
 
-        // Hero
-        const elAder = document.getElementById('plan-aderencia');
-        const elLabel = document.getElementById('plan-semana-label');
-        const elPill  = document.getElementById('plan-meta-pill');
-        const elPeriodo = document.getElementById('plan-periodo');
-        if (elAder)   elAder.textContent = num(ader, 1);
-        if (elLabel)  elLabel.textContent = semanaRecente.semana_label || ('Semana ' + semanaRecente.semana_num);
-        if (elPeriodo) elPeriodo.textContent = 'Semana mais recente · ' + (semanaRecente.semana_label || ('Semana ' + semanaRecente.semana_num));
-        if (elPill) {
-          elPill.textContent = acima ? '✓ Acima da meta' : '✗ Abaixo da meta';
-          elPill.className = 'pill ' + (acima ? 'pill--ok' : 'pill--bad');
-        }
+        // Formata datas
+        const fmtDt = iso => {
+          if (!iso) return '';
+          const [y, m, d] = iso.split('-');
+          return d + '/' + m;
+        };
+        const di = fmtDt(semanaRecente.data_inicio);
+        const df = fmtDt(semanaRecente.data_fim);
+        const refSem = (semanaRecente.semana_label || 'Semana ' + semanaRecente.semana_num) + (di && df ? ' · ' + di + ' a ' + df : '');
 
-        // Cards KPI
         const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-        set('plan-prog',  prog);
-        set('plan-conc',  conc);
-        set('plan-nreal', nreal);
-        set('plan-repr',  repr);
+        set('plan-prog',     prog);
+        set('plan-conc',     conc);
+        set('plan-nreal',    nreal);
+        set('plan-repr',     repr);
+        set('plan-sem-ref',  refSem);
         set('plan-conc-pct',  prog ? Math.round(conc  / prog * 100) + '% do programado' : '—');
         set('plan-nreal-pct', prog ? Math.round(nreal / prog * 100) + '% do programado' : '—');
         set('plan-repr-pct',  prog ? Math.round(repr  / prog * 100) + '% do programado' : '—');
 
-        // Distribuição (rosca)
+        // Título e sub da rosca
+        set('dist-titulo', 'Distribuição das ordens · ' + (semanaRecente.semana_label || 'Semana ' + semanaRecente.semana_num));
+        set('dist-sub', di && df ? 'Período: ' + di + ' a ' + df + '/2026' : 'Situação de cada OS programada na semana');
         set('dist-conc',  conc);
         set('dist-nreal', nreal);
         set('dist-repr',  repr);
+
         DATA.planejamento.semana = { concluidas: conc, naoRealizadas: nreal, reprogramadas: repr };
         const chDist = charts.get('planDist');
         if (chDist) {
@@ -1915,6 +1931,39 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         }
       }
       if (sub) sub.textContent = labels.length + ' mês(es) com dados · ' + dadosPlanejamento.length + ' semana(s) exportada(s)';
+
+      // Tabela mensal: agrupa por mês a partir do Supabase
+      const tbMensal = document.getElementById('tb-mensal-body');
+      if (tbMensal && dadosPlanejamento.length) {
+        const META = DATA.planejamento.meta;
+        const porMes = {};
+        dadosPlanejamento.forEach(s => {
+          const mn = s.mes_num || 0;
+          if (!porMes[mn]) porMes[mn] = { label: s.mes || ('Mês ' + mn), prog: 0, conc: 0, nreal: 0, repr: 0 };
+          porMes[mn].prog  += s.programadas    || 0;
+          porMes[mn].conc  += s.concluidas     || 0;
+          porMes[mn].nreal += s.nao_realizadas || 0;
+          porMes[mn].repr  += s.reprogramadas  || 0;
+        });
+        tbMensal.innerHTML = '';
+        Object.keys(porMes).sort((a,b) => +a - +b).forEach(mn => {
+          const m = porMes[mn];
+          const ader = m.prog ? Math.round(m.conc / m.prog * 100) : 0;
+          const cor = ader >= META ? '#2d6a2d' : ader >= 70 ? '#b8860b' : '#c0392b';
+          const bg  = ader >= META ? '#f0faf0' : ader >= 70 ? '#fffbf0' : '#fdf0f0';
+          const tr = document.createElement('tr');
+          tr.style.cssText = 'background:' + bg + ';border-bottom:1px solid var(--border)';
+          tr.innerHTML = `
+            <td style="padding:9px 12px;font-weight:600;color:${cor}">${m.label}</td>
+            <td style="padding:9px 12px;text-align:right">${m.prog}</td>
+            <td style="padding:9px 12px;text-align:right;color:#2d6a2d;font-weight:600">${m.conc}</td>
+            <td style="padding:9px 12px;text-align:right;color:#c0392b">${m.nreal}</td>
+            <td style="padding:9px 12px;text-align:right;color:#b8860b">${m.repr}</td>
+            <td style="padding:9px 12px;text-align:right;font-weight:700;color:${cor}">${ader}%</td>
+          `;
+          tbMensal.appendChild(tr);
+        });
+      }
 
       // Popula seletor de mês
       const sel = document.getElementById('sel-mes-semanas');
