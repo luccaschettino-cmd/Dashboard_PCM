@@ -2130,6 +2130,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       // Popula seletor de mês
       const sel = document.getElementById('sel-mes-semanas');
       if (sel) {
+        sel.innerHTML = '<option value="">-- selecione --</option>';
         const mesesUnicos = {};
         dadosPlanejamento.forEach(s => {
           const mn = s.mes_num || 0;
