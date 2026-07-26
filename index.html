@@ -1892,16 +1892,13 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     window.print();
   }
 
-  // Define filtro de Janeiro até mês atual automaticamente
-  (function() {
+  async function boot() {
+    // Define filtro de Janeiro até mês atual automaticamente
     const mesAtual = new Date().getMonth() + 1;
     const de  = document.getElementById('intranet-mes-de');
     const ate = document.getElementById('intranet-mes-ate');
     if (de)  de.value  = '1';
     if (ate) ate.value = String(mesAtual);
-  })();
-
-  async function boot() {
     await carregarDados();
     iniciar();
   }
