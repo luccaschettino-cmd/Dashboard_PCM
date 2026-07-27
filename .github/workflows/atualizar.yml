@@ -1,9 +1,7 @@
 name: Atualizar Supabase
 
 on:
-  schedule:
-    - cron: '0 11 * * 1'  # toda segunda-feira às 8h (horário de Brasília = 11h UTC)
-  workflow_dispatch:        # permite rodar manualmente pelo GitHub
+  workflow_dispatch:        # roda somente quando você mandar manualmente
 
 jobs:
   atualizar:
