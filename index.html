@@ -685,7 +685,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         <p class="sub">m³ de lenha por tonelada produzida · últimos 5 meses</p>
         <div class="legend">
           <span><i class="dot" style="background:var(--c1)"></i>Consumo específico (m³/t)</span>
-          <span><i class="dash"></i>Meta 0,90</span>
+          <span><i class="dash"></i>Meta 1,52</span>
         </div>
         <div class="chart-box">
           <canvas data-chart="lenhaEsp" role="img"
@@ -1171,7 +1171,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       { nome: 'Guilherme', os: 8, horas: 30 }
     ],
 
-    lenha: { meses: MESES_5, consumo: [210, 198, 205, 192, 184], producao: [218, 210, 220, 208, 211], meta: 0.90 },
+    lenha: { meses: MESES_5, consumo: [210, 198, 205, 192, 184], producao: [218, 210, 220, 208, 211], meta: 1.52 },
     agua: {
       meses: MESES_5, consumo: [820, 780, 760, 720, 675], producao: [218, 210, 220, 208, 211], meta: 3.5,
       diaria: [24, 26, 28, 25, 30, 27, 29, 31, 26, 28, 38, 27, 25, 38, 30, 27, 26, 28, 25, 29, 27, 26, 28, 25, 27]
@@ -2257,8 +2257,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       set('lenha-kpi-consumo', parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
       set('lenha-kpi-prod', parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
-      set('lenha-kpi-custoT', '—');
-      set('lenha-kpi-custo', '—');
+      const custoT = ult.custo_total && ult.producao_ton ? (parseFloat(ult.custo_total) / parseFloat(ult.producao_ton)).toFixed(0) : '—'; set('lenha-kpi-custoT', custoT !== '—' ? 'R$ ' + custoT : '—');
+      set('lenha-kpi-custo', ult.custo_total ? 'R$ ' + parseFloat(ult.custo_total).toLocaleString('pt-BR') : '—');
 
       // Atualiza gráficos e tabela
       const meses = dados.map(d => d.mes.substring(0,3));
@@ -2363,7 +2363,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_lenha?on_conflict=mes_num,ano`, {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao })
+          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao, custo_total: custo })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
