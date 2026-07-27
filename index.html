@@ -1941,7 +1941,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     // reconstrói gráfico de criticidade com novos dados
     if (charts.has('criticidade')) { charts.get('criticidade').destroy(); charts.delete('criticidade'); }
-    montarGrafico(document.querySelector('[data-chart="criticidade"]'));
+    montarGrafico('criticidade');
 
     // atualiza período
     const nomeDe  = MESES_NOME_FULL[mesDeNum - 1];
