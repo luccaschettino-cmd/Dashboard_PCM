@@ -125,7 +125,7 @@ img{max-width:100%;height:auto;display:block;}
 }
 
 /* ============ MAIN ============ */
-main{flex:1;padding:var(--sp-6) var(--sp-8);max-width:1120px;width:100%;}
+main{flex:1;padding:var(--sp-6) var(--sp-8);max-width:1520px;width:100%;}
 .page{display:none;}
 .page.active{display:block;animation:fade .18s ease;}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -606,9 +606,23 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </header>
 
       <form class="filtro-bar" data-filtro="lenha" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-01" required></label>
-        <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
+        <label>Mês
+          <select name="mes">
+            <option value="0">Todos os meses</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </label>
         <button class="btn" type="submit">Aplicar</button>
         <p class="filtro-erro" role="alert" data-erro></p>
       </form>
@@ -716,28 +730,40 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           <p data-periodo>Período: 2026</p>
         </div>
         <button type="button" id="btn-lancar-agua" style="padding:7px 16px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">
-          📝 Lançar dados
+          📝 Lançar semana
         </button>
       </header>
 
-      <!-- Formulário de lançamento -->
+      <form class="filtro-bar" data-filtro="agua-periodo">
+        <label>De <input type="date" id="agua-filtro-de" value="2026-01-01" required></label>
+        <span class="sep" aria-hidden="true">—</span>
+        <label>Até <input type="date" id="agua-filtro-ate" required></label>
+        <button class="btn" type="submit" id="btn-agua-aplicar-filtro">Aplicar</button>
+      </form>
+
+      <!-- Formulário de lançamento em cascata (semanal) -->
       <div id="form-agua" style="display:none;background:#f0f6ff;border:1.5px solid var(--pv-blue);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
-        <h4 style="margin:0 0 16px;color:#1a6eb5;">Lançar consumo de água — todos os meses</h4>
+        <h4 style="margin:0 0 4px;color:#1a6eb5;">Lançar consumo de água — semana</h4>
+        <p style="margin:0 0 16px;font-size:13px;color:#666;">Escolha qualquer segunda-feira para carregar a semana (seg a dom). Pode lançar semanas passadas a qualquer momento.</p>
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:14px;">Segunda-feira da semana
+          <input type="date" id="agua-semana-inicio" style="display:block;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
+        </label>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
               <tr style="text-align:left;color:#666;">
-                <th style="padding:6px 8px;">Mês</th>
-                <th style="padding:6px 8px;">Consumo (m³)</th>
-                <th style="padding:6px 8px;">Produção (t)</th>
+                <th style="padding:6px 8px;">Dia</th>
+                <th style="padding:6px 8px;">Data</th>
+                <th style="padding:6px 8px;">Consumo (L)</th>
+                <th style="padding:6px 8px;">Produção (kg)</th>
                 <th style="padding:6px 8px;"></th>
               </tr>
             </thead>
-            <tbody id="tb-agua-lancamento"></tbody>
+            <tbody id="tb-agua-cascata"></tbody>
           </table>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
-          <button type="button" id="btn-salvar-agua-todos" style="padding:8px 20px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar todos</button>
+          <button type="button" id="btn-salvar-agua-semana" style="padding:8px 20px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar semana</button>
           <button type="button" id="btn-cancelar-agua" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Fechar</button>
           <span id="agua-form-msg" style="font-size:13px;"></span>
         </div>
@@ -757,40 +783,57 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Volume total consumido</p><p class="value" id="agua-kpi-consumo">—</p><p class="delta neutral">último mês</p></div>
-        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="agua-kpi-prod">—</p><p class="delta neutral">último mês</p></div>
-        <div class="kpi-card"><p class="label">Consumo específico</p><p class="value" id="agua-kpi-esp">—</p><p class="delta neutral">L/kg · último mês</p></div>
-        <div class="kpi-card"><p class="label">Meses registrados</p><p class="value" id="agua-kpi-meses">—</p><p class="delta neutral">em 2026</p></div>
+        <div class="kpi-card"><p class="label">Volume total consumido</p><p class="value" id="agua-kpi-consumo">—</p><p class="delta neutral">no período</p></div>
+        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="agua-kpi-prod">—</p><p class="delta neutral">no período</p></div>
+        <div class="kpi-card"><p class="label">Consumo específico</p><p class="value" id="agua-kpi-esp">—</p><p class="delta neutral">L/kg · período</p></div>
+        <div class="kpi-card"><p class="label">Dias registrados</p><p class="value" id="agua-kpi-dias">—</p><p class="delta neutral">no período</p></div>
       </div>
 
       <div class="panel">
         <h3>Consumo diário de água</h3>
-        <p class="sub">Leitura do medidor de vazão · m³ por dia · vermelho indica pico acima de 35 m³</p>
+        <p class="sub">Litros por dia · dados lançados manualmente</p>
         <div class="chart-box chart-box--lg">
-          <canvas data-chart="aguaDiaria" role="img"
-            aria-label="Consumo diário de água em julho variando entre 24 e 38 m³, com dois picos nos dias 11 e 14"></canvas>
+          <canvas data-chart="aguaDiaria" role="img" aria-label="Consumo diário de água"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Detalhamento semanal</h3>
+        <p class="sub">Consumo e produção agrupados por semana · dentro do período filtrado</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Semana</th>
+                <th scope="col" class="num">Água (L)</th>
+                <th scope="col" class="num">Produção (kg)</th>
+                <th scope="col" class="num">Cons. esp. (L/kg)</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tb-agua-semanal"></tbody>
+          </table>
         </div>
       </div>
 
       <div class="panel">
         <h3>Evolução do consumo específico</h3>
-        <p class="sub">Litros de água por kg de produto · últimos 5 meses</p>
+        <p class="sub">Litros de água por kg de produto · por mês</p>
         <div class="legend">
           <span><i class="dot" style="background:var(--pv-blue)"></i>Consumo específico (L/kg)</span>
           <span><i class="dash"></i>Meta 3,5</span>
         </div>
         <div class="chart-box">
-          <canvas data-chart="aguaEsp" role="img"
-            aria-label="Consumo específico de água caindo de 3,76 em janeiro para 3,20 L/kg em maio, abaixo da meta desde março"></canvas>
+          <canvas data-chart="aguaEsp" role="img" aria-label="Evolução do consumo específico de água por mês"></canvas>
         </div>
       </div>
 
       <div class="panel">
         <h3>Volumes mensais</h3>
-        <p class="sub">Água consumida e produção total · últimos 5 meses</p>
+        <p class="sub">Água consumida e produção total · por mês, dentro do período filtrado</p>
         <div class="legend">
-          <span><i class="dot" style="background:var(--pv-blue)"></i>Água consumida (m³)</span>
-          <span><i class="dot" style="background:var(--c3)"></i>Produção total (t)</span>
+          <span><i class="dot" style="background:var(--pv-blue)"></i>Água consumida (L)</span>
+          <span><i class="dot" style="background:var(--c3)"></i>Produção total (kg)</span>
         </div>
         <div class="chart-box">
           <canvas data-chart="aguaVol" role="img" aria-label="Barras de água consumida e produção total por mês"></canvas>
@@ -801,8 +844,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
             <thead>
               <tr>
                 <th scope="col">Mês</th>
-                <th scope="col" class="num">Água (m³)</th>
-                <th scope="col" class="num">Produção (t)</th>
+                <th scope="col" class="num">Água (L)</th>
+                <th scope="col" class="num">Produção (kg)</th>
                 <th scope="col" class="num">Cons. esp. (L/kg)</th>
                 <th scope="col">Status</th>
               </tr>
@@ -1404,31 +1447,31 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     aguaDiaria: () => ({
       type: 'bar',
-      data: { labels: DATA.agua.diaria.map((_, i) => String(i + 1).padStart(2, '0') + '/07'),
-        datasets: [{ label: 'm³/dia', data: DATA.agua.diaria,
-          backgroundColor: DATA.agua.diaria.map(v => v >= 35 ? PALETA.red : v >= 30 ? PALETA.gold : PALETA.blue),
+      data: { labels: [],
+        datasets: [{ label: 'L/dia', data: [],
+          backgroundColor: PALETA.blue,
           borderRadius: 3 }] },
-      options: { plugins: { tooltip: { callbacks: { label: c => c.parsed.y + ' m³' } } },
-        scales: { x: Object.assign(eixoX(), { ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 15 } }),
-          y: eixoY('m³ / dia', { beginAtZero: true }) } }
+      options: { plugins: { tooltip: { callbacks: { label: c => c.parsed.y + ' L' } } },
+        scales: { x: Object.assign(eixoX(), { ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 20 } }),
+          y: eixoY('L / dia', { beginAtZero: true }) } }
     }),
 
     aguaEsp: () => ({
       type: 'line',
-      data: { labels: DATA.agua.meses, datasets: [
-        linha('Consumo específico', DATA.agua.especifico, PALETA.blue),
-        linhaMeta(DATA.agua.meta, DATA.agua.meses.length)
+      data: { labels: [], datasets: [
+        linha('Consumo específico', [], PALETA.blue),
+        linhaMeta(3.5, 0)
       ] },
       options: { plugins: { tooltip: { callbacks: { label: c => c.datasetIndex
-            ? 'Meta: ' + num(DATA.agua.meta) : 'Consumo: ' + num(c.parsed.y, 2) + ' L/kg' } } },
-        scales: { x: eixoX(), y: eixoY('L / kg produto', { suggestedMin: 3, suggestedMax: 4 }) } }
+            ? 'Meta: ' + num(3.5) : 'Consumo: ' + num(c.parsed.y, 2) + ' L/kg' } } },
+        scales: { x: eixoX(), y: eixoY('L / kg produto', { suggestedMin: 0 }) } }
     }),
 
     aguaVol: () => ({
       type: 'bar',
-      data: { labels: DATA.agua.meses, datasets: [
-        { label: 'Água (m³)', data: DATA.agua.consumo, backgroundColor: PALETA.blue, borderRadius: 4 },
-        { label: 'Produção (t)', data: DATA.agua.producao, backgroundColor: PALETA.c3, borderRadius: 4 }
+      data: { labels: [], datasets: [
+        { label: 'Água (L)', data: [], backgroundColor: PALETA.blue, borderRadius: 4 },
+        { label: 'Produção (kg)', data: [], backgroundColor: PALETA.c3, borderRadius: 4 }
       ] },
       options: { interaction: { mode: 'index', intersect: false },
         scales: { x: eixoX(), y: eixoY('Volume', { beginAtZero: true }) } }
@@ -1705,6 +1748,18 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
             elPill.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
           }
         } catch(e) { console.warn('Erro filtro Planejamento:', e); }
+      });
+      return;
+    }
+
+    // Formulário de lenha tem select de mês (informativo, dados continuam acumulados)
+    if (form.dataset.filtro === 'lenha') {
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const mes = parseInt(form.elements.mes.value);
+        const MESES_FULL = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        const alvo = $('[data-periodo]', form.closest('.page'));
+        if (alvo) alvo.textContent = mes === 0 ? 'Período: Ano todo 2026' : 'Período: ' + MESES_FULL[mes] + ' 2026';
       });
       return;
     }
@@ -2286,51 +2341,139 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── CONSUMO DE ÁGUA ───────────────────────────────────────
+  // ── ÁGUA (dados diários) ──────────────────────────────
+  const META_AGUA = 3.5;
+
+  function getSegundaFeira(dataStr) {
+    const d = new Date(dataStr + 'T00:00:00');
+    const dia = d.getDay(); // 0=dom, 1=seg...
+    const diff = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+  function fmtISO(d) { return d.toISOString().split('T')[0]; }
+  function fmtBR(iso) { const [y,m,dd] = iso.split('-'); return `${dd}/${m}`; }
+  function getNumeroSemanaISO(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  let AGUA_DADOS_CACHE = [];
+
+  async function fetchAguaPeriodo(de, ate) {
+    const url = `${SUPABASE_URL}/rest/v1/consumo_agua?select=*&data=gte.${de}&data=lte.${ate}&order=data.asc`;
+    const resp = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }});
+    const dados = await resp.json();
+    return Array.isArray(dados) ? dados : [];
+  }
+
   async function carregarAgua() {
     try {
-      const resp = await fetch(
-        `${SUPABASE_URL}/rest/v1/consumo_agua?select=*&ano=eq.2026&order=mes_num.asc`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
-      );
-      const dados = await resp.json();
-      if (!dados || !dados.length) return;
+      const deInput  = document.getElementById('agua-filtro-de');
+      const ateInput = document.getElementById('agua-filtro-ate');
+      if (ateInput && !ateInput.value) ateInput.value = fmtISO(new Date());
+      const de  = deInput  && deInput.value  ? deInput.value  : '2026-01-01';
+      const ate = ateInput && ateInput.value ? ateInput.value : fmtISO(new Date());
 
-      const ult = dados[dados.length - 1];
-      // água: consumo_litros / producao_kg → L/kg
-      const esp = ult.producao_kg ? parseFloat(ult.consumo_litros) / parseFloat(ult.producao_kg) : 0;
-      const META_AGUA = 3.5;
-      const dentro = esp <= META_AGUA;
+      const dados = await fetchAguaPeriodo(de, ate);
+      AGUA_DADOS_CACHE = dados;
 
       const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-      set('agua-hero-esp', esp.toFixed(1).replace('.', ','));
-      set('agua-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 3,5 L/kg');
+
+      if (!dados.length) {
+        set('agua-hero-esp', '—');
+        set('agua-hero-meta', 'Nenhum dado no período selecionado.');
+        set('agua-kpi-consumo', '—'); set('agua-kpi-prod', '—'); set('agua-kpi-esp', '—'); set('agua-kpi-dias', '0');
+        const chD = charts.get('aguaDiaria'); if (chD) { chD.data.labels = []; chD.data.datasets[0].data = []; chD.update(); }
+        const tbSem = document.getElementById('tb-agua-semanal'); if (tbSem) tbSem.innerHTML = '';
+        return;
+      }
+
+      // ── Totais do período ──
+      const totCons = dados.reduce((a, d) => a + parseFloat(d.consumo_litros || 0), 0);
+      const totProd = dados.reduce((a, d) => a + parseFloat(d.producao_kg || 0), 0);
+      const espPeriodo = totProd ? totCons / totProd : 0;
+      const dentro = espPeriodo <= META_AGUA;
+
+      set('agua-hero-esp', espPeriodo.toFixed(2).replace('.', ','));
+      set('agua-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · período selecionado · Meta: ≤ 3,5 L/kg');
       const pill = document.getElementById('agua-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
-      set('agua-kpi-consumo', parseFloat(ult.consumo_litros).toLocaleString('pt-BR') + ' L');
-      set('agua-kpi-prod', parseFloat(ult.producao_kg).toLocaleString('pt-BR') + ' kg');
-      set('agua-kpi-esp', esp.toFixed(1).replace('.', ',') + ' L/kg');
-      set('agua-kpi-meses', dados.length);
+      set('agua-kpi-consumo', totCons.toLocaleString('pt-BR') + ' L');
+      set('agua-kpi-prod', totProd.toLocaleString('pt-BR') + ' kg');
+      set('agua-kpi-esp', espPeriodo.toFixed(2).replace('.', ',') + ' L/kg');
+      set('agua-kpi-dias', dados.length);
 
-      const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => d.producao_kg ? parseFloat(d.consumo_litros) / parseFloat(d.producao_kg) : 0);
-      const cons  = dados.map(d => parseFloat(d.consumo_litros));
-      const prods = dados.map(d => parseFloat(d.producao_kg));
+      // ── Gráfico diário ──
+      const chD = charts.get('aguaDiaria');
+      if (chD) {
+        chD.data.labels = dados.map(d => fmtBR(d.data));
+        chD.data.datasets[0].data = dados.map(d => parseFloat(d.consumo_litros || 0));
+        chD.update();
+      }
+
+      // ── Agrupamento semanal ──
+      const semanas = {};
+      dados.forEach(d => {
+        const dt = new Date(d.data + 'T00:00:00');
+        const seg = getSegundaFeira(d.data);
+        const numSem = getNumeroSemanaISO(seg);
+        const chave = numSem + '-' + seg.getFullYear();
+        if (!semanas[chave]) semanas[chave] = { numSem, inicio: new Date(seg), cons: 0, prod: 0, dias: 0 };
+        semanas[chave].cons += parseFloat(d.consumo_litros || 0);
+        semanas[chave].prod += parseFloat(d.producao_kg || 0);
+        semanas[chave].dias += 1;
+      });
+      const semanasOrdenadas = Object.values(semanas).sort((a,b) => a.inicio - b.inicio);
+
+      const tbSem = document.getElementById('tb-agua-semanal');
+      if (tbSem) {
+        tbSem.innerHTML = '';
+        semanasOrdenadas.forEach(s => {
+          const fim = new Date(s.inicio); fim.setDate(fim.getDate() + 6);
+          const esp = s.prod ? s.cons / s.prod : 0;
+          const tipo = esp <= META_AGUA ? 'ok' : esp <= META_AGUA + .5 ? 'warn' : 'crit';
+          const rot  = esp <= META_AGUA ? 'Dentro da meta' : esp <= META_AGUA + .5 ? 'Atenção' : 'Acima da meta';
+          const label = `Sem. ${s.numSem} (${fmtISO(s.inicio).split('-').reverse().slice(0,2).join('/')} a ${fmtISO(fim).split('-').reverse().slice(0,2).join('/')})`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${label}</td><td class="num">${s.cons.toLocaleString('pt-BR')} L</td><td class="num">${s.prod.toLocaleString('pt-BR')} kg</td><td class="num">${esp.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tbSem.appendChild(tr);
+        });
+      }
+
+      // ── Agrupamento mensal ──
+      const MESES_NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const meses = {};
+      dados.forEach(d => {
+        const mn = parseInt(d.data.split('-')[1]);
+        if (!meses[mn]) meses[mn] = { cons: 0, prod: 0 };
+        meses[mn].cons += parseFloat(d.consumo_litros || 0);
+        meses[mn].prod += parseFloat(d.producao_kg || 0);
+      });
+      const mesesOrdenados = Object.keys(meses).map(Number).sort((a,b) => a-b);
+      const labelsMes = mesesOrdenados.map(m => MESES_NOMES[m].substring(0,3));
+      const consMes   = mesesOrdenados.map(m => meses[m].cons);
+      const prodMes   = mesesOrdenados.map(m => meses[m].prod);
+      const espMes    = mesesOrdenados.map(m => meses[m].prod ? meses[m].cons / meses[m].prod : 0);
 
       const chEsp = charts.get('aguaEsp');
-      if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_AGUA); chEsp.update(); }
+      if (chEsp) { chEsp.data.labels = labelsMes; chEsp.data.datasets[0].data = espMes; chEsp.data.datasets[1].data = Array(labelsMes.length).fill(META_AGUA); chEsp.update(); }
       const chVol = charts.get('aguaVol');
-      if (chVol) { chVol.data.labels = meses; chVol.data.datasets[0].data = cons; chVol.data.datasets[1].data = prods; chVol.update(); }
+      if (chVol) { chVol.data.labels = labelsMes; chVol.data.datasets[0].data = consMes; chVol.data.datasets[1].data = prodMes; chVol.update(); }
 
       const tb = document.getElementById('tb-agua');
       if (tb) {
         tb.innerHTML = '';
-        dados.forEach(d => {
-          const e = d.producao_kg ? parseFloat(d.consumo_litros) / parseFloat(d.producao_kg) : 0;
-          const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .2 ? 'warn' : 'crit';
-          const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .2 ? 'Atenção' : 'Acima da meta';
+        mesesOrdenados.forEach(m => {
+          const e = meses[m].prod ? meses[m].cons / meses[m].prod : 0;
+          const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .5 ? 'warn' : 'crit';
+          const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .5 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_litros).toLocaleString('pt-BR')} L</td><td class="num">${parseFloat(d.producao_kg).toLocaleString('pt-BR')} kg</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tr.innerHTML = `<td>${MESES_NOMES[m]}</td><td class="num">${meses[m].cons.toLocaleString('pt-BR')} L</td><td class="num">${meses[m].prod.toLocaleString('pt-BR')} kg</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
           tb.appendChild(tr);
         });
       }
@@ -2455,6 +2598,104 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     setTimeout(() => { msgGeral.textContent = ''; }, 3000);
   }
 
+  // ── Cascata semanal de água ──────────────────────────────
+  function montarLinhaCascataAgua(dataISO, nomeDia, existente) {
+    const tr = document.createElement('tr');
+    tr.dataset.data = dataISO;
+    const [y,m,d] = dataISO.split('-');
+    tr.innerHTML = `
+      <td style="padding:4px 6px;font-weight:600;">${nomeDia}</td>
+      <td style="padding:4px 6px;color:#666;">${d}/${m}/${y}</td>
+      <td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-consumo-dia" value="${existente ? existente.consumo_litros : ''}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>
+      <td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-producao-dia" value="${existente ? existente.producao_kg : ''}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>
+      <td style="padding:4px 6px;white-space:nowrap;">
+        <button type="button" class="btn-apagar-dia" style="padding:5px 10px;background:#fff0f0;color:#c0392b;border:1px solid #f0c0c0;border-radius:6px;font-size:12px;cursor:pointer;">🗑️</button>
+        <span class="dia-msg" style="font-size:11px;margin-left:6px;"></span>
+      </td>`;
+    return tr;
+  }
+
+  async function carregarCascataAgua(segundaISO) {
+    const tbody = document.getElementById('tb-agua-cascata');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:10px;color:#888;">Carregando...</td></tr>';
+
+    const seg = new Date(segundaISO + 'T00:00:00');
+    const dias7 = [];
+    for (let i = 0; i < 7; i++) { const d = new Date(seg); d.setDate(seg.getDate() + i); dias7.push(fmtISO(d)); }
+
+    let existentesPorData = {};
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?select=*&data=gte.${dias7[0]}&data=lte.${dias7[6]}`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const dados = await resp.json();
+      (Array.isArray(dados) ? dados : []).forEach(d => { existentesPorData[d.data] = d; });
+    } catch(e) {}
+
+    const NOMES_DIA = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+    tbody.innerHTML = '';
+    dias7.forEach((iso, i) => {
+      tbody.appendChild(montarLinhaCascataAgua(iso, NOMES_DIA[i], existentesPorData[iso]));
+    });
+
+    tbody.querySelectorAll('.btn-apagar-dia').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const tr = btn.closest('tr');
+        const dataISO = tr.dataset.data;
+        const msgEl = tr.querySelector('.dia-msg');
+        if (!confirm('Apagar os dados deste dia?')) return;
+        msgEl.textContent = '⏳';
+        try {
+          const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?data=eq.${dataISO}`, {
+            method: 'DELETE',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+          });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          tr.querySelector('.in-consumo-dia').value = '';
+          tr.querySelector('.in-producao-dia').value = '';
+          msgEl.textContent = '✅';
+          setTimeout(() => { msgEl.textContent = ''; }, 1200);
+          await carregarAgua();
+        } catch(e) { msgEl.textContent = '❌'; }
+      });
+    });
+  }
+
+  async function salvarSemanaAgua() {
+    const msgGeral = document.getElementById('agua-form-msg');
+    const tbody = document.getElementById('tb-agua-cascata');
+    if (!tbody) return;
+    const toFloat = v => { if (!v || v.trim() === '') return null; const n = parseFloat(v.replace(',', '.')); return isNaN(n) ? null : n; };
+
+    msgGeral.textContent = '⏳ Salvando semana...'; msgGeral.style.color = '#888';
+    let salvos = 0, erros = 0;
+
+    for (const tr of tbody.querySelectorAll('tr')) {
+      const dataISO = tr.dataset.data;
+      if (!dataISO) continue;
+      const consumo  = toFloat(tr.querySelector('.in-consumo-dia').value);
+      const producao = toFloat(tr.querySelector('.in-producao-dia').value);
+      if (consumo == null && producao == null) continue;
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?on_conflict=data`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify({ data: dataISO, consumo_litros: consumo, producao_kg: producao })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        salvos++;
+      } catch(e) { erros++; }
+    }
+
+    if (erros === 0) { msgGeral.textContent = `✅ ${salvos} dia(s) salvo(s) com sucesso!`; msgGeral.style.color = '#2d6a2d'; }
+    else { msgGeral.textContent = `⚠️ ${salvos} salvo(s), ${erros} com erro.`; msgGeral.style.color = '#c0392b'; }
+
+    await carregarAgua();
+    setTimeout(() => { msgGeral.textContent = ''; }, 3000);
+  }
+
   const _initForms = () => {
     // Lenha
     const btnLancarLenha   = document.getElementById('btn-lancar-lenha');
@@ -2470,19 +2711,40 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     if (btnCancelarLenha) btnCancelarLenha.addEventListener('click', () => { formLenha.style.display = 'none'; });
     if (btnSalvarLenhaTodos) btnSalvarLenhaTodos.addEventListener('click', () => salvarTodosLancamentos('lenha'));
 
-    // Água
+    // Água — cascata semanal
     const btnLancarAgua   = document.getElementById('btn-lancar-agua');
     const btnCancelarAgua = document.getElementById('btn-cancelar-agua');
-    const btnSalvarAguaTodos = document.getElementById('btn-salvar-agua-todos');
+    const btnSalvarAguaSemana = document.getElementById('btn-salvar-agua-semana');
+    const inputSegunda    = document.getElementById('agua-semana-inicio');
     const formAgua        = document.getElementById('form-agua');
 
     if (btnLancarAgua) btnLancarAgua.addEventListener('click', () => {
       const abrir = formAgua.style.display === 'none';
       formAgua.style.display = abrir ? 'block' : 'none';
-      if (abrir) abrirTabelaLancamento('agua');
+      if (abrir) {
+        if (!inputSegunda.value) {
+          const hoje = new Date();
+          const seg = getSegundaFeira(fmtISO(hoje));
+          inputSegunda.value = fmtISO(seg);
+        }
+        carregarCascataAgua(inputSegunda.value);
+      }
     });
     if (btnCancelarAgua) btnCancelarAgua.addEventListener('click', () => { formAgua.style.display = 'none'; });
-    if (btnSalvarAguaTodos) btnSalvarAguaTodos.addEventListener('click', () => salvarTodosLancamentos('agua'));
+    if (inputSegunda) inputSegunda.addEventListener('change', () => {
+      // ajusta para a segunda-feira mais próxima, para trás
+      const seg = getSegundaFeira(inputSegunda.value);
+      inputSegunda.value = fmtISO(seg);
+      carregarCascataAgua(inputSegunda.value);
+    });
+    if (btnSalvarAguaSemana) btnSalvarAguaSemana.addEventListener('click', salvarSemanaAgua);
+
+    // Filtro de período (água)
+    const formFiltroAgua = document.querySelector('form[data-filtro="agua-periodo"]');
+    if (formFiltroAgua) formFiltroAgua.addEventListener('submit', e => {
+      e.preventDefault();
+      carregarAgua();
+    });
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initForms); else _initForms();
 
