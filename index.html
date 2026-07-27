@@ -2425,11 +2425,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         return;
       }
 
+      const fmtDate = s => { if (!s) return '—'; const [y,m,d] = s.split('-'); return d ? `${d}/${m}/${y}` : s; };
       lista.innerHTML = dados.map(o => `
         <div style="border:1px solid #e0e0e0;border-radius:10px;padding:14px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <span style="font-weight:600;color:#0f2d0f;">#${o.codigo}</span>
-            <span style="font-size:12px;color:#888;">${o.abertura||'—'}</span>
+            <span style="font-size:12px;color:#888;">${fmtDate(o.abertura)}</span>
           </div>
           <p style="margin:0 0 6px;font-size:13px;color:#555;">👤 ${o.solicitante||'—'}</p>
           <p style="margin:0;font-size:13px;color:#777;white-space:pre-wrap;">${o.descricao||'Sem descrição'}</p>
@@ -2472,8 +2473,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
           <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Situação</td><td style="padding:4px 8px;">${o.situacao||'—'}</td></tr>
           <tr><td style="padding:4px 8px;color:#888;">Prioridade</td><td style="padding:4px 8px;">${o.prioridade||'—'}</td></tr>
           <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Solicitante</td><td style="padding:4px 8px;">${o.solicitante||'—'}</td></tr>
-          <tr><td style="padding:4px 8px;color:#888;">Abertura</td><td style="padding:4px 8px;">${o.abertura||'—'}</td></tr>
-          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Conclusão</td><td style="padding:4px 8px;">${o.conclusao||'—'}</td></tr>
+          <tr><td style="padding:4px 8px;color:#888;">Abertura</td><td style="padding:4px 8px;">${fmtDate(o.abertura)}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;">Conclusão</td><td style="padding:4px 8px;">${fmtDate(o.conclusao)}</td></tr>
           <tr><td style="padding:4px 8px;color:#888;">Contagem</td><td style="padding:4px 8px;">${o.entra_contagem||'—'}</td></tr>
           <tr style="background:#f9f9f9"><td style="padding:4px 8px;color:#888;vertical-align:top;">Descrição</td><td style="padding:4px 8px;white-space:pre-wrap;">${o.descricao||'—'}</td></tr>
         </table>`;
@@ -2529,18 +2530,19 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       }
     } catch(e) {}
 
-    // ── OS últimos 15 dias ───────────────────────────────
+    // ── OS últimos 15 dias ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     try {
-      const hoje = new Date();
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
       const d15 = new Date(hoje); d15.setDate(hoje.getDate() - 15);
       const fmt = d => d.toISOString().split('T')[0];
       const resp15 = await fetch(
-        `${SUPABASE_URL}/rest/v1/os_individual?select=abertura&and=(abertura.gte.${fmt(d15)},abertura.lte.${fmt(hoje)})`,
+        `${SUPABASE_URL}/rest/v1/os_individual?select=abertura&abertura=gte.${fmt(d15)}&abertura=lte.${fmt(hoje)}`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
       );
       const dados15 = await resp15.json();
+      const count15 = Array.isArray(dados15) ? dados15.length : 0;
       const el15 = document.querySelector('[data-kpi="os15d"]');
-      if (el15) el15.textContent = Array.isArray(dados15) ? dados15.length : '—';
+      if (el15) el15.textContent = count15;
       const periodoFmt = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
       const labelEl = el15 ? el15.closest('.kpi-card')?.querySelector('.delta') : null;
       if (labelEl) labelEl.textContent = periodoFmt(d15) + ' a ' + periodoFmt(hoje);
