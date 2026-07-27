@@ -1939,9 +1939,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (el.dataset.kpi === 'normal')     el.textContent = totNor;
     });
 
-    // reconstrói gráfico de criticidade com novos dados
-    if (charts.has('criticidade')) { charts.get('criticidade').destroy(); charts.delete('criticidade'); }
-    montarGrafico('criticidade');
+    // atualiza gráfico de criticidade com novos dados
+    if (charts.has('criticidade')) {
+      const ch = charts.get('criticidade');
+      ch.data.datasets[0].data = [totUrg, totAlt, totNor];
+      ch.update();
+    }
 
     // atualiza período
     const nomeDe  = MESES_NOME_FULL[mesDeNum - 1];
