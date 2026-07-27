@@ -463,49 +463,94 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     <!-- ---------- MTBF ---------- -->
     <section class="page" id="page-mtbf" role="tabpanel" aria-labelledby="tab-mtbf" tabindex="0" hidden>
-      <header class="page-header">
-        <h2>MTBF · Tempo médio entre falhas</h2>
-        <p data-periodo>Período: 01/07/2026 a 25/07/2026</p>
+      <header class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2>MTBF · Tempo médio entre falhas</h2>
+          <p data-periodo>Período: 2026</p>
+        </div>
+        <button type="button" id="btn-lancar-mtbf" style="padding:7px 16px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">
+          📝 Lançar horas da semana
+        </button>
       </header>
 
-      <form class="filtro-bar" data-filtro="mtbf" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-01" required></label>
+      <form class="filtro-bar" data-filtro="mtbf-periodo">
+        <label>De <input type="date" id="mtbf-filtro-de" value="2026-01-01" required></label>
         <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
+        <label>Até <input type="date" id="mtbf-filtro-ate" required></label>
         <button class="btn" type="submit">Aplicar</button>
-        <p class="filtro-erro" role="alert" data-erro></p>
       </form>
 
+      <!-- Formulário de lançamento em cascata (semanal, por setor) -->
+      <div id="form-mtbf" style="display:none;background:#f9fdf9;border:1.5px solid var(--pv-green);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+        <h4 style="margin:0 0 4px;color:#0f2d0f;">Lançar horas trabalhadas — semana</h4>
+        <p style="margin:0 0 16px;font-size:13px;color:#666;">Escolha qualquer segunda-feira. Informe quantas horas cada setor efetivamente trabalhou naquela semana.</p>
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:14px;">Segunda-feira da semana
+          <input type="date" id="mtbf-semana-inicio" style="display:block;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
+        </label>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="text-align:left;color:#666;">
+                <th style="padding:6px 8px;">Setor</th>
+                <th style="padding:6px 8px;">Horas trabalhadas na semana</th>
+              </tr>
+            </thead>
+            <tbody id="tb-mtbf-cascata"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <button type="button" id="btn-salvar-mtbf-semana" style="padding:8px 20px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar semana</button>
+          <button type="button" id="btn-cancelar-mtbf" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Fechar</button>
+          <span id="mtbf-form-msg" style="font-size:13px;"></span>
+        </div>
+      </div>
+
+      <section class="hero hero--green" aria-label="Indicador principal de MTBF">
+        <div>
+          <p class="hero__label">Indicador principal · MTBF acumulado</p>
+          <p class="hero__value"><span id="mtbf-hero-valor">—</span> <small>horas entre falhas</small></p>
+          <p class="hero__meta" id="mtbf-hero-meta">Carregando...</p>
+        </div>
+      </section>
+
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">MTBF médio geral</p><p class="value">128 h</p><p class="delta up">▲ +6% vs mês anterior</p></div>
-        <div class="kpi-card"><p class="label">Melhor setor</p><p class="value">Envase</p><p class="delta up">210 h</p></div>
-        <div class="kpi-card"><p class="label">Pior setor</p><p class="value">Câmaras frias</p><p class="delta down">68 h</p></div>
+        <div class="kpi-card"><p class="label">Melhor setor</p><p class="value" id="mtbf-kpi-melhor">—</p><p class="delta up" id="mtbf-kpi-melhor-h">—</p></div>
+        <div class="kpi-card"><p class="label">Pior setor</p><p class="value" id="mtbf-kpi-pior">—</p><p class="delta down" id="mtbf-kpi-pior-h">—</p></div>
+        <div class="kpi-card"><p class="label">Falhas corretivas</p><p class="value" id="mtbf-kpi-falhas">—</p><p class="delta neutral">no período</p></div>
+        <div class="kpi-card"><p class="label">Horas trabalhadas</p><p class="value" id="mtbf-kpi-horas">—</p><p class="delta neutral">informadas no período</p></div>
       </div>
 
       <div class="panel">
         <h3>MTBF por setor</h3>
         <p class="sub">Todos os setores no período selecionado</p>
         <div class="chart-box">
-          <canvas data-chart="mtbfSetor" role="img"
-            aria-label="Barras de MTBF por setor: Envase 210h, Utilidades 175h, Doce de leite 160h, Requeijão 145h, Pasteurização 130h, Caldeira 95h, Câmaras frias 68h"></canvas>
+          <canvas data-chart="mtbfSetor" role="img" aria-label="Barras de MTBF por setor"></canvas>
         </div>
       </div>
 
       <div class="panel">
-        <h3>Comparativo entre setores</h3>
-        <p class="sub">Selecione os setores que deseja comparar</p>
-        <div class="chips" id="chips-mtbf" role="group" aria-label="Setores para comparação"></div>
-        <div class="legend" id="leg-mtbf"></div>
-        <div class="chart-box chart-box--lg">
-          <canvas data-chart="mtbfComp" role="img" aria-label="Comparativo de MTBF entre os setores selecionados ao longo de 4 semanas"></canvas>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>Evolução semanal do MTBF</h3>
-        <p class="sub">Últimas 4 semanas</p>
+        <h3>Evolução semanal do MTBF geral</h3>
+        <p class="sub">Soma de horas trabalhadas ÷ falhas corretivas, por semana</p>
         <div class="chart-box chart-box--sm">
-          <canvas data-chart="mtbfEvol" role="img" aria-label="MTBF geral subindo de 110 para 128 horas em 4 semanas"></canvas>
+          <canvas data-chart="mtbfEvol" role="img" aria-label="Evolução semanal do MTBF geral"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Detalhamento por setor</h3>
+        <p class="sub">Horas trabalhadas, falhas e MTBF de cada setor no período</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Setor</th>
+                <th scope="col" class="num">Horas trabalhadas</th>
+                <th scope="col" class="num">Falhas corretivas</th>
+                <th scope="col" class="num">MTBF (h)</th>
+              </tr>
+            </thead>
+            <tbody id="tb-mtbf"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -514,65 +559,57 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     <section class="page" id="page-mttr" role="tabpanel" aria-labelledby="tab-mttr" tabindex="0" hidden>
       <header class="page-header">
         <h2>MTTR · Tempo médio de reparo</h2>
-        <p data-periodo>Período: 01/07/2026 a 25/07/2026</p>
+        <p data-periodo>Período: 2026</p>
       </header>
 
-      <form class="filtro-bar" data-filtro="mttr" data-label="Período">
-        <label>De <input type="date" name="de" value="2026-07-01" required></label>
+      <form class="filtro-bar" data-filtro="mttr-periodo">
+        <label>De <input type="date" id="mttr-filtro-de" value="2026-01-01" required></label>
         <span class="sep" aria-hidden="true">—</span>
-        <label>Até <input type="date" name="ate" value="2026-07-25" required></label>
+        <label>Até <input type="date" id="mttr-filtro-ate" required></label>
         <button class="btn" type="submit">Aplicar</button>
-        <p class="filtro-erro" role="alert" data-erro></p>
       </form>
 
+      <section class="hero hero--blue" aria-label="Indicador principal de MTTR">
+        <div>
+          <p class="hero__label">Indicador principal · MTTR acumulado</p>
+          <p class="hero__value"><span id="mttr-hero-valor">—</span> <small>horas por reparo</small></p>
+          <p class="hero__meta" id="mttr-hero-meta">Carregando...</p>
+        </div>
+      </section>
+
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">MTTR médio geral</p><p class="value">3,4 h</p><p class="delta down">▲ +0,3 h vs mês anterior</p></div>
-        <div class="kpi-card"><p class="label">Melhor mecânico</p><p class="value">Eduardo</p><p class="delta up">2,1 h</p></div>
-        <div class="kpi-card"><p class="label">Maior MTTR</p><p class="value">Norberto</p><p class="delta down">4,8 h</p></div>
-        <div class="kpi-card"><p class="label">OS atendidas</p><p class="value">45</p><p class="delta neutral">no período</p></div>
+        <div class="kpi-card"><p class="label">Melhor mecânico</p><p class="value" id="mttr-kpi-melhor">—</p><p class="delta up" id="mttr-kpi-melhor-h">—</p></div>
+        <div class="kpi-card"><p class="label">Maior MTTR</p><p class="value" id="mttr-kpi-pior">—</p><p class="delta down" id="mttr-kpi-pior-h">—</p></div>
+        <div class="kpi-card"><p class="label">OS corretivas atendidas</p><p class="value" id="mttr-kpi-os">—</p><p class="delta neutral">no período</p></div>
       </div>
 
       <div class="panel">
         <h3>MTTR por setor</h3>
         <p class="sub">Visão geral de todos os setores no período</p>
         <div class="chart-box chart-box--sm">
-          <canvas data-chart="mttrSetor" role="img"
-            aria-label="Barras de MTTR por setor: Caldeira 6,8h, Câmaras frias 4,9h, Pasteurização 3,1h, Requeijão 2,8h, Doce de leite 2,5h, Utilidades 2h, Envase 1,2h"></canvas>
+          <canvas data-chart="mttrSetor" role="img" aria-label="Barras de MTTR por setor"></canvas>
         </div>
       </div>
 
       <div class="panel">
-        <h3>Evolução semanal do MTTR</h3>
-        <p class="sub">Visualize o geral ou filtre por mecânico</p>
-        <div class="chips" id="chips-mttr-evol" role="group" aria-label="Filtrar evolução por mecânico"></div>
-        <div class="legend" id="leg-mttr-evol"></div>
+        <h3>Evolução semanal do MTTR geral</h3>
+        <p class="sub">Média do tempo de manutenção das OS corretivas, por semana</p>
         <div class="chart-box">
-          <canvas data-chart="mttrEvol" role="img" aria-label="Evolução semanal do MTTR do mecânico selecionado"></canvas>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>Comparativo entre mecânicos</h3>
-        <p class="sub">Selecione os mecânicos que deseja comparar</p>
-        <div class="chips" id="chips-mttr-comp" role="group" aria-label="Mecânicos para comparação"></div>
-        <div class="legend" id="leg-mttr-comp"></div>
-        <div class="chart-box chart-box--lg">
-          <canvas data-chart="mttrComp" role="img" aria-label="Comparativo de MTTR entre os mecânicos selecionados"></canvas>
+          <canvas data-chart="mttrEvol" role="img" aria-label="Evolução semanal do MTTR geral"></canvas>
         </div>
       </div>
 
       <div class="panel">
         <h3>MTTR médio por mecânico</h3>
-        <p class="sub">Média do período selecionado</p>
+        <p class="sub">Média do período selecionado · considera as OS em que cada mecânico participou</p>
         <div class="chart-box chart-box--sm">
-          <canvas data-chart="mttrMecBar" role="img"
-            aria-label="MTTR médio: Norberto 4,8h, Guilherme 3,8h, Isaías 3,1h, Eduardo 2,1h"></canvas>
+          <canvas data-chart="mttrMecBar" role="img" aria-label="MTTR médio por mecânico"></canvas>
         </div>
       </div>
 
       <div class="panel">
         <h3>Produtividade por mecânico</h3>
-        <p class="sub">Ordens atendidas e horas totais trabalhadas no período</p>
+        <p class="sub">Ordens corretivas atendidas e horas totais trabalhadas no período</p>
         <div class="legend">
           <span><i class="dot" style="background:var(--c1)"></i>OS atendidas</span>
           <span><i class="dot" style="background:var(--c3)"></i>Horas trabalhadas</span>
@@ -1162,34 +1199,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   };
 
   /* ---------- 2. DATA (todo dado do painel em um só lugar) ---------- */
-  const SEMANAS = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+  const SETORES_MANUT = [
+    'Queijo', 'Manteiga/Requeijão', 'Câmaras Frias - Salga/Secagem', 'Fabricação de Iogurte',
+    'Fabricação de Doce', 'Leite Pasteurizado', 'Embalagem de Refrigerados',
+    'Casa de Máquinas/Galeria', 'Geral/Manutenção Predial'
+  ];
+  const MECANICOS = ['Eduardo', 'Norberto', 'Guilherme', 'Izaías'];
   const MESES_5 = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'];
 
   const DATA = {
-    setores: ['Pasteurização', 'Requeijão', 'Doce de leite', 'Câmaras frias', 'Envase', 'Caldeira', 'Utilidades'],
-    mtbfSemana: {
-      'Pasteurização': [120, 130, 125, 130], 'Requeijão': [140, 138, 148, 145],
-      'Doce de leite': [155, 160, 158, 160], 'Câmaras frias': [70, 65, 68, 68],
-      'Envase': [200, 205, 212, 210], 'Caldeira': [90, 98, 92, 95], 'Utilidades': [170, 175, 178, 175]
-    },
-    mtbfSetor: [130, 145, 160, 68, 210, 95, 175],
-    mtbfGeral: [110, 118, 125, 128],
-    mttrSetor: [3.1, 2.8, 2.5, 4.9, 1.2, 6.8, 2.0],
-    mttrGeral: [3.8, 3.6, 3.5, 3.4],
-
-    mecanicos: ['Norberto', 'Isaías', 'Eduardo', 'Guilherme'],
-    mttrMec: {
-      'Geral': [3.8, 3.6, 3.5, 3.4], 'Norberto': [5.2, 4.9, 4.8, 4.8],
-      'Isaías': [3.6, 3.4, 3.2, 3.0], 'Eduardo': [2.5, 2.3, 2.1, 2.1],
-      'Guilherme': [3.9, 3.8, 3.7, 3.6]
-    },
-    produtividade: [
-      { nome: 'Norberto', os: 10, horas: 48 },
-      { nome: 'Isaías', os: 13, horas: 40 },
-      { nome: 'Eduardo', os: 14, horas: 29 },
-      { nome: 'Guilherme', os: 8, horas: 30 }
-    ],
-
     lenha: { meses: MESES_5, consumo: [210, 198, 205, 192, 184], producao: [218, 210, 220, 208, 211], meta: 1.52 },
     agua: {
       meses: MESES_5, consumo: [820, 780, 760, 720, 675], producao: [218, 210, 220, 208, 211], meta: 3.5,
@@ -1247,29 +1265,6 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   /* ---------- 4. RENDER DE TABELAS (dados → DOM, sem HTML hardcoded) ---------- */
   function renderTabelas() {
-    /* produtividade */
-    const tbP = $('#tb-produtividade');
-    if (tbP) {
-      let totOs = 0, totH = 0;
-      DATA.produtividade.forEach(p => {
-        const mttr = p.horas / p.os;
-        const tipo = mttr <= 2.5 ? 'ok' : mttr <= 4 ? 'warn' : 'crit';
-        const tr = el('tr', {},
-          el('td', {}, el('strong', { text: p.nome })),
-          td(String(p.os), 'num'),
-          td(num(p.horas, 0) + ' h', 'num'),
-          el('td', { class: 'num' }, badge(num(mttr) + ' h', tipo)),
-          td(num(mttr) + ' h', 'num')
-        );
-        tbP.appendChild(tr);
-        totOs += p.os; totH += p.horas;
-      });
-      tbP.appendChild(el('tr', { class: 'total' },
-        el('td', { text: 'Total' }), td(String(totOs), 'num'),
-        td(num(totH, 0) + ' h', 'num'), td('—', 'num'), td(num(totH / totOs) + ' h', 'num')
-      ));
-    }
-
     /* lenha */
     const tbL = $('#tb-lenha');
     if (tbL) {
@@ -1358,9 +1353,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   const CHART_DEFS = {
     resumo: () => ({
       type: 'line',
-      data: { labels: SEMANAS, datasets: [
-        Object.assign(linha('MTBF (h)', DATA.mtbfGeral, PALETA.c1), { yAxisID: 'y' }),
-        Object.assign(linha('MTTR (h)', DATA.mttrGeral, PALETA.c2), { yAxisID: 'y1' })
+      data: { labels: [], datasets: [
+        Object.assign(linha('MTBF (h)', [], PALETA.c1), { yAxisID: 'y' }),
+        Object.assign(linha('MTTR (h)', [], PALETA.c2), { yAxisID: 'y1' })
       ] },
       options: { interaction: { mode: 'index', intersect: false },
         plugins: { tooltip: { enabled: true } },
@@ -1370,53 +1365,37 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     mtbfSetor: () => ({
       type: 'bar',
-      data: { labels: DATA.setores, datasets: [{ label: 'MTBF (h)', data: DATA.mtbfSetor,
-        backgroundColor: DATA.setores.map((_, i) => SERIES[i % SERIES.length]), borderRadius: 4 }] },
+      data: { labels: [], datasets: [{ label: 'MTBF (h)', data: [],
+        backgroundColor: SERIES[0], borderRadius: 4 }] },
       options: { plugins: { tooltip: { callbacks: { label: c => num(c.parsed.y, 0) + ' h' } } },
         scales: { x: eixoX(), y: eixoY('MTBF (h)', { beginAtZero: true }) } }
     }),
 
-    mtbfComp: () => ({ type: 'line', data: { labels: SEMANAS, datasets: [] },
-      options: { interaction: { mode: 'index', intersect: false },
-        plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': ' + num(c.parsed.y, 0) + ' h' } } },
-        scales: { x: eixoX(), y: eixoY('MTBF (h)') } } }),
-
-    mtbfEvol: () => ({ type: 'line', data: { labels: SEMANAS, datasets: [linha('MTBF (h)', DATA.mtbfGeral, PALETA.c1)] },
-      options: { scales: { x: eixoX(), y: eixoY('MTBF (h)') } } }),
+    mtbfEvol: () => ({ type: 'line', data: { labels: [], datasets: [linha('MTBF (h)', [], PALETA.c1)] },
+      options: { scales: { x: eixoX(), y: eixoY('MTBF (h)', { beginAtZero: true }) } } }),
 
     mttrSetor: () => ({
       type: 'bar',
-      data: { labels: DATA.setores, datasets: [{ label: 'MTTR (h)', data: DATA.mttrSetor,
+      data: { labels: [], datasets: [{ label: 'MTTR (h)', data: [],
         backgroundColor: PALETA.c2, borderRadius: 4 }] },
       options: { plugins: { tooltip: { callbacks: { label: c => num(c.parsed.y) + ' h' } } },
         scales: { x: eixoX(), y: eixoY('MTTR (h)', { beginAtZero: true }) } }
     }),
 
-    mttrEvol: () => ({ type: 'line', data: { labels: SEMANAS, datasets: [] },
-      options: { plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': ' + num(c.parsed.y) + ' h' } } },
+    mttrEvol: () => ({ type: 'line', data: { labels: [], datasets: [linha('MTTR (h)', [], PALETA.c2)] },
+      options: { plugins: { tooltip: { callbacks: { label: c => num(c.parsed.y) + ' h' } } },
         scales: { x: eixoX(), y: eixoY('MTTR (h)', { beginAtZero: true }) } } }),
 
-    mttrComp: () => ({ type: 'line', data: { labels: SEMANAS, datasets: [] },
-      options: { interaction: { mode: 'index', intersect: false },
-        plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': ' + num(c.parsed.y) + ' h' } } },
-        scales: { x: eixoX(), y: eixoY('MTTR (h)', { beginAtZero: true }) } } }),
-
-    mttrMecBar: () => {
-      const ord = [...DATA.produtividade].sort((a, b) => (b.horas / b.os) - (a.horas / a.os));
-      return { type: 'bar',
-        data: { labels: ord.map(p => p.nome), datasets: [{ label: 'MTTR (h)',
-          data: ord.map(p => +(p.horas / p.os).toFixed(1)),
-          backgroundColor: ord.map(p => { const v = p.horas / p.os;
-            return v <= 2.5 ? PALETA.green : v <= 4 ? PALETA.gold : PALETA.red; }), borderRadius: 4 }] },
-        options: { plugins: { tooltip: { callbacks: { label: c => num(c.parsed.y) + ' h' } } },
-          scales: { x: eixoX(), y: eixoY('MTTR médio (h)', { beginAtZero: true }) } } };
-    },
+    mttrMecBar: () => ({ type: 'bar',
+      data: { labels: [], datasets: [{ label: 'MTTR (h)', data: [], backgroundColor: PALETA.c2, borderRadius: 4 }] },
+      options: { plugins: { tooltip: { callbacks: { label: c => num(c.parsed.y) + ' h' } } },
+        scales: { x: eixoX(), y: eixoY('MTTR médio (h)', { beginAtZero: true }) } } }),
 
     mttrProd: () => ({
       type: 'bar',
-      data: { labels: DATA.produtividade.map(p => p.nome), datasets: [
-        { label: 'OS atendidas', data: DATA.produtividade.map(p => p.os), backgroundColor: PALETA.c1, borderRadius: 4, yAxisID: 'y' },
-        { label: 'Horas trabalhadas', data: DATA.produtividade.map(p => p.horas), backgroundColor: PALETA.c3, borderRadius: 4, yAxisID: 'y1' }
+      data: { labels: [], datasets: [
+        { label: 'OS atendidas', data: [], backgroundColor: PALETA.c1, borderRadius: 4, yAxisID: 'y' },
+        { label: 'Horas trabalhadas', data: [], backgroundColor: PALETA.c3, borderRadius: 4, yAxisID: 'y1' }
       ] },
       options: { interaction: { mode: 'index', intersect: false },
         plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y + (c.datasetIndex ? ' h' : '') } } },
@@ -1560,8 +1539,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   /** monta todos os gráficos de uma página (só na primeira vez que ela abre) */
   function montarGraficosDaPagina(section) {
     $$('canvas[data-chart]', section).forEach(c => montarGrafico(c.dataset.chart));
-    if (section.id === 'page-mtbf') atualizarComparativoMtbf();
-    if (section.id === 'page-mttr') { atualizarEvolMttr(); atualizarComparativoMttr(); }
+    if (section.id === 'page-mtbf') carregarMTBF();
+    if (section.id === 'page-mttr') carregarMTTR();
   }
 
   /* ---------- 7. CHIPS GENÉRICOS (substitui 3 funções quase idênticas) ---------- */
@@ -1607,33 +1586,6 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         el('i', { class: 'dot', style: 'background:' + cor }),
         document.createTextNode(nome)));
     });
-  }
-
-  /* estado dos comparativos */
-  let selMtbf = ['Pasteurização', 'Câmaras frias'];
-  let selMttrEvol = 'Geral';
-  let selMttrComp = ['Eduardo', 'Norberto'];
-
-  const corSetor = s => SERIES[DATA.setores.indexOf(s) % SERIES.length];
-  const corMec = m => m === 'Geral' ? PALETA.c1 : SERIES[(DATA.mecanicos.indexOf(m) + 1) % SERIES.length];
-
-  function atualizarComparativoMtbf() {
-    const ch = montarGrafico('mtbfComp'); if (!ch) return;
-    ch.data.datasets = selMtbf.map(s => linha(s, DATA.mtbfSemana[s], corSetor(s), false));
-    ch.update();
-    pintarLegenda('#leg-mtbf', selMtbf.map(s => ({ nome: s, cor: corSetor(s) })));
-  }
-  function atualizarEvolMttr() {
-    const ch = montarGrafico('mttrEvol'); if (!ch) return;
-    ch.data.datasets = [linha(selMttrEvol, DATA.mttrMec[selMttrEvol], corMec(selMttrEvol))];
-    ch.update();
-    pintarLegenda('#leg-mttr-evol', [{ nome: selMttrEvol, cor: corMec(selMttrEvol) }]);
-  }
-  function atualizarComparativoMttr() {
-    const ch = montarGrafico('mttrComp'); if (!ch) return;
-    ch.data.datasets = selMttrComp.map(m => linha(m, DATA.mttrMec[m], corMec(m), false));
-    ch.update();
-    pintarLegenda('#leg-mttr-comp', selMttrComp.map(m => ({ nome: m, cor: corMec(m) })));
   }
 
   /* ---------- 8. ROUTER DE ABAS (delegação + teclado + hash) ---------- */
@@ -2019,13 +1971,6 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     setChartDefaults();
     renderTabelas();
 
-    criarChips({ container: '#chips-mtbf', itens: DATA.setores, modo: 'multi', sel: selMtbf,
-      onChange: s => { selMtbf = s; atualizarComparativoMtbf(); } });
-    criarChips({ container: '#chips-mttr-evol', itens: ['Geral', ...DATA.mecanicos], modo: 'single', sel: selMttrEvol,
-      onChange: s => { selMttrEvol = s; atualizarEvolMttr(); } });
-    criarChips({ container: '#chips-mttr-comp', itens: DATA.mecanicos, modo: 'multi', sel: selMttrComp,
-      onChange: s => { selMttrComp = s; atualizarComparativoMttr(); } });
-
     const inicial = (location.hash || '').replace('#', '');
     irPara(document.getElementById('page-' + inicial) ? inicial : 'resumo');
   }
@@ -2286,6 +2231,354 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     });
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initPainelSemanas); else _initPainelSemanas();
+
+  // ── MTBF / MTTR — auxiliares compartilhados ───────────────
+  function getSegundaFeiraMTBF(dataStr) {
+    const d = new Date(dataStr + 'T00:00:00');
+    const dia = d.getDay();
+    const diff = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+  function fmtISOmtbf(d) { return d.toISOString().split('T')[0]; }
+  function getNumeroSemanaISOmtbf(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  async function fetchManutencaoPeriodo(de, ate) {
+    const url = `${SUPABASE_URL}/rest/v1/manutencao_os?select=*&data=gte.${de}&data=lte.${ate}&order=data.asc`;
+    const resp = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }});
+    const dados = await resp.json();
+    return Array.isArray(dados) ? dados : [];
+  }
+
+  // ══════════════════════════════ MTBF ══════════════════════════════
+  async function carregarMTBF() {
+    try {
+      const deInput  = document.getElementById('mtbf-filtro-de');
+      const ateInput = document.getElementById('mtbf-filtro-ate');
+      if (ateInput && !ateInput.value) ateInput.value = fmtISOmtbf(new Date());
+      const de  = deInput  && deInput.value  ? deInput.value  : '2026-01-01';
+      const ate = ateInput && ateInput.value ? ateInput.value : fmtISOmtbf(new Date());
+
+      const todasOS = await fetchManutencaoPeriodo(de, ate);
+      const corretivas = todasOS.filter(o => o.tipo_manutencao === 'Corretiva');
+
+      // busca horas trabalhadas por setor nas semanas do período
+      const respHoras = await fetch(`${SUPABASE_URL}/rest/v1/mtbf_horas_setor?select=*`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const todasHoras = await respHoras.json();
+      const semanasNoIntervalo = new Set();
+      const dIni = new Date(de + 'T00:00:00'), dFim = new Date(ate + 'T00:00:00');
+      for (let d = new Date(dIni); d <= dFim; d.setDate(d.getDate() + 1)) {
+        semanasNoIntervalo.add(getNumeroSemanaISOmtbf(d) + '-' + d.getFullYear());
+      }
+      const horasFiltradas = (Array.isArray(todasHoras) ? todasHoras : []).filter(h =>
+        semanasNoIntervalo.has(h.semana_num + '-' + h.ano)
+      );
+
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+
+      // ── Agrupamento por setor ──
+      const porSetor = {};
+      SETORES_MANUT.forEach(s => { porSetor[s] = { horas: 0, falhas: 0 }; });
+      horasFiltradas.forEach(h => { if (porSetor[h.setor]) porSetor[h.setor].horas += parseFloat(h.horas_trabalhadas || 0); });
+      corretivas.forEach(o => { if (porSetor[o.setor]) porSetor[o.setor].falhas += 1; });
+
+      const totHoras = Object.values(porSetor).reduce((a, s) => a + s.horas, 0);
+      const totFalhas = corretivas.length;
+      const mtbfAcum = totFalhas ? totHoras / totFalhas : 0;
+
+      set('mtbf-hero-valor', mtbfAcum.toFixed(1).replace('.', ','));
+      set('mtbf-hero-meta', `Acumulado do período · ${totFalhas} falha(s) corretiva(s) · ${totHoras.toLocaleString('pt-BR')} h trabalhadas`);
+      set('mtbf-kpi-falhas', totFalhas);
+      set('mtbf-kpi-horas', totHoras.toLocaleString('pt-BR') + ' h');
+
+      // melhor/pior setor (só considera setores com falhas > 0 para MTBF calculável)
+      const setoresComDados = Object.entries(porSetor).filter(([_, v]) => v.falhas > 0)
+        .map(([s, v]) => ({ setor: s, mtbf: v.horas / v.falhas, ...v }));
+      if (setoresComDados.length) {
+        const melhor = setoresComDados.reduce((a, b) => b.mtbf > a.mtbf ? b : a);
+        const pior = setoresComDados.reduce((a, b) => b.mtbf < a.mtbf ? b : a);
+        set('mtbf-kpi-melhor', melhor.setor);
+        set('mtbf-kpi-melhor-h', melhor.mtbf.toFixed(1) + ' h');
+        set('mtbf-kpi-pior', pior.setor);
+        set('mtbf-kpi-pior-h', pior.mtbf.toFixed(1) + ' h');
+      } else {
+        set('mtbf-kpi-melhor', '—'); set('mtbf-kpi-melhor-h', '—');
+        set('mtbf-kpi-pior', '—'); set('mtbf-kpi-pior-h', '—');
+      }
+
+      // gráfico por setor
+      const chSetor = charts.get('mtbfSetor');
+      if (chSetor) {
+        chSetor.data.labels = SETORES_MANUT;
+        chSetor.data.datasets[0].data = SETORES_MANUT.map(s => porSetor[s].falhas ? +(porSetor[s].horas / porSetor[s].falhas).toFixed(1) : 0);
+        chSetor.data.datasets[0].backgroundColor = SETORES_MANUT.map((_, i) => SERIES[i % SERIES.length]);
+        chSetor.update();
+      }
+
+      // tabela por setor
+      const tb = document.getElementById('tb-mtbf');
+      if (tb) {
+        tb.innerHTML = '';
+        SETORES_MANUT.forEach(s => {
+          const v = porSetor[s];
+          const mtbf = v.falhas ? v.horas / v.falhas : 0;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${s}</td><td class="num">${v.horas.toLocaleString('pt-BR')} h</td><td class="num">${v.falhas}</td><td class="num">${v.falhas ? mtbf.toFixed(1) : '—'}</td>`;
+          tb.appendChild(tr);
+        });
+      }
+
+      // ── Evolução semanal do MTBF geral ──
+      const semanasMap = {};
+      horasFiltradas.forEach(h => {
+        const chave = h.semana_num + '-' + h.ano;
+        if (!semanasMap[chave]) semanasMap[chave] = { semana_num: h.semana_num, ano: h.ano, horas: 0, falhas: 0 };
+        semanasMap[chave].horas += parseFloat(h.horas_trabalhadas || 0);
+      });
+      corretivas.forEach(o => {
+        const chave = o.semana_num + '-' + o.ano;
+        if (!semanasMap[chave]) semanasMap[chave] = { semana_num: o.semana_num, ano: o.ano, horas: 0, falhas: 0 };
+        semanasMap[chave].falhas += 1;
+      });
+      const semanasOrdenadas = Object.values(semanasMap).sort((a, b) => (a.ano - b.ano) || (a.semana_num - b.semana_num));
+      const chEvol = charts.get('mtbfEvol');
+      if (chEvol) {
+        chEvol.data.labels = semanasOrdenadas.map(s => 'Sem ' + s.semana_num);
+        chEvol.data.datasets[0].data = semanasOrdenadas.map(s => s.falhas ? +(s.horas / s.falhas).toFixed(1) : 0);
+        chEvol.update();
+      }
+    } catch(e) { console.warn('Erro ao carregar MTBF:', e); }
+  }
+
+  // ── Cascata semanal de lançamento de horas por setor (MTBF) ──
+  async function carregarCascataMTBF(segundaISO) {
+    const tbody = document.getElementById('tb-mtbf-cascata');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="2" style="padding:10px;color:#888;">Carregando...</td></tr>';
+
+    const seg = new Date(segundaISO + 'T00:00:00');
+    const numSem = getNumeroSemanaISOmtbf(seg);
+    const ano = seg.getFullYear();
+
+    let existentes = {};
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/mtbf_horas_setor?select=*&semana_num=eq.${numSem}&ano=eq.${ano}`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const dados = await resp.json();
+      (Array.isArray(dados) ? dados : []).forEach(d => { existentes[d.setor] = d; });
+    } catch(e) {}
+
+    tbody.innerHTML = '';
+    SETORES_MANUT.forEach(setor => {
+      const ex = existentes[setor];
+      const tr = document.createElement('tr');
+      tr.dataset.setor = setor;
+      tr.innerHTML = `
+        <td style="padding:4px 6px;font-weight:600;">${setor}</td>
+        <td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-horas-setor" value="${ex ? ex.horas_trabalhadas : ''}" placeholder="ex: 40" style="width:140px;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function salvarSemanaMTBF() {
+    const msgGeral = document.getElementById('mtbf-form-msg');
+    const inputSegunda = document.getElementById('mtbf-semana-inicio');
+    const tbody = document.getElementById('tb-mtbf-cascata');
+    if (!tbody || !inputSegunda.value) return;
+    const toFloat = v => { if (!v || v.trim() === '') return null; const n = parseFloat(v.replace(',', '.')); return isNaN(n) ? null : n; };
+
+    const seg = new Date(inputSegunda.value + 'T00:00:00');
+    const numSem = getNumeroSemanaISOmtbf(seg);
+    const ano = seg.getFullYear();
+    const fim = new Date(seg); fim.setDate(fim.getDate() + 6);
+
+    msgGeral.textContent = '⏳ Salvando...'; msgGeral.style.color = '#888';
+    let salvos = 0, erros = 0;
+
+    for (const tr of tbody.querySelectorAll('tr')) {
+      const setor = tr.dataset.setor;
+      if (!setor) continue;
+      const horas = toFloat(tr.querySelector('.in-horas-setor').value);
+      if (horas == null) continue;
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/mtbf_horas_setor?on_conflict=setor,semana_num,ano`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify({ setor, semana_num: numSem, ano, data_inicio: fmtISOmtbf(seg), data_fim: fmtISOmtbf(fim), horas_trabalhadas: horas })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        salvos++;
+      } catch(e) { erros++; }
+    }
+
+    if (erros === 0) { msgGeral.textContent = `✅ ${salvos} setor(es) salvo(s) com sucesso!`; msgGeral.style.color = '#2d6a2d'; }
+    else { msgGeral.textContent = `⚠️ ${salvos} salvo(s), ${erros} com erro.`; msgGeral.style.color = '#c0392b'; }
+
+    await carregarMTBF();
+    setTimeout(() => { msgGeral.textContent = ''; }, 3000);
+  }
+
+  // ══════════════════════════════ MTTR ══════════════════════════════
+  async function carregarMTTR() {
+    try {
+      const deInput  = document.getElementById('mttr-filtro-de');
+      const ateInput = document.getElementById('mttr-filtro-ate');
+      if (ateInput && !ateInput.value) ateInput.value = fmtISOmtbf(new Date());
+      const de  = deInput  && deInput.value  ? deInput.value  : '2026-01-01';
+      const ate = ateInput && ateInput.value ? ateInput.value : fmtISOmtbf(new Date());
+
+      const todasOS = await fetchManutencaoPeriodo(de, ate);
+      const corretivas = todasOS.filter(o => o.tipo_manutencao === 'Corretiva' && o.tempo_manutencao != null);
+
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+
+      const totTempo = corretivas.reduce((a, o) => a + parseFloat(o.tempo_manutencao || 0), 0);
+      const mttrAcum = corretivas.length ? totTempo / corretivas.length : 0;
+
+      set('mttr-hero-valor', mttrAcum.toFixed(2).replace('.', ','));
+      set('mttr-hero-meta', `Acumulado do período · ${corretivas.length} OS corretiva(s)`);
+      set('mttr-kpi-os', corretivas.length);
+
+      // ── por mecânico ──
+      const porMec = {};
+      MECANICOS.forEach(m => { porMec[m] = { tempo: 0, os: 0, homemHora: 0 }; });
+      corretivas.forEach(o => {
+        MECANICOS.forEach(m => {
+          const campo = 'mec_' + m.toLowerCase().replace('í', 'i');
+          if (o[campo]) {
+            porMec[m].tempo += parseFloat(o.tempo_manutencao || 0);
+            porMec[m].os += 1;
+            porMec[m].homemHora += parseFloat(o.homem_hora || 0);
+          }
+        });
+      });
+      const mecComDados = Object.entries(porMec).filter(([_, v]) => v.os > 0)
+        .map(([m, v]) => ({ mecanico: m, mttr: v.tempo / v.os, ...v }));
+      if (mecComDados.length) {
+        const melhor = mecComDados.reduce((a, b) => b.mttr < a.mttr ? b : a);
+        const pior = mecComDados.reduce((a, b) => b.mttr > a.mttr ? b : a);
+        set('mttr-kpi-melhor', melhor.mecanico);
+        set('mttr-kpi-melhor-h', melhor.mttr.toFixed(1) + ' h');
+        set('mttr-kpi-pior', pior.mecanico);
+        set('mttr-kpi-pior-h', pior.mttr.toFixed(1) + ' h');
+      } else {
+        set('mttr-kpi-melhor', '—'); set('mttr-kpi-melhor-h', '—');
+        set('mttr-kpi-pior', '—'); set('mttr-kpi-pior-h', '—');
+      }
+
+      // gráfico MTTR médio por mecânico
+      const ordenados = MECANICOS.map(m => ({ nome: m, mttr: porMec[m].os ? porMec[m].tempo / porMec[m].os : 0, os: porMec[m].os }))
+        .sort((a, b) => b.mttr - a.mttr);
+      const chMec = charts.get('mttrMecBar');
+      if (chMec) {
+        chMec.data.labels = ordenados.map(o => o.nome);
+        chMec.data.datasets[0].data = ordenados.map(o => +o.mttr.toFixed(1));
+        chMec.data.datasets[0].backgroundColor = ordenados.map(o => o.mttr <= 2.5 ? PALETA.green : o.mttr <= 4 ? PALETA.gold : PALETA.red);
+        chMec.update();
+      }
+
+      // gráfico produtividade (OS x horas)
+      const chProd = charts.get('mttrProd');
+      if (chProd) {
+        chProd.data.labels = MECANICOS;
+        chProd.data.datasets[0].data = MECANICOS.map(m => porMec[m].os);
+        chProd.data.datasets[1].data = MECANICOS.map(m => +porMec[m].homemHora.toFixed(1));
+        chProd.update();
+      }
+
+      // tabela produtividade
+      const tb = document.getElementById('tb-produtividade');
+      if (tb) {
+        tb.innerHTML = '';
+        let totOs = 0, totH = 0;
+        MECANICOS.forEach(m => {
+          const v = porMec[m];
+          const mttr = v.os ? v.tempo / v.os : 0;
+          const hPorOs = v.os ? v.homemHora / v.os : 0;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${m}</strong></td><td class="num">${v.os}</td><td class="num">${v.homemHora.toLocaleString('pt-BR', {maximumFractionDigits:1})} h</td><td class="num">${v.os ? mttr.toFixed(2) + ' h' : '—'}</td><td class="num">${v.os ? hPorOs.toFixed(2) + ' h' : '—'}</td>`;
+          tb.appendChild(tr);
+          totOs += v.os; totH += v.homemHora;
+        });
+        const trTotal = document.createElement('tr');
+        trTotal.className = 'total';
+        trTotal.innerHTML = `<td>Total</td><td class="num">${totOs}</td><td class="num">${totH.toLocaleString('pt-BR', {maximumFractionDigits:1})} h</td><td class="num">—</td><td class="num">${totOs ? (totH/totOs).toFixed(2) + ' h' : '—'}</td>`;
+        tb.appendChild(trTotal);
+      }
+
+      // ── por setor ──
+      const porSetorMttr = {};
+      SETORES_MANUT.forEach(s => { porSetorMttr[s] = { tempo: 0, os: 0 }; });
+      corretivas.forEach(o => { if (porSetorMttr[o.setor]) { porSetorMttr[o.setor].tempo += parseFloat(o.tempo_manutencao || 0); porSetorMttr[o.setor].os += 1; } });
+      const chSetorMttr = charts.get('mttrSetor');
+      if (chSetorMttr) {
+        chSetorMttr.data.labels = SETORES_MANUT;
+        chSetorMttr.data.datasets[0].data = SETORES_MANUT.map(s => porSetorMttr[s].os ? +(porSetorMttr[s].tempo / porSetorMttr[s].os).toFixed(2) : 0);
+        chSetorMttr.update();
+      }
+
+      // ── evolução semanal do MTTR geral ──
+      const semanasMap = {};
+      corretivas.forEach(o => {
+        const chave = o.semana_num + '-' + o.ano;
+        if (!semanasMap[chave]) semanasMap[chave] = { semana_num: o.semana_num, ano: o.ano, tempo: 0, os: 0 };
+        semanasMap[chave].tempo += parseFloat(o.tempo_manutencao || 0);
+        semanasMap[chave].os += 1;
+      });
+      const semanasOrdenadas = Object.values(semanasMap).sort((a, b) => (a.ano - b.ano) || (a.semana_num - b.semana_num));
+      const chEvol = charts.get('mttrEvol');
+      if (chEvol) {
+        chEvol.data.labels = semanasOrdenadas.map(s => 'Sem ' + s.semana_num);
+        chEvol.data.datasets[0].data = semanasOrdenadas.map(s => s.os ? +(s.tempo / s.os).toFixed(2) : 0);
+        chEvol.update();
+      }
+    } catch(e) { console.warn('Erro ao carregar MTTR:', e); }
+  }
+
+  // ── Formulários de MTBF/MTTR: inicialização ──
+  const _initFormsMTBF = () => {
+    const btnLancarMtbf   = document.getElementById('btn-lancar-mtbf');
+    const btnCancelarMtbf = document.getElementById('btn-cancelar-mtbf');
+    const btnSalvarMtbfSemana = document.getElementById('btn-salvar-mtbf-semana');
+    const inputSegundaMtbf = document.getElementById('mtbf-semana-inicio');
+    const formMtbf = document.getElementById('form-mtbf');
+
+    if (btnLancarMtbf) btnLancarMtbf.addEventListener('click', () => {
+      const abrir = formMtbf.style.display === 'none';
+      formMtbf.style.display = abrir ? 'block' : 'none';
+      if (abrir) {
+        if (!inputSegundaMtbf.value) {
+          const seg = getSegundaFeiraMTBF(fmtISOmtbf(new Date()));
+          inputSegundaMtbf.value = fmtISOmtbf(seg);
+        }
+        carregarCascataMTBF(inputSegundaMtbf.value);
+      }
+    });
+    if (btnCancelarMtbf) btnCancelarMtbf.addEventListener('click', () => { formMtbf.style.display = 'none'; });
+    if (inputSegundaMtbf) inputSegundaMtbf.addEventListener('change', () => {
+      const seg = getSegundaFeiraMTBF(inputSegundaMtbf.value);
+      inputSegundaMtbf.value = fmtISOmtbf(seg);
+      carregarCascataMTBF(inputSegundaMtbf.value);
+    });
+    if (btnSalvarMtbfSemana) btnSalvarMtbfSemana.addEventListener('click', salvarSemanaMTBF);
+
+    const formFiltroMtbf = document.querySelector('form[data-filtro="mtbf-periodo"]');
+    if (formFiltroMtbf) formFiltroMtbf.addEventListener('submit', e => { e.preventDefault(); carregarMTBF(); });
+
+    const formFiltroMttr = document.querySelector('form[data-filtro="mttr-periodo"]');
+    if (formFiltroMttr) formFiltroMttr.addEventListener('submit', e => { e.preventDefault(); carregarMTTR(); });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initFormsMTBF); else _initFormsMTBF();
 
   // ── CONSUMO DE LENHA ─────────────────────────────────────
   async function carregarLenha() {
