@@ -668,7 +668,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         </div>
         <div class="hero__box">
           <p>Meta do período</p>
-          <p class="big">≤ 0,90</p>
+          <p class="big">≤ 1,52</p>
           <span class="pill" id="lenha-hero-pill">—</span>
         </div>
       </section>
@@ -2246,12 +2246,12 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       // Último mês
       const ult = dados[dados.length - 1];
       const esp = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) : 0;
-      const META_LENHA = 0.90;
+      const META_LENHA = 1.52;
       const dentro = esp <= META_LENHA;
 
       const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
       set('lenha-hero-esp', esp.toFixed(2).replace('.', ','));
-      set('lenha-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 0,90 m³/t');
+      set('lenha-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 1,52 m³/t');
       const pill = document.getElementById('lenha-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
