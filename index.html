@@ -1171,8 +1171,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       { nome: 'Guilherme', os: 8, horas: 30 }
     ],
 
-    lenha: { meses: [], consumo: [], producao: [], meta: 0.90 },
-    agua: { meses: [], consumo: [], producao: [], meta: 3.5, diaria: [] },
+    lenha: { meses: MESES_5, consumo: [210, 198, 205, 192, 184], producao: [218, 210, 220, 208, 211], meta: 0.90 },
+    agua: {
+      meses: MESES_5, consumo: [820, 780, 760, 720, 675], producao: [218, 210, 220, 208, 211], meta: 3.5,
+      diaria: [24, 26, 28, 25, 30, 27, 29, 31, 26, 28, 38, 27, 25, 38, 30, 27, 26, 28, 25, 29, 27, 26, 28, 25, 27]
+    },
 
     intranet: {
       meses: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'],
@@ -1197,7 +1200,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   DATA.intranet.indicador = DATA.intranet.conc30.map((v, i) => +(v / DATA.intranet.abertas[i] * 100).toFixed(2));
   DATA.planejamento.meses.forEach(m => { m.ader = Math.round(m.conc / m.prog * 100); });
 
-  const MESES_NOME = [];
+  const MESES_NOME = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio'];
 
   /* ---------- 3. UTIL ---------- */
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -1934,7 +1937,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // handler do formulário de filtro de mês (intranet)
-  document.addEventListener('DOMContentLoaded', () => {
+  const _initFiltroIntranet = () => {
     const form = document.getElementById('filtro-intranet');
     if (!form) return;
     form.addEventListener('submit', e => {
@@ -1946,7 +1949,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       erro.textContent = '';
       filtrarIntranet(de, ate);
     });
-  });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initFiltroIntranet); else _initFiltroIntranet();
 
   /* ---------- 11. BOOT ---------- */
   function iniciar() {
@@ -2211,7 +2215,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // Listeners do painel de semanas
-  document.addEventListener('DOMContentLoaded', () => {
+  const _initPainelSemanas = () => {
     const btnVer    = document.getElementById('btn-ver-semanas');
     const btnFechar = document.getElementById('btn-fechar-semanas');
     const painel    = document.getElementById('painel-semanas');
@@ -2226,7 +2230,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     if (selMes) selMes.addEventListener('change', () => {
       if (selMes.value) renderizarSemanasMes(selMes.value);
     });
-  });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initPainelSemanas); else _initPainelSemanas();
 
   // ── CONSUMO DE LENHA ─────────────────────────────────────
   async function carregarLenha() {
@@ -2334,7 +2339,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── FORMULÁRIOS DE LANÇAMENTO ─────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  const _initForms = () => {
     // Lenha
     const btnLancarLenha   = document.getElementById('btn-lancar-lenha');
     const btnCancelarLenha = document.getElementById('btn-cancelar-lenha');
@@ -2395,7 +2400,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         await carregarAgua();
       } catch(e) { msg.textContent = '❌ Erro ao salvar.'; msg.style.color = '#c0392b'; }
     });
-  });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initForms); else _initForms();
 
   // ── BUSCA OS INDIVIDUAL ──────────────────────────────────
   // ── MODAL OS EM ABERTO ───────────────────────────────────
@@ -2475,10 +2481,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // Busca ao apertar Enter no campo
-  document.addEventListener('DOMContentLoaded', () => {
+  const _initBuscaOS = () => {
     const inp = document.getElementById('busca-os-input');
     if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') buscarOS(); });
-  });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initBuscaOS); else _initBuscaOS();
 
   // ── ALERTA VISUAL DE META + OS EM ABERTO ─────────────────
   async function atualizarExtras(resumo_mensal) {
