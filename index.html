@@ -2245,7 +2245,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       // Último mês
       const ult = dados[dados.length - 1];
-      const esp = parseFloat(ult.especifico || 0);
+      const esp = parseFloat(ult.indicador || 0);
       const META_LENHA = 0.90;
       const dentro = esp <= META_LENHA;
 
@@ -2255,17 +2255,17 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const pill = document.getElementById('lenha-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
-      set('lenha-kpi-consumo', ult.consumo_m3.toLocaleString('pt-BR') + ' m³');
-      set('lenha-kpi-prod', ult.producao_t.toLocaleString('pt-BR') + ' t');
-      const custoT = ult.custo_total && ult.producao_t ? (ult.custo_total / ult.producao_t).toFixed(0) : '—';
-      set('lenha-kpi-custoT', ult.custo_total ? 'R$ ' + custoT : '—');
-      set('lenha-kpi-custo', ult.custo_total ? 'R$ ' + parseFloat(ult.custo_total).toLocaleString('pt-BR') : '—');
+      set('lenha-kpi-consumo', ult.volume_m3.toLocaleString('pt-BR') + ' m³');
+      set('lenha-kpi-prod', ult.producao_ton.toLocaleString('pt-BR') + ' t');
+      const custoT = '—';
+      set('lenha-kpi-custoT', '—');
+      set('lenha-kpi-custo', '—');
 
       // Atualiza gráficos e tabela
       const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => parseFloat(d.especifico || 0));
-      const cons  = dados.map(d => parseFloat(d.consumo_m3));
-      const prods = dados.map(d => parseFloat(d.producao_t));
+      const esps  = dados.map(d => parseFloat(d.indicador || 0));
+      const cons  = dados.map(d => parseFloat(d.volume_m3));
+      const prods = dados.map(d => parseFloat(d.producao_ton));
 
       const chEsp = charts.get('lenhaEsp');
       if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_LENHA); chEsp.update(); }
@@ -2276,11 +2276,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) {
         tb.innerHTML = '';
         dados.forEach(d => {
-          const e = parseFloat(d.especifico || 0);
+          const e = parseFloat(d.indicador || 0);
           const tipo = e <= META_LENHA ? 'ok' : e <= META_LENHA + .05 ? 'warn' : 'crit';
           const rot  = e <= META_LENHA ? 'Dentro da meta' : e <= META_LENHA + .05 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_t).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.volume_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_ton).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
           tb.appendChild(tr);
         });
       }
@@ -2298,7 +2298,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (!dados || !dados.length) return;
 
       const ult = dados[dados.length - 1];
-      const esp = parseFloat(ult.especifico || 0);
+      const esp = parseFloat(ult.indicador || 0);
       const META_AGUA = 3.5;
       const dentro = esp <= META_AGUA;
 
@@ -2308,15 +2308,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const pill = document.getElementById('agua-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
-      set('agua-kpi-consumo', parseFloat(ult.consumo_m3).toLocaleString('pt-BR') + ' m³');
-      set('agua-kpi-prod', parseFloat(ult.producao_t).toLocaleString('pt-BR') + ' t');
+      set('agua-kpi-consumo', parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
+      set('agua-kpi-prod', parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
       set('agua-kpi-esp', esp.toFixed(1).replace('.', ',') + ' L/kg');
       set('agua-kpi-meses', dados.length);
 
       const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => parseFloat(d.especifico || 0));
-      const cons  = dados.map(d => parseFloat(d.consumo_m3));
-      const prods = dados.map(d => parseFloat(d.producao_t));
+      const esps  = dados.map(d => parseFloat(d.indicador || 0));
+      const cons  = dados.map(d => parseFloat(d.volume_m3));
+      const prods = dados.map(d => parseFloat(d.producao_ton));
 
       const chEsp = charts.get('aguaEsp');
       if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_AGUA); chEsp.update(); }
@@ -2327,11 +2327,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) {
         tb.innerHTML = '';
         dados.forEach(d => {
-          const e = parseFloat(d.especifico || 0);
+          const e = parseFloat(d.indicador || 0);
           const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .2 ? 'warn' : 'crit';
           const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .2 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_t).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.volume_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_ton).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
           tb.appendChild(tr);
         });
       }
@@ -2363,7 +2363,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_lenha?on_conflict=mes_num,ano`, {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, consumo_m3: consumo, producao_t: producao, custo_total: custo })
+          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
@@ -2394,7 +2394,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?on_conflict=mes_num,ano`, {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, consumo_m3: consumo, producao_t: producao })
+          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
