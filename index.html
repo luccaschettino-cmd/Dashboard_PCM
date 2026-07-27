@@ -2415,7 +2415,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     try {
       const resp = await fetch(
-        `${SUPABASE_URL}/rest/v1/os_individual?or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)&select=codigo,solicitante,descricao,prioridade,abertura&order=abertura.desc`,
+        `${SUPABASE_URL}/rest/v1/os_individual?or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)&select=codigo,solicitante,descricao,prioridade,abertura&order=abertura.asc`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
       );
       const dados = await resp.json();
@@ -2527,6 +2527,24 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
         cardAberto.style.borderLeft = '4px solid #e67e22';
         cardAberto.style.background = '#fffbf0';
       }
+    } catch(e) {}
+  }
+
+    // ── OS últimos 15 dias ───────────────────────────────
+    try {
+      const hoje = new Date();
+      const d15 = new Date(hoje); d15.setDate(hoje.getDate() - 15);
+      const fmt = d => d.toISOString().split('T')[0];
+      const resp15 = await fetch(
+        `${SUPABASE_URL}/rest/v1/os_individual?select=abertura&abertura=gte.${fmt(d15)}`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
+      );
+      const dados15 = await resp15.json();
+      const el15 = document.querySelector('[data-kpi="os15d"]');
+      if (el15) el15.textContent = Array.isArray(dados15) ? dados15.length : '—';
+      const periodoFmt = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+      const labelEl = el15 ? el15.closest('.kpi-card')?.querySelector('.delta') : null;
+      if (labelEl) labelEl.textContent = periodoFmt(d15) + ' a ' + periodoFmt(hoje);
     } catch(e) {}
   }
 
