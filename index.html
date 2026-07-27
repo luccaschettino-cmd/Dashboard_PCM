@@ -675,10 +675,10 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       </section>
 
       <div class="kpi-grid">
-        <div class="kpi-card"><p class="label">Lenha consumida</p><p class="value" id="lenha-kpi-consumo">—</p><p class="delta neutral">último mês</p></div>
-        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="lenha-kpi-prod">—</p><p class="delta neutral">último mês</p></div>
-        <div class="kpi-card"><p class="label">Custo lenha / t prod.</p><p class="value" id="lenha-kpi-custoT">—</p><p class="delta neutral">último mês</p></div>
-        <div class="kpi-card"><p class="label">Custo total lenha</p><p class="value" id="lenha-kpi-custo">—</p><p class="delta neutral">último mês</p></div>
+        <div class="kpi-card"><p class="label">Lenha consumida</p><p class="value" id="lenha-kpi-consumo">—</p><p class="delta neutral" id="lenha-kpi-consumo-sub">acumulado 2026</p></div>
+        <div class="kpi-card"><p class="label">Produção total</p><p class="value" id="lenha-kpi-prod">—</p><p class="delta neutral" id="lenha-kpi-prod-sub">acumulado 2026</p></div>
+        <div class="kpi-card"><p class="label">Custo lenha / t prod.</p><p class="value" id="lenha-kpi-custoT">—</p><p class="delta neutral" id="lenha-kpi-custoT-sub">acumulado 2026</p></div>
+        <div class="kpi-card"><p class="label">Custo total lenha</p><p class="value" id="lenha-kpi-custo">—</p><p class="delta neutral" id="lenha-kpi-custo-sub">acumulado 2026</p></div>
       </div>
 
       <div class="panel">
@@ -2297,24 +2297,36 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const dados = await resp.json();
       if (!dados || !dados.length) return;
 
-      // Último mês
-      const ult = dados[dados.length - 1];
-      const esp = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) : 0;
       const META_LENHA = 1.52;
-      const dentro = esp <= META_LENHA;
-
       const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-      set('lenha-hero-esp', esp.toFixed(2).replace('.', ','));
-      set('lenha-hero-meta', (dentro ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · ' + ult.mes + ' · Meta: ≤ 1,52 m³/t');
+
+      // ── ACUMULADO (soma total ÷ soma total) — indicador principal ──
+      const totCons = dados.reduce((a, d) => a + parseFloat(d.volume_m3 || 0), 0);
+      const totProd = dados.reduce((a, d) => a + parseFloat(d.producao_ton || 0), 0);
+      const totCusto = dados.reduce((a, d) => a + parseFloat(d.custo_total || 0), 0);
+      const espAcum = totProd ? totCons / totProd : 0;
+      const dentroAcum = espAcum <= META_LENHA;
+
+      set('lenha-hero-esp', espAcum.toFixed(2).replace('.', ','));
+      set('lenha-hero-meta', (dentroAcum ? '✓ Dentro da meta' : '✗ Acima da meta') + ' · acumulado 2026 (' + dados.length + ' mês(es)) · Meta: ≤ 1,52 m³/t');
       const pill = document.getElementById('lenha-hero-pill');
-      if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
+      if (pill) { pill.textContent = dentroAcum ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentroAcum ? 'pill--ok' : 'pill--bad'); }
 
-      set('lenha-kpi-consumo', parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
-      set('lenha-kpi-prod', parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
-      const custoT = ult.custo_total && ult.producao_ton ? (parseFloat(ult.custo_total) / parseFloat(ult.producao_ton)).toFixed(0) : '—'; set('lenha-kpi-custoT', custoT !== '—' ? 'R$ ' + custoT : '—');
-      set('lenha-kpi-custo', ult.custo_total ? 'R$ ' + parseFloat(ult.custo_total).toLocaleString('pt-BR') : '—');
+      set('lenha-kpi-consumo', totCons.toLocaleString('pt-BR') + ' m³');
+      set('lenha-kpi-prod', totProd.toLocaleString('pt-BR') + ' t');
+      const custoTAcum = totProd ? (totCusto / totProd).toFixed(0) : null;
+      set('lenha-kpi-custoT', custoTAcum ? 'R$ ' + custoTAcum : '—');
+      set('lenha-kpi-custo', totCusto ? 'R$ ' + totCusto.toLocaleString('pt-BR') : '—');
 
-      // Atualiza gráficos e tabela
+      // ── ÚLTIMO MÊS — contexto secundário ──
+      const ult = dados[dados.length - 1];
+      const espUlt = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) : 0;
+      set('lenha-kpi-consumo-sub', ult.mes + ': ' + parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
+      set('lenha-kpi-prod-sub', ult.mes + ': ' + parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
+      set('lenha-kpi-custoT-sub', ult.mes + ': ' + espUlt.toFixed(2).replace('.',',') + ' m³/t');
+      set('lenha-kpi-custo-sub', ult.custo_total ? ult.mes + ': R$ ' + parseFloat(ult.custo_total).toLocaleString('pt-BR') : ult.mes + ': —');
+
+      // Atualiza gráficos e tabela (evolução mês a mês)
       const meses = dados.map(d => d.mes.substring(0,3));
       const esps  = dados.map(d => d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) : 0);
       const cons  = dados.map(d => parseFloat(d.volume_m3));
