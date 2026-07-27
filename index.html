@@ -2245,7 +2245,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       // Último mês
       const ult = dados[dados.length - 1];
-      const esp = parseFloat(ult.indicador || 0);
+      const esp = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) : 0;
       const META_LENHA = 0.90;
       const dentro = esp <= META_LENHA;
 
@@ -2255,15 +2255,14 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const pill = document.getElementById('lenha-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
-      set('lenha-kpi-consumo', ult.volume_m3.toLocaleString('pt-BR') + ' m³');
-      set('lenha-kpi-prod', ult.producao_ton.toLocaleString('pt-BR') + ' t');
-      const custoT = '—';
+      set('lenha-kpi-consumo', parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
+      set('lenha-kpi-prod', parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
       set('lenha-kpi-custoT', '—');
       set('lenha-kpi-custo', '—');
 
       // Atualiza gráficos e tabela
       const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => parseFloat(d.indicador || 0));
+      const esps  = dados.map(d => d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) : 0);
       const cons  = dados.map(d => parseFloat(d.volume_m3));
       const prods = dados.map(d => parseFloat(d.producao_ton));
 
@@ -2276,7 +2275,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) {
         tb.innerHTML = '';
         dados.forEach(d => {
-          const e = parseFloat(d.indicador || 0);
+          const e = d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) : 0;
           const tipo = e <= META_LENHA ? 'ok' : e <= META_LENHA + .05 ? 'warn' : 'crit';
           const rot  = e <= META_LENHA ? 'Dentro da meta' : e <= META_LENHA + .05 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
@@ -2298,7 +2297,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (!dados || !dados.length) return;
 
       const ult = dados[dados.length - 1];
-      const esp = parseFloat(ult.indicador || 0);
+      // água: volume_m3 / producao_ton * 1000 → L/kg
+      const esp = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) * 1000 : 0;
       const META_AGUA = 3.5;
       const dentro = esp <= META_AGUA;
 
@@ -2314,7 +2314,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       set('agua-kpi-meses', dados.length);
 
       const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => parseFloat(d.indicador || 0));
+      const esps  = dados.map(d => d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) * 1000 : 0);
       const cons  = dados.map(d => parseFloat(d.volume_m3));
       const prods = dados.map(d => parseFloat(d.producao_ton));
 
@@ -2327,7 +2327,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) {
         tb.innerHTML = '';
         dados.forEach(d => {
-          const e = parseFloat(d.indicador || 0);
+          const e = d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) * 1000 : 0;
           const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .2 ? 'warn' : 'crit';
           const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .2 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
