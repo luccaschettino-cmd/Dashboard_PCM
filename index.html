@@ -1283,12 +1283,13 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     const tbI = $('#tb-intranet');
     if (tbI) {
       const d = DATA.intranet;
-      const NOMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho'];
       let a = 0, c = 0, n = 0, totDias = 0, totOsTempo = 0;
       d.indicador.forEach((ind, i) => {
+        const nomeMes = d.meses[i] || '';
+        if (!nomeMes || nomeMes.trim() === '') return; // pula linha sem mês
         const tipo = ind >= 95 ? 'ok' : ind >= 80 ? 'warn' : 'crit';
         tbI.appendChild(el('tr', {},
-          td(NOMES[i]), td(String(d.abertas[i]), 'num'), td(num(d.tempo[i], 2), 'num'),
+          td(nomeMes), td(String(d.abertas[i]), 'num'), td(num(d.tempo[i], 2), 'num'),
           td(String(d.conc30[i]), 'num'), td(String(d.nconc30[i]), 'num'),
           el('td', { class: 'num' }, badge(num(ind, 2) + '%', tipo))
         ));
@@ -1836,6 +1837,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       DATA.intranet.total_dias  = resumo_mensal.map(m => m.total_dias  || 0);
       DATA.intranet.os_com_tempo= resumo_mensal.map(m => m.os_com_tempo|| 0);
       DATA.intranet.em_aberto   = resumo_mensal.map(m => m.em_aberto   || 0);
+      DATA.intranet.urgente_arr  = resumo_mensal.map(m => m.urgente || 0);
+      DATA.intranet.alta_arr     = resumo_mensal.map(m => m.alta    || 0);
+      DATA.intranet.normal_arr   = resumo_mensal.map(m => m.normal  || 0);
       DATA.intranet.criticidade = {
         urgente: totais.urgente,
         alta:    totais.alta,
@@ -1888,6 +1892,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       indicador_full:  [...DATA.intranet.indicador],
       total_dias_full: [...(DATA.intranet.total_dias || [])],
       os_tempo_full:   [...(DATA.intranet.os_com_tempo || [])],
+      urgente_full:    [...(DATA.intranet.urgente_arr || [])],
+      alta_full:       [...(DATA.intranet.alta_arr    || [])],
+      normal_full:     [...(DATA.intranet.normal_arr  || [])],
     };
   }
 
@@ -1916,12 +1923,25 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     const totOsTempo = indices.map(i => src.os_tempo_full[i]   || 0).reduce((a, b) => a + b, 0);
     const tm         = totOsTempo ? +(totDias / totOsTempo).toFixed(2) : 0;
 
+    // calcula criticidade para o período filtrado
+    const totUrg = indices.map(i => src.urgente_full[i] || 0).reduce((a,b)=>a+b,0);
+    const totAlt = indices.map(i => src.alta_full[i]    || 0).reduce((a,b)=>a+b,0);
+    const totNor = indices.map(i => src.normal_full[i]  || 0).reduce((a,b)=>a+b,0);
+    DATA.intranet.criticidade = { urgente: totUrg, alta: totAlt, normal: totNor };
+
     // atualiza cards
     document.querySelectorAll('[data-kpi]').forEach(el => {
       if (el.dataset.kpi === 'total')      el.textContent = totAb;
       if (el.dataset.kpi === 'tmedio')     el.textContent = tm.toFixed(2) + ' dias';
       if (el.dataset.kpi === 'indicador')  el.textContent = ind.toFixed(2) + '%';
+      if (el.dataset.kpi === 'urgente')    el.textContent = totUrg;
+      if (el.dataset.kpi === 'alta')       el.textContent = totAlt;
+      if (el.dataset.kpi === 'normal')     el.textContent = totNor;
     });
+
+    // reconstrói gráfico de criticidade com novos dados
+    if (charts.has('criticidade')) { charts.get('criticidade').destroy(); charts.delete('criticidade'); }
+    montarGrafico(document.querySelector('[data-chart="criticidade"]'));
 
     // atualiza período
     const nomeDe  = MESES_NOME_FULL[mesDeNum - 1];
@@ -2415,7 +2435,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     try {
       const resp = await fetch(
-        `${SUPABASE_URL}/rest/v1/os_individual?or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)&abertura=gte.2026-01-01&select=codigo,solicitante,descricao,prioridade,abertura&order=abertura.asc`,
+        `${SUPABASE_URL}/rest/v1/os_individual?or=(situacao.ilike.*aguardando*,situacao.ilike.*andamento*)&select=codigo,solicitante,descricao,prioridade,abertura&order=abertura.asc`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }}
       );
       const dados = await resp.json();
