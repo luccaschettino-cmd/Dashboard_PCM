@@ -2350,9 +2350,10 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     if (btnCancelarLenha) btnCancelarLenha.addEventListener('click', () => { formLenha.style.display = 'none'; });
     if (btnSalvarLenha)   btnSalvarLenha.addEventListener('click', async () => {
       const [mesNum, mesNome] = document.getElementById('lenha-mes').value.split(',');
-      const consumo  = parseFloat(document.getElementById('lenha-consumo').value);
-      const producao = parseFloat(document.getElementById('lenha-producao').value);
-      const custo    = parseFloat(document.getElementById('lenha-custo').value) || null;
+      const toFloat = v => parseFloat(v.replace(',', '.'));
+      const consumo  = toFloat(document.getElementById('lenha-consumo').value);
+      const producao = toFloat(document.getElementById('lenha-producao').value);
+      const custo    = toFloat(document.getElementById('lenha-custo').value) || null;
       const msg      = document.getElementById('lenha-form-msg');
 
       if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
@@ -2381,8 +2382,9 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     if (btnCancelarAgua) btnCancelarAgua.addEventListener('click', () => { formAgua.style.display = 'none'; });
     if (btnSalvarAgua)   btnSalvarAgua.addEventListener('click', async () => {
       const [mesNum, mesNome] = document.getElementById('agua-mes').value.split(',');
-      const consumo  = parseFloat(document.getElementById('agua-consumo').value);
-      const producao = parseFloat(document.getElementById('agua-producao').value);
+      const toFloat = v => parseFloat(v.replace(',', '.'));
+      const consumo  = toFloat(document.getElementById('agua-consumo').value);
+      const producao = toFloat(document.getElementById('agua-producao').value);
       const msg      = document.getElementById('agua-form-msg');
 
       if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
