@@ -625,37 +625,24 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       <!-- Formulário de lançamento -->
       <div id="form-lenha" style="display:none;background:#f9fdf9;border:1.5px solid var(--pv-green);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
-        <h4 style="margin:0 0 16px;color:#0f2d0f;">Lançar consumo de lenha</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
-          <label style="font-size:13px;font-weight:600;">Mês
-            <select id="lenha-mes" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
-              <option value="1,Janeiro">Janeiro</option>
-              <option value="2,Fevereiro">Fevereiro</option>
-              <option value="3,Março">Março</option>
-              <option value="4,Abril">Abril</option>
-              <option value="5,Maio">Maio</option>
-              <option value="6,Junho">Junho</option>
-              <option value="7,Julho">Julho</option>
-              <option value="8,Agosto">Agosto</option>
-              <option value="9,Setembro">Setembro</option>
-              <option value="10,Outubro">Outubro</option>
-              <option value="11,Novembro">Novembro</option>
-              <option value="12,Dezembro">Dezembro</option>
-            </select>
-          </label>
-          <label style="font-size:13px;font-weight:600;">Consumo (m³)
-            <input id="lenha-consumo" type="number" step="0.01" min="0" placeholder="ex: 184.50" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
-          </label>
-          <label style="font-size:13px;font-weight:600;">Produção (t)
-            <input id="lenha-producao" type="number" step="0.01" min="0" placeholder="ex: 211.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
-          </label>
-          <label style="font-size:13px;font-weight:600;">Custo total (R$)
-            <input id="lenha-custo" type="number" step="0.01" min="0" placeholder="ex: 45080.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
-          </label>
+        <h4 style="margin:0 0 16px;color:#0f2d0f;">Lançar consumo de lenha — todos os meses</h4>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="text-align:left;color:#666;">
+                <th style="padding:6px 8px;">Mês</th>
+                <th style="padding:6px 8px;">Consumo (m³)</th>
+                <th style="padding:6px 8px;">Produção (t)</th>
+                <th style="padding:6px 8px;">Custo total (R$)</th>
+                <th style="padding:6px 8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="tb-lenha-lancamento"></tbody>
+          </table>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <button type="button" id="btn-salvar-lenha" style="padding:8px 20px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar</button>
-          <button type="button" id="btn-cancelar-lenha" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Cancelar</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <button type="button" id="btn-salvar-lenha-todos" style="padding:8px 20px;background:#0f2d0f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar todos</button>
+          <button type="button" id="btn-cancelar-lenha" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Fechar</button>
           <span id="lenha-form-msg" style="font-size:13px;"></span>
         </div>
       </div>
@@ -735,34 +722,23 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
       <!-- Formulário de lançamento -->
       <div id="form-agua" style="display:none;background:#f0f6ff;border:1.5px solid var(--pv-blue);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
-        <h4 style="margin:0 0 16px;color:#1a6eb5;">Lançar consumo de água</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
-          <label style="font-size:13px;font-weight:600;">Mês
-            <select id="agua-mes" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;">
-              <option value="1,Janeiro">Janeiro</option>
-              <option value="2,Fevereiro">Fevereiro</option>
-              <option value="3,Março">Março</option>
-              <option value="4,Abril">Abril</option>
-              <option value="5,Maio">Maio</option>
-              <option value="6,Junho">Junho</option>
-              <option value="7,Julho">Julho</option>
-              <option value="8,Agosto">Agosto</option>
-              <option value="9,Setembro">Setembro</option>
-              <option value="10,Outubro">Outubro</option>
-              <option value="11,Novembro">Novembro</option>
-              <option value="12,Dezembro">Dezembro</option>
-            </select>
-          </label>
-          <label style="font-size:13px;font-weight:600;">Consumo (m³)
-            <input id="agua-consumo" type="number" step="0.01" min="0" placeholder="ex: 675.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
-          </label>
-          <label style="font-size:13px;font-weight:600;">Produção (t)
-            <input id="agua-producao" type="number" step="0.01" min="0" placeholder="ex: 211.00" style="display:block;width:100%;margin-top:4px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:13px;box-sizing:border-box;">
-          </label>
+        <h4 style="margin:0 0 16px;color:#1a6eb5;">Lançar consumo de água — todos os meses</h4>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="text-align:left;color:#666;">
+                <th style="padding:6px 8px;">Mês</th>
+                <th style="padding:6px 8px;">Consumo (m³)</th>
+                <th style="padding:6px 8px;">Produção (t)</th>
+                <th style="padding:6px 8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="tb-agua-lancamento"></tbody>
+          </table>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <button type="button" id="btn-salvar-agua" style="padding:8px 20px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar</button>
-          <button type="button" id="btn-cancelar-agua" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Cancelar</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <button type="button" id="btn-salvar-agua-todos" style="padding:8px 20px;background:#1a6eb5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">💾 Salvar todos</button>
+          <button type="button" id="btn-cancelar-agua" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;">Fechar</button>
           <span id="agua-form-msg" style="font-size:13px;"></span>
         </div>
       </div>
@@ -2320,8 +2296,8 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (!dados || !dados.length) return;
 
       const ult = dados[dados.length - 1];
-      // água: volume_m3 / producao_ton * 1000 → L/kg
-      const esp = ult.producao_ton ? parseFloat(ult.volume_m3) / parseFloat(ult.producao_ton) * 1000 : 0;
+      // água: consumo_litros / producao_kg → L/kg
+      const esp = ult.producao_kg ? parseFloat(ult.consumo_litros) / parseFloat(ult.producao_kg) : 0;
       const META_AGUA = 3.5;
       const dentro = esp <= META_AGUA;
 
@@ -2331,15 +2307,15 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       const pill = document.getElementById('agua-hero-pill');
       if (pill) { pill.textContent = dentro ? '✓ Dentro da meta' : '✗ Acima da meta'; pill.className = 'pill ' + (dentro ? 'pill--ok' : 'pill--bad'); }
 
-      set('agua-kpi-consumo', parseFloat(ult.volume_m3).toLocaleString('pt-BR') + ' m³');
-      set('agua-kpi-prod', parseFloat(ult.producao_ton).toLocaleString('pt-BR') + ' t');
+      set('agua-kpi-consumo', parseFloat(ult.consumo_litros).toLocaleString('pt-BR') + ' L');
+      set('agua-kpi-prod', parseFloat(ult.producao_kg).toLocaleString('pt-BR') + ' kg');
       set('agua-kpi-esp', esp.toFixed(1).replace('.', ',') + ' L/kg');
       set('agua-kpi-meses', dados.length);
 
       const meses = dados.map(d => d.mes.substring(0,3));
-      const esps  = dados.map(d => d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) * 1000 : 0);
-      const cons  = dados.map(d => parseFloat(d.volume_m3));
-      const prods = dados.map(d => parseFloat(d.producao_ton));
+      const esps  = dados.map(d => d.producao_kg ? parseFloat(d.consumo_litros) / parseFloat(d.producao_kg) : 0);
+      const cons  = dados.map(d => parseFloat(d.consumo_litros));
+      const prods = dados.map(d => parseFloat(d.producao_kg));
 
       const chEsp = charts.get('aguaEsp');
       if (chEsp) { chEsp.data.labels = meses; chEsp.data.datasets[0].data = esps; chEsp.data.datasets[1].data = Array(meses.length).fill(META_AGUA); chEsp.update(); }
@@ -2350,11 +2326,11 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
       if (tb) {
         tb.innerHTML = '';
         dados.forEach(d => {
-          const e = d.producao_ton ? parseFloat(d.volume_m3) / parseFloat(d.producao_ton) * 1000 : 0;
+          const e = d.producao_kg ? parseFloat(d.consumo_litros) / parseFloat(d.producao_kg) : 0;
           const tipo = e <= META_AGUA ? 'ok' : e <= META_AGUA + .2 ? 'warn' : 'crit';
           const rot  = e <= META_AGUA ? 'Dentro da meta' : e <= META_AGUA + .2 ? 'Atenção' : 'Acima da meta';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.volume_m3).toLocaleString('pt-BR')} m³</td><td class="num">${parseFloat(d.producao_ton).toLocaleString('pt-BR')} t</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
+          tr.innerHTML = `<td>${d.mes}</td><td class="num">${parseFloat(d.consumo_litros).toLocaleString('pt-BR')} L</td><td class="num">${parseFloat(d.producao_kg).toLocaleString('pt-BR')} kg</td><td class="num">${e.toFixed(2).replace('.',',')}</td><td><span class="badge ${tipo}">${rot}</span></td>`;
           tb.appendChild(tr);
         });
       }
@@ -2362,69 +2338,151 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
   }
 
   // ── FORMULÁRIOS DE LANÇAMENTO ─────────────────────────────
+  const MESES_LANC = [
+    [1,'Janeiro'],[2,'Fevereiro'],[3,'Março'],[4,'Abril'],[5,'Maio'],[6,'Junho'],
+    [7,'Julho'],[8,'Agosto'],[9,'Setembro'],[10,'Outubro'],[11,'Novembro'],[12,'Dezembro']
+  ];
+
+  async function buscarExistentes(tabela) {
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}?select=*&ano=eq.2026`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const dados = await resp.json();
+      const porMes = {};
+      (Array.isArray(dados) ? dados : []).forEach(d => { porMes[d.mes_num] = d; });
+      return porMes;
+    } catch(e) { return {}; }
+  }
+
+  function montarLinhaLancamento(mesNum, mesNome, existente, tipo) {
+    const tr = document.createElement('tr');
+    tr.dataset.mes = mesNum;
+    const v1 = existente ? (tipo === 'lenha' ? existente.volume_m3 : existente.consumo_litros) : '';
+    const v2 = existente ? (tipo === 'lenha' ? existente.producao_ton : existente.producao_kg) : '';
+    const v3 = tipo === 'lenha' ? (existente && existente.custo_total != null ? existente.custo_total : '') : null;
+    const colCusto = tipo === 'lenha'
+      ? `<td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-custo" value="${v3}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>`
+      : '';
+    tr.innerHTML = `
+      <td style="padding:4px 6px;font-weight:600;">${mesNome}</td>
+      <td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-consumo" value="${v1}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>
+      <td style="padding:4px 6px;"><input type="text" inputmode="decimal" class="in-producao" value="${v2}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:13px;box-sizing:border-box;"></td>
+      ${colCusto}
+      <td style="padding:4px 6px;white-space:nowrap;">
+        <button type="button" class="btn-apagar-linha" style="padding:5px 10px;background:#fff0f0;color:#c0392b;border:1px solid #f0c0c0;border-radius:6px;font-size:12px;cursor:pointer;">🗑️ Apagar</button>
+        <span class="linha-msg" style="font-size:11px;margin-left:6px;"></span>
+      </td>`;
+    return tr;
+  }
+
+  async function abrirTabelaLancamento(tipo) {
+    const tabela = tipo === 'lenha' ? 'consumo_lenha' : 'consumo_agua';
+    const tbodyId = tipo === 'lenha' ? 'tb-lenha-lancamento' : 'tb-agua-lancamento';
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:10px;color:#888;">Carregando...</td></tr>';
+    const existentes = await buscarExistentes(tabela);
+    tbody.innerHTML = '';
+    MESES_LANC.forEach(([num, nome]) => {
+      tbody.appendChild(montarLinhaLancamento(num, nome, existentes[num], tipo));
+    });
+
+    // Apagar linha
+    tbody.querySelectorAll('.btn-apagar-linha').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const tr = btn.closest('tr');
+        const mesNum = tr.dataset.mes;
+        const msgEl = tr.querySelector('.linha-msg');
+        if (!confirm('Apagar os dados deste mês?')) return;
+        msgEl.textContent = '⏳';
+        try {
+          const resp = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}?mes_num=eq.${mesNum}&ano=eq.2026`, {
+            method: 'DELETE',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+          });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          tr.querySelector('.in-consumo').value = '';
+          tr.querySelector('.in-producao').value = '';
+          const inCusto = tr.querySelector('.in-custo');
+          if (inCusto) inCusto.value = '';
+          msgEl.textContent = '✅';
+          setTimeout(() => { msgEl.textContent = ''; }, 1500);
+          if (tipo === 'lenha') await carregarLenha(); else await carregarAgua();
+        } catch(e) { msgEl.textContent = '❌'; }
+      });
+    });
+  }
+
+  async function salvarTodosLancamentos(tipo) {
+    const tabela = tipo === 'lenha' ? 'consumo_lenha' : 'consumo_agua';
+    const tbodyId = tipo === 'lenha' ? 'tb-lenha-lancamento' : 'tb-agua-lancamento';
+    const msgGeralId = tipo === 'lenha' ? 'lenha-form-msg' : 'agua-form-msg';
+    const msgGeral = document.getElementById(msgGeralId);
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    const toFloat = v => { if (!v || v.trim() === '') return null; const n = parseFloat(v.replace(',', '.')); return isNaN(n) ? null : n; };
+
+    msgGeral.textContent = '⏳ Salvando todos os meses...'; msgGeral.style.color = '#888';
+    let erros = 0, salvos = 0;
+
+    for (const tr of tbody.querySelectorAll('tr')) {
+      const mesNum = tr.dataset.mes;
+      const mesNome = MESES_LANC.find(m => m[0] == mesNum)[1];
+      const consumo = toFloat(tr.querySelector('.in-consumo').value);
+      const producao = toFloat(tr.querySelector('.in-producao').value);
+      if (consumo == null && producao == null) continue; // linha vazia, pula
+
+      const body = tipo === 'lenha'
+        ? { mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao, custo_total: toFloat(tr.querySelector('.in-custo').value) }
+        : { mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, consumo_litros: consumo, producao_kg: producao };
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}?on_conflict=mes_num,ano`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify(body)
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        salvos++;
+      } catch(e) { erros++; }
+    }
+
+    if (erros === 0) { msgGeral.textContent = `✅ ${salvos} mês(es) salvo(s) com sucesso!`; msgGeral.style.color = '#2d6a2d'; }
+    else { msgGeral.textContent = `⚠️ ${salvos} salvo(s), ${erros} com erro.`; msgGeral.style.color = '#c0392b'; }
+
+    if (tipo === 'lenha') await carregarLenha(); else await carregarAgua();
+    setTimeout(() => { msgGeral.textContent = ''; }, 3000);
+  }
+
   const _initForms = () => {
     // Lenha
     const btnLancarLenha   = document.getElementById('btn-lancar-lenha');
     const btnCancelarLenha = document.getElementById('btn-cancelar-lenha');
-    const btnSalvarLenha   = document.getElementById('btn-salvar-lenha');
+    const btnSalvarLenhaTodos = document.getElementById('btn-salvar-lenha-todos');
     const formLenha        = document.getElementById('form-lenha');
 
-    if (btnLancarLenha)   btnLancarLenha.addEventListener('click', () => { formLenha.style.display = formLenha.style.display === 'none' ? 'block' : 'none'; });
-    if (btnCancelarLenha) btnCancelarLenha.addEventListener('click', () => { formLenha.style.display = 'none'; });
-    if (btnSalvarLenha)   btnSalvarLenha.addEventListener('click', async () => {
-      const [mesNum, mesNome] = document.getElementById('lenha-mes').value.split(',');
-      const toFloat = v => parseFloat(v.replace(',', '.'));
-      const consumo  = toFloat(document.getElementById('lenha-consumo').value);
-      const producao = toFloat(document.getElementById('lenha-producao').value);
-      const custo    = toFloat(document.getElementById('lenha-custo').value) || null;
-      const msg      = document.getElementById('lenha-form-msg');
-
-      if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
-      msg.textContent = '⏳ Salvando...'; msg.style.color = '#888';
-
-      try {
-        const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_lenha?on_conflict=mes_num,ano`, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao, custo_total: custo })
-        });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
-        setTimeout(() => { formLenha.style.display = 'none'; msg.textContent = ''; }, 1500);
-        await carregarLenha();
-      } catch(e) { msg.textContent = '❌ Erro ao salvar.'; msg.style.color = '#c0392b'; }
+    if (btnLancarLenha) btnLancarLenha.addEventListener('click', () => {
+      const abrir = formLenha.style.display === 'none';
+      formLenha.style.display = abrir ? 'block' : 'none';
+      if (abrir) abrirTabelaLancamento('lenha');
     });
+    if (btnCancelarLenha) btnCancelarLenha.addEventListener('click', () => { formLenha.style.display = 'none'; });
+    if (btnSalvarLenhaTodos) btnSalvarLenhaTodos.addEventListener('click', () => salvarTodosLancamentos('lenha'));
 
     // Água
     const btnLancarAgua   = document.getElementById('btn-lancar-agua');
     const btnCancelarAgua = document.getElementById('btn-cancelar-agua');
-    const btnSalvarAgua   = document.getElementById('btn-salvar-agua');
+    const btnSalvarAguaTodos = document.getElementById('btn-salvar-agua-todos');
     const formAgua        = document.getElementById('form-agua');
 
-    if (btnLancarAgua)   btnLancarAgua.addEventListener('click', () => { formAgua.style.display = formAgua.style.display === 'none' ? 'block' : 'none'; });
-    if (btnCancelarAgua) btnCancelarAgua.addEventListener('click', () => { formAgua.style.display = 'none'; });
-    if (btnSalvarAgua)   btnSalvarAgua.addEventListener('click', async () => {
-      const [mesNum, mesNome] = document.getElementById('agua-mes').value.split(',');
-      const toFloat = v => parseFloat(v.replace(',', '.'));
-      const consumo  = toFloat(document.getElementById('agua-consumo').value);
-      const producao = toFloat(document.getElementById('agua-producao').value);
-      const msg      = document.getElementById('agua-form-msg');
-
-      if (!consumo || !producao) { msg.textContent = '⚠️ Preencha consumo e produção.'; msg.style.color = '#c0392b'; return; }
-      msg.textContent = '⏳ Salvando...'; msg.style.color = '#888';
-
-      try {
-        const resp = await fetch(`${SUPABASE_URL}/rest/v1/consumo_agua?on_conflict=mes_num,ano`, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({ mes_num: parseInt(mesNum), mes: mesNome, ano: 2026, volume_m3: consumo, producao_ton: producao })
-        });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        msg.textContent = '✅ Salvo com sucesso!'; msg.style.color = '#2d6a2d';
-        setTimeout(() => { formAgua.style.display = 'none'; msg.textContent = ''; }, 1500);
-        await carregarAgua();
-      } catch(e) { msg.textContent = '❌ Erro ao salvar.'; msg.style.color = '#c0392b'; }
+    if (btnLancarAgua) btnLancarAgua.addEventListener('click', () => {
+      const abrir = formAgua.style.display === 'none';
+      formAgua.style.display = abrir ? 'block' : 'none';
+      if (abrir) abrirTabelaLancamento('agua');
     });
+    if (btnCancelarAgua) btnCancelarAgua.addEventListener('click', () => { formAgua.style.display = 'none'; });
+    if (btnSalvarAguaTodos) btnSalvarAguaTodos.addEventListener('click', () => salvarTodosLancamentos('agua'));
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _initForms); else _initForms();
 
