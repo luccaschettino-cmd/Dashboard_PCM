@@ -1796,7 +1796,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
      Ativa apenas com ?demo=1 na URL. Fora disso, comportamento normal.
      Intercepta fetch para o Supabase e devolve dados fictícios,
      sem nunca tocar no banco real (nem leitura, nem escrita). */
-  const DEMO_MODE = new URLSearchParams(location.search).get('demo') === '1';
+  const DEMO_MODE = true; // este arquivo é exclusivo para o vídeo — sempre em modo demo, não precisa de ?demo=1 na URL
 
   if (DEMO_MODE) {
     console.warn('⚠️ MODO DEMO ATIVO — exibindo dados fictícios, sem conexão real com o Supabase.');
