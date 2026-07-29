@@ -60,6 +60,36 @@
   --t-fast:.15s ease;
 }
 
+/* ===== Visual "vídeo" — só ativo com ?demo=1 (body.demo-video) ===== */
+body.demo-video #page-resumo .kpi-card{
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg,#ffffff 0%,#f4f9ee 100%);
+  animation:demoFadeUp .5s ease both;
+}
+body.demo-video #page-resumo .kpi-card:nth-of-type(2){animation-delay:.06s;}
+body.demo-video #page-resumo .kpi-card:nth-of-type(3){animation-delay:.12s;}
+body.demo-video #page-resumo .kpi-card:nth-of-type(4){animation-delay:.18s;}
+body.demo-video #page-resumo .kpi-card:nth-of-type(5){animation-delay:.24s;}
+body.demo-video #page-resumo .kpi-card:nth-of-type(6){animation-delay:.30s;}
+body.demo-video #page-resumo .kpi-card::after{
+  content:"";position:absolute;top:-30px;right:-30px;width:110px;height:110px;
+  border-radius:50%;background:radial-gradient(circle,rgba(42,107,15,.10) 0%,rgba(42,107,15,0) 70%);
+  pointer-events:none;
+}
+body.demo-video #page-resumo .kpi-card .value{
+  background:linear-gradient(135deg,var(--pv-green-dark),var(--pv-green));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+body.demo-video #page-resumo .kpi-card:hover{
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 12px 28px rgba(42,107,15,.16);
+}
+body.demo-video #page-resumo .panel{animation:demoFadeUp .5s ease .36s both;}
+@keyframes demoFadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+body.demo-video #page-resumo .page-header h2::after{
+  content:" · demonstração";font-size:12px;font-weight:600;color:var(--text-secondary);
+}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 html{-webkit-text-size-adjust:100%;}
@@ -1770,6 +1800,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
   if (DEMO_MODE) {
     console.warn('⚠️ MODO DEMO ATIVO — exibindo dados fictícios, sem conexão real com o Supabase.');
+    document.addEventListener('DOMContentLoaded', () => document.body.classList.add('demo-video'));
 
     const jsonResponse = (data) => new Response(JSON.stringify(data), {
       status: 200, headers: { 'Content-Type': 'application/json' }
