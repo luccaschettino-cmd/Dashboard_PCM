@@ -1735,6 +1735,26 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
               elPill.style.background = acima ? 'var(--pv-green-light)' : 'var(--pv-red-light)';
               elPill.style.color      = acima ? 'var(--pv-green)'       : 'var(--pv-red)';
             }
+
+            // Recalcula criticidade (Urgente/Alta/Normal) a partir do mesmo período filtrado
+            const totUrg    = dados.reduce((a, m) => a + (m.urgente || 0), 0);
+            const totAlta   = dados.reduce((a, m) => a + (m.alta    || 0), 0);
+            const totNormal = dados.reduce((a, m) => a + (m.normal  || 0), 0);
+
+            DATA.intranet.criticidade = { urgente: totUrg, alta: totAlta, normal: totNormal };
+
+            document.querySelectorAll('[data-kpi]').forEach(el => {
+              const k = el.dataset.kpi;
+              if (k === 'urgente') el.textContent = totUrg;
+              if (k === 'alta')    el.textContent = totAlta;
+              if (k === 'normal')  el.textContent = totNormal;
+            });
+
+            const chCrit = charts.get('criticidade');
+            if (chCrit) {
+              chCrit.data.datasets[0].data = [totUrg, totAlta, totNormal];
+              chCrit.update();
+            }
           }
         } catch(e) { console.warn('Erro filtro OS:', e); }
 
@@ -1825,10 +1845,13 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     const demoPlanejamento = Array.from({ length: 12 }, (_, i) => {
       const programadas = 8 + Math.round(Math.random() * 4);
       const concluidas = Math.round(programadas * (0.8 + Math.random() * 0.15));
+      const restante = programadas - concluidas;
+      const nao_realizadas = Math.round(restante * 0.4);
+      const reprogramadas = restante - nao_realizadas;
       return {
         mes: MESES[Math.floor(i / 4.35)], mes_num: Math.floor(i / 4.35) + 1,
         semana_num: i + 1, semana_label: 'Semana ' + (i + 1),
-        programadas, concluidas
+        programadas, concluidas, nao_realizadas, reprogramadas
       };
     });
 
@@ -2279,7 +2302,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
     // Tabela
     tbody.innerHTML = '';
     semanas.forEach(s => {
-      const ader = s.aderencia || 0;
+      const ader = s.programadas ? (s.concluidas || 0) / s.programadas * 100 : 0;
       const cor = ader >= DATA.planejamento.meta ? '#2d6a2d' : ader >= 70 ? '#b8860b' : '#c0392b';
       const bg  = ader >= DATA.planejamento.meta ? '#f0faf0' : ader >= 70 ? '#fffbf0' : '#fdf0f0';
       const tr = document.createElement('tr');
@@ -2297,7 +2320,7 @@ footer .l2{font-size:var(--fs-sm);color:var(--pv-green);font-weight:600;margin-t
 
     // Gráfico de barras
     const labels = semanas.map(s => s.semana_label || 'Sem ' + s.semana_num);
-    const adSem  = semanas.map(s => s.aderencia || 0);
+    const adSem  = semanas.map(s => s.programadas ? (s.concluidas || 0) / s.programadas * 100 : 0);
     const cores  = adSem.map(v => v >= DATA.planejamento.meta ? PALETA.green : v >= 70 ? PALETA.gold : PALETA.red);
 
     const canvas = document.getElementById('chart-semanas-barras');
